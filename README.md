@@ -1,271 +1,242 @@
-# Virtual Product Gallery Web3 - CV Banbuk Mandiri Jaya
+# 🛍️ Virtual Product Gallery Web3
 
-Platform modern untuk pengelolaan produk dan penjualan dengan dukungan pembayaran cryptocurrency (Ethereum).
+Platform e-commerce modern untuk **CV Banbuk Mandiri Jaya** dengan dukungan pembayaran cryptocurrency.
 
-## 🚀 Fitur Utama
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat&logo=next.js&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=flat&logo=prisma&logoColor=white)
+![Ethereum](https://img.shields.io/badge/Ethereum-3C3C3D?style=flat&logo=ethereum&logoColor=white)
+
+---
+
+## ✨ Features
 
 ### 👥 3 Role User
-- **ADMIN**: Kelola produk, user, inquiry, dan lihat laporan
-- **SALES**: Kelola inquiry yang di-assign, update status, hubungi customer
-- **CUSTOMER**: Lihat produk, wishlist, inquiry, dan pembayaran
+- **Admin** - Full access (kelola produk, user, inquiry, laporan)
+- **Sales** - Kelola inquiry, hubungi customer via WhatsApp
+- **Customer** - Lihat produk, wishlist, inquiry, pembayaran
 
-### 🛍️ Fitur Produk
-- CRUD produk (Admin)
-- Katalog produk dengan detail lengkap
-- Wishlist untuk customer
-- Sistem inquiry
-- Produk terpopuler berdasarkan inquiry
+### 💰 Payment Methods
+- 💳 **Payment Gateway** (Midtrans) - Bank Transfer, E-Wallet, QRIS, dll
+- 🔐 **Crypto Payment** (Ethereum) - MetaMask, Sepolia Testnet
+- 💵 **Manual Payment** - Simulasi untuk testing
 
-### 💰 Pembayaran
-- Pembayaran regular
-- Pembayaran dengan Ethereum (ETH)
-- Integrasi MetaMask
-- Smart Contract di Sepolia Testnet
+### 🎯 Core Features
+- ✅ Product Management (CRUD)
+- ✅ Inquiry System dengan assignment ke sales
+- ✅ Wishlist
+- ✅ Dashboard dengan statistik
+- ✅ WhatsApp Integration
+- ✅ Smart Contract di Sepolia Testnet
 
-### 📊 Dashboard
-- Dashboard Admin: statistik lengkap, produk terpopuler, revenue
-- Dashboard Sales: inquiry yang ditangani
-- Dashboard Customer: inquiry, wishlist, transaksi
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js 18+
+- npm atau yarn
+
+### Installation
+
+```bash
+# 1. Clone repository
+git clone https://github.com/rhmatzeka/CVBanbukStore.git
+cd CVBanbukStore
+
+# 2. Install dependencies
+npm install
+
+# 3. Setup environment
+cp .env.example .env
+# Edit .env dan isi NEXTAUTH_SECRET
+
+# 4. Setup database
+npx prisma generate
+npx prisma migrate dev
+npx prisma db seed
+
+# 5. Run development server
+npm run dev
+```
+
+Buka http://localhost:3000
+
+### Demo Accounts
+
+```
+Admin:    admin@test.com    / admin123
+Sales:    sales@test.com    / sales123
+Customer: customer@test.com / customer123
+```
+
+---
 
 ## 🧱 Tech Stack
 
-### Frontend
+**Frontend:**
 - Next.js 14 (App Router)
 - TypeScript
 - Tailwind CSS
-- NextAuth.js (Authentication)
+- NextAuth.js
 
-### Backend
+**Backend:**
 - Next.js API Routes
 - Prisma ORM
-- SQLite Database
+- SQLite (dev) / MySQL (prod)
 
-### Web3
-- Solidity (Smart Contract)
-- Hardhat (Development Framework)
-- ethers.js (Web3 Library)
-- MetaMask Integration
+**Web3:**
+- Solidity 0.8.19
+- Hardhat
+- ethers.js v6
+- MetaMask
 
-## 📦 Instalasi
+---
 
-### 1. Clone & Install Dependencies
+## 📦 Project Structure
 
-```bash
-# Install dependencies untuk Next.js
-npm install
-
-# Install dependencies untuk Hardhat (smart contract)
-cd contracts
-npm install
-cd ..
+```
+├── app/                    # Next.js pages & API routes
+├── components/             # React components
+├── contracts/              # Smart contracts (Solidity)
+├── scripts/                # Deployment scripts
+├── lib/                    # Utilities & config
+├── prisma/                 # Database schema & migrations
+└── types/                  # TypeScript types
 ```
 
-### 2. Setup Environment Variables
+---
 
-Buat file `.env` di root project:
+## 🔐 Smart Contract
 
-```env
-DATABASE_URL="file:./dev.db"
-NEXTAUTH_SECRET="ganti-dengan-random-string-panjang"
-NEXTAUTH_URL="http://localhost:3000"
-
-# Web3 Configuration (isi setelah deploy contract)
-NEXT_PUBLIC_CONTRACT_ADDRESS=""
-NEXT_PUBLIC_RPC_URL="https://sepolia.infura.io/v3/YOUR_INFURA_KEY"
-PRIVATE_KEY="your-wallet-private-key"
-
-# WhatsApp
-NEXT_PUBLIC_WHATSAPP_NUMBER="62XXXXXXXXXX"
+**Contract Address (Sepolia):**
+```
+0xd23F22620160b0f05D16eba0F9D7D979709bA44D
 ```
 
-**Cara mendapatkan Infura Key:**
-1. Daftar di https://infura.io
-2. Buat project baru
-3. Copy API Key untuk Sepolia
+**View on Etherscan:**
+https://sepolia.etherscan.io/address/0xd23F22620160b0f05D16eba0F9D7D979709bA44D
 
-**Cara mendapatkan Private Key:**
-1. Buka MetaMask
-2. Klik 3 titik > Account Details > Export Private Key
-3. ⚠️ JANGAN SHARE PRIVATE KEY KE SIAPAPUN!
-
-### 3. Setup Database
+### Deploy Contract
 
 ```bash
-# Generate Prisma Client
-npx prisma generate
-
-# Jalankan migration
-npx prisma migrate dev --name init
-
-# (Optional) Buka Prisma Studio untuk lihat database
-npx prisma studio
-```
-
-### 4. Seed Database (Optional)
-
-Buat file `prisma/seed.ts` untuk data dummy:
-
-```bash
-npx prisma db seed
-```
-
-## 🔐 Deploy Smart Contract
-
-### 1. Compile Contract
-
-```bash
+# Compile
 npx hardhat compile
-```
 
-### 2. Deploy ke Sepolia Testnet
-
-```bash
+# Deploy to Sepolia
 npx hardhat run scripts/deploy.js --network sepolia
 ```
 
-Output akan menampilkan contract address. Copy dan paste ke `.env`:
+---
+
+## 🌐 Environment Variables
 
 ```env
-NEXT_PUBLIC_CONTRACT_ADDRESS="0xYourContractAddress"
-```
+# Database
+DATABASE_URL="file:./dev.db"
 
-### 3. Verify Contract (Optional)
+# NextAuth
+NEXTAUTH_SECRET="your-secret-key"
+NEXTAUTH_URL="http://localhost:3000"
 
-```bash
-npx hardhat verify --network sepolia YOUR_CONTRACT_ADDRESS
-```
+# Web3 (Optional - untuk crypto payment)
+NEXT_PUBLIC_CONTRACT_ADDRESS="0x..."
+NEXT_PUBLIC_RPC_URL="https://ethereum-sepolia-rpc.publicnode.com"
+PRIVATE_KEY="your-private-key"
 
-## 🏃 Menjalankan Aplikasi
+# Midtrans (Optional - untuk payment gateway)
+MIDTRANS_SERVER_KEY="your-server-key"
+NEXT_PUBLIC_MIDTRANS_CLIENT_KEY="your-client-key"
 
-```bash
-# Development mode
-npm run dev
-
-# Production build
-npm run build
-npm start
-```
-
-Buka browser: http://localhost:3000
-
-## 👤 Demo Accounts
-
-Setelah setup, buat user dengan role berbeda:
-
-**Admin:**
-- Email: admin@test.com
-- Password: admin123
-
-**Sales:**
-- Email: sales@test.com
-- Password: sales123
-
-**Customer:**
-- Email: customer@test.com
-- Password: customer123
-
-## 💳 Testing Pembayaran Crypto
-
-### 1. Install MetaMask
-
-Download: https://metamask.io
-
-### 2. Switch ke Sepolia Testnet
-
-1. Buka MetaMask
-2. Klik network dropdown
-3. Enable "Show test networks"
-4. Pilih "Sepolia"
-
-### 3. Dapatkan Sepolia ETH (Gratis)
-
-Kunjungi faucet:
-- https://sepolia-faucet.pk910.de
-- https://sepoliafaucet.com
-
-### 4. Test Pembayaran
-
-1. Login sebagai Customer
-2. Pilih produk
-3. Klik "Beli"
-4. Klik "Connect MetaMask"
-5. Approve connection
-6. Klik "Bayar Sekarang"
-7. Confirm transaksi di MetaMask
-8. Tunggu konfirmasi
-
-## 📱 Fitur WhatsApp
-
-Sales bisa hubungi customer via WhatsApp dengan format:
-
-```
-https://wa.me/62XXXXXXXXXX?text=Saya%20tertarik%20produk%20[NAMA_PRODUK]
-```
-
-Ganti nomor di `.env`:
-
-```env
+# WhatsApp
 NEXT_PUBLIC_WHATSAPP_NUMBER="628123456789"
 ```
 
-## 📁 Struktur Project
+---
 
-```
-├── app/                    # Next.js App Router
-│   ├── api/               # API Routes
-│   ├── dashboard/         # Dashboard pages
-│   ├── products/          # Product pages
-│   ├── login/             # Auth pages
-│   └── ...
-├── components/            # React Components
-├── contracts/             # Smart Contracts (Solidity)
-├── scripts/               # Deployment scripts
-├── lib/                   # Utilities
-├── prisma/                # Database schema
-└── types/                 # TypeScript types
-```
+## 📱 Screenshots
 
-## 🔧 Troubleshooting
+### Homepage
+Landing page dengan informasi produk dan fitur
 
-### Database Error
+### Dashboard
+Dashboard berbeda untuk setiap role (Admin, Sales, Customer)
 
-```bash
-# Reset database
-rm prisma/dev.db
-npx prisma migrate reset
-```
+### Product Catalog
+Katalog produk dengan filter dan search
 
-### Contract Deployment Error
+### Crypto Payment
+Pembayaran dengan MetaMask dan Ethereum
 
-```bash
-# Pastikan ada balance di wallet
-# Cek RPC URL di .env
-# Cek private key valid
-```
+---
 
-### MetaMask Connection Error
+## 🧪 Testing
 
-- Pastikan MetaMask terinstall
-- Switch ke Sepolia network
-- Refresh halaman
+### Manual Payment (Tanpa Setup)
+1. Login sebagai customer
+2. Pilih produk → Beli
+3. Pilih "Manual Payment"
+4. Klik "Bayar Sekarang"
 
-## 📚 Resources
+### Crypto Payment (Perlu Setup)
+1. Install MetaMask
+2. Switch ke Sepolia Testnet
+3. Get Sepolia ETH dari faucet
+4. Connect wallet & bayar
 
-- [Next.js Docs](https://nextjs.org/docs)
-- [Prisma Docs](https://www.prisma.io/docs)
-- [Hardhat Docs](https://hardhat.org/docs)
-- [ethers.js Docs](https://docs.ethers.org)
-- [Solidity Docs](https://docs.soliditylang.org)
+---
 
-## 🤝 Support
+## 📚 API Endpoints
 
-Untuk pertanyaan atau bantuan, hubungi:
-- Email: support@banbuk.com
-- WhatsApp: +62XXXXXXXXXX
+### Authentication
+- `POST /api/auth/register` - Register user
+- `POST /api/auth/[...nextauth]` - Login/Logout
+
+### Products
+- `GET /api/products` - List products
+- `POST /api/products` - Create product (Admin)
+- `GET /api/products/[id]` - Get product
+- `PUT /api/products/[id]` - Update product (Admin)
+- `DELETE /api/products/[id]` - Delete product (Admin)
+
+### Inquiry
+- `GET /api/inquiry` - List inquiries (role-based)
+- `POST /api/inquiry` - Create inquiry
+- `PUT /api/inquiry/[id]` - Update inquiry
+
+### Transactions
+- `GET /api/transaction` - List transactions
+- `POST /api/transaction` - Create transaction
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+---
 
 ## 📄 License
 
-MIT License - CV Banbuk Mandiri Jaya
+This project is licensed under the MIT License.
+
+---
+
+## 👨‍💻 Developer
+
+**Rahmat Eka**
+- GitHub: [@rhmatzeka](https://github.com/rhmatzeka)
+- Project: CV Banbuk Mandiri Jaya
+
+---
+
+## 🙏 Acknowledgments
+
+- Next.js Team
+- Prisma Team
+- Hardhat Team
+- Midtrans
+- MetaMask
 
 ---
 
