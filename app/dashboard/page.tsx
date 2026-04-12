@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import AppNavbar from "@/components/AppNavbar";
 import InteractiveCard from "@/components/InteractiveCard";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -29,15 +30,40 @@ const roleCopy = {
     subtitle: "Lihat assignment yang aktif dan prioritaskan follow-up customer.",
   },
   CUSTOMER: {
-    title: "Dashboard Customer",
-    subtitle: "Cek wishlist, inquiry, dan riwayat transaksi Anda dengan cepat.",
+    title: "Akun Saya",
+    subtitle: "Lihat pesanan, wishlist, dan aktivitas akun Anda dari satu tampilan yang lebih rapi.",
   },
+};
+
+const formatDate = (dateValue: string | Date) =>
+  new Intl.DateTimeFormat("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(dateValue));
+
+const paymentLabelMap: Record<string, string> = {
+  MIDTRANS: "Gateway",
+  CRYPTO: "Ethereum",
+  REGULAR: "Manual",
+};
+
+const inquiryToneMap: Record<string, string> = {
+  PENDING: "bg-amber-500/15 text-amber-300",
+  SELESAI: "bg-emerald-500/15 text-emerald-300",
+  PROCESS: "bg-sky-500/15 text-sky-300",
 };
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [stats, setStats] = useState<any>(null);
+  const [salesInquiries, setSalesInquiries] = useState<any[]>([]);
+  const [customerActivity, setCustomerActivity] = useState({
+    transactions: [] as any[],
+    inquiries: [] as any[],
+    wishlists: [] as any[],
+  });
   const [loading, setLoading] = useState(true);
   const [chartPeriod, setChartPeriod] = useState<"daily" | "weekly" | "monthly" | "yearly">("daily");
   const [stockPeriod, setStockPeriod] = useState<"weekly" | "monthly">("weekly");
@@ -50,12 +76,52 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (session) {
-      fetchStats();
+      fetchDashboardData();
     }
   }, [session]);
 
-  const fetchStats = async () => {
+  const fetchDashboardData = async () => {
     try {
+      if (session?.user.role === "CUSTOMER") {
+        const [statsRes, transactionsRes, inquiriesRes, wishlistRes] = await Promise.all([
+          fetch("/api/stats"),
+          fetch("/api/transaction"),
+          fetch("/api/inquiry"),
+          fetch("/api/wishlist"),
+        ]);
+
+        const [statsData, transactionsData, inquiriesData, wishlistData] = await Promise.all([
+          statsRes.json(),
+          transactionsRes.json(),
+          inquiriesRes.json(),
+          wishlistRes.json(),
+        ]);
+
+        setStats(statsData);
+        setCustomerActivity({
+          transactions: Array.isArray(transactionsData) ? transactionsData.slice(0, 3) : [],
+          inquiries: Array.isArray(inquiriesData) ? inquiriesData.slice(0, 3) : [],
+          wishlists: Array.isArray(wishlistData) ? wishlistData.slice(0, 3) : [],
+        });
+        return;
+      }
+
+      if (session?.user.role === "SALES") {
+        const [statsRes, inquiriesRes] = await Promise.all([
+          fetch("/api/stats"),
+          fetch("/api/inquiry"),
+        ]);
+
+        const [statsData, inquiriesData] = await Promise.all([
+          statsRes.json(),
+          inquiriesRes.json(),
+        ]);
+
+        setStats(statsData);
+        setSalesInquiries(Array.isArray(inquiriesData) ? inquiriesData : []);
+        return;
+      }
+
       const res = await fetch("/api/stats");
       const data = await res.json();
       setStats(data);
@@ -87,9 +153,9 @@ export default function DashboardPage() {
     }
 
     return [
-      ["My Inquiry", stats.myInquiries, "Inquiry yang pernah Anda kirim"],
+      ["Inquiry Saya", stats.myInquiries, "Percakapan produk yang pernah Anda kirim"],
       ["Wishlist", stats.myWishlists, "Produk favorit yang Anda simpan"],
-      ["Transaksi", stats.myTransactions, "Pembayaran yang sudah tercatat"],
+      ["Pesanan", stats.myTransactions, "Pembayaran yang sudah tercatat di akun Anda"],
     ];
   }, [session, stats]);
 
@@ -180,6 +246,21 @@ export default function DashboardPage() {
     [stats]
   );
 
+  const salesPendingQueue = useMemo(
+    () => salesInquiries.filter((inquiry) => inquiry.status === "PENDING"),
+    [salesInquiries]
+  );
+
+  const salesRecentAssignments = useMemo(
+    () => salesInquiries.slice(0, 4),
+    [salesInquiries]
+  );
+
+  const salesPriorityInquiry = useMemo(
+    () => salesPendingQueue[0] ?? salesRecentAssignments[0] ?? null,
+    [salesPendingQueue, salesRecentAssignments]
+  );
+
   const exportProductsCsv = async () => {
     const res = await fetch("/api/products");
     const products = await res.json();
@@ -254,52 +335,453 @@ export default function DashboardPage() {
   }
 
   const currentRole = roleCopy[session.user.role as keyof typeof roleCopy];
+  const isAdmin = session.user.role === "ADMIN";
+  const isSales = session.user.role === "SALES";
+  const isCustomer = session.user.role === "CUSTOMER";
+  const latestTransaction = customerActivity.transactions[0];
 
   return (
     <main className="page-shell pb-16">
       <AppNavbar />
 
       <section className="content-wrap pt-8">
-        <div className="glass-panel editorial-shell grain-overlay px-6 py-8 sm:px-8 sm:py-10">
-          <span className="section-kicker">Overview</span>
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <h1 className="section-title">{currentRole.title}</h1>
-              <p className="section-subtitle">
-                {currentRole.subtitle} Selamat datang, {session.user.name}.
-              </p>
+        <div className={isCustomer || isSales ? "dashboard-lite-surface px-5 py-6 sm:px-6 sm:py-7" : "glass-panel editorial-shell grain-overlay px-6 py-8 sm:px-8 sm:py-10"}>
+          {isCustomer ? (
+            <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
+              <div>
+                <span className="section-kicker">Akun</span>
+                <h1 className="text-4xl font-semibold leading-[0.96] text-[color:var(--foreground)] sm:text-5xl">
+                  {currentRole.title}
+                </h1>
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-[color:var(--foreground-soft)] sm:text-base">
+                  {currentRole.subtitle} Selamat datang, {session.user.name}.
+                </p>
+
+                <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                  <Link href="/products" className="app-button-primary w-full sm:w-auto">
+                    Jelajahi Produk
+                  </Link>
+                  <Link href="/wishlist" className="app-button-secondary w-full sm:w-auto">
+                    Buka Wishlist
+                  </Link>
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="dashboard-lite-card px-4 py-4 text-sm text-slate-400">
+                  <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Email akun</p>
+                  <p className="mt-2 text-sm font-semibold text-slate-100 break-all">{session.user.email}</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">
+                    Gunakan akun ini untuk melihat wishlist, inquiry, dan pembayaran Anda.
+                  </p>
+                </div>
+                <div className="dashboard-lite-card px-4 py-4 text-sm text-slate-400">
+                  <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Aktivitas terbaru</p>
+                  <p className="mt-2 text-sm font-semibold text-slate-100">
+                    {latestTransaction ? latestTransaction.product?.name ?? "Pembayaran terbaru" : "Belum ada pesanan"}
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">
+                    {latestTransaction
+                      ? `Pembayaran ${paymentLabelMap[latestTransaction.paymentType] ?? latestTransaction.paymentType} tercatat pada ${formatDate(latestTransaction.createdAt)}.`
+                      : "Mulai dari katalog produk untuk menyimpan wishlist atau melanjutkan checkout."}
+                  </p>
+                </div>
+              </div>
             </div>
-            <div className="glass-card px-5 py-4 text-sm text-slate-400">
-              <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Role aktif</p>
-              <p className="mt-2 text-xl font-semibold text-slate-100">{session.user.role}</p>
+          ) : isSales ? (
+            <div className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr] lg:items-end">
+              <div>
+                <span className="section-kicker">Sales Desk</span>
+                <h1 className="text-4xl font-semibold leading-[0.96] text-[color:var(--foreground)] sm:text-5xl">
+                  Dashboard Sales
+                </h1>
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-[color:var(--foreground-soft)] sm:text-base">
+                  Fokus pada inquiry yang aktif, follow-up tercepat, dan assignment terbaru. Selamat datang, {session.user.name}.
+                </p>
+
+                <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                  <Link href="/inquiry" className="app-button-primary w-full sm:w-auto">
+                    Buka Assignment
+                  </Link>
+                  <Link href="/products" className="app-button-secondary w-full sm:w-auto">
+                    Lihat Produk
+                  </Link>
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="dashboard-lite-card px-4 py-4 text-sm text-slate-400">
+                  <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Prioritas sekarang</p>
+                  <p className="mt-2 text-sm font-semibold text-slate-100">
+                    {salesPriorityInquiry?.product?.name ?? "Belum ada assignment aktif"}
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">
+                    {salesPriorityInquiry
+                      ? `${salesPriorityInquiry.user?.name ?? "Customer"} menunggu follow-up sejak ${formatDate(salesPriorityInquiry.createdAt)}.`
+                      : "Semua assignment sudah rapi. Anda bisa cek inquiry terbaru untuk menjaga respons tetap cepat."}
+                  </p>
+                </div>
+                <div className="dashboard-lite-card px-4 py-4 text-sm text-slate-400">
+                  <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Role aktif</p>
+                  <p className="mt-2 text-2xl font-semibold text-slate-50">SALES</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">
+                    Gunakan dashboard ini untuk memprioritaskan inquiry yang perlu respon lebih dulu.
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
+          ) : (
+            <>
+              <span className="section-kicker">Overview</span>
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <div>
+                  <h1 className="section-title">{currentRole.title}</h1>
+                  <p className="section-subtitle">
+                    {currentRole.subtitle} Selamat datang, {session.user.name}.
+                  </p>
+                </div>
+                <div className="glass-card px-5 py-4 text-sm text-slate-400">
+                  <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Role aktif</p>
+                  <p className="mt-2 text-xl font-semibold text-slate-100">{session.user.role}</p>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </section>
 
-      <section className="content-wrap mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+      <section className={`content-wrap mt-8 grid gap-4 ${isCustomer || isSales ? "md:grid-cols-3" : "md:grid-cols-2 xl:grid-cols-4"}`}>
         {quickStats.map(([label, value, helper]) => (
-          <InteractiveCard key={String(label)} className="metric-card">
-            <p className="metric-label">{label}</p>
-            <p className="metric-value">{value ?? 0}</p>
+          <InteractiveCard
+            key={String(label)}
+            disabled={isCustomer || isSales}
+            className={isCustomer || isSales ? "dashboard-lite-card px-4 py-4" : "metric-card"}
+          >
+            <p className={isCustomer || isSales ? "text-[11px] uppercase tracking-[0.2em] text-slate-500" : "metric-label"}>{label}</p>
+            <p className={isCustomer || isSales ? "mt-3 text-2xl font-semibold text-slate-50" : "metric-value"}>{value ?? 0}</p>
             <p className="mt-2 text-sm leading-6 text-slate-400">{helper}</p>
           </InteractiveCard>
         ))}
       </section>
 
-      {session.user.role === "ADMIN" && stats && (
+      {isSales && (
+        <>
+          <section className="content-wrap mt-8 grid gap-5 xl:grid-cols-[0.92fr_1.08fr]">
+            <div className="dashboard-lite-surface p-5 sm:p-6">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Focus</p>
+                  <h2 className="mt-2 text-xl font-medium tracking-tight text-slate-50">Prioritas follow-up</h2>
+                </div>
+                <Link href="/inquiry" className="text-sm font-semibold text-slate-200 hover:text-white">
+                  Buka inquiry
+                </Link>
+              </div>
+
+              <div className="mt-5 grid gap-3">
+                {salesPendingQueue.length ? (
+                  salesPendingQueue.slice(0, 3).map((inquiry) => (
+                    <InteractiveCard key={inquiry.id} disabled className="dashboard-lite-card p-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="text-sm font-semibold text-slate-50">{inquiry.product?.name ?? "Produk"}</p>
+                          <p className="mt-1.5 text-sm leading-6 text-slate-400">
+                            {inquiry.user?.name ?? "Customer"} • {formatDate(inquiry.createdAt)}
+                          </p>
+                        </div>
+                        <span className={`status-pill ${inquiryToneMap[inquiry.status] ?? "bg-white/10 text-slate-300"}`}>
+                          {inquiry.status}
+                        </span>
+                      </div>
+                      <p className="mt-3 text-sm leading-6 text-slate-300">
+                        {inquiry.message ? inquiry.message : "Belum ada pesan tambahan pada inquiry ini."}
+                      </p>
+                    </InteractiveCard>
+                  ))
+                ) : (
+                  <div className="dashboard-lite-card px-5 py-8 text-center text-slate-300">
+                    Tidak ada inquiry pending saat ini. Anda bisa lanjut mengecek assignment terbaru.
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="dashboard-lite-surface p-5 sm:p-6">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Workflow</p>
+                  <h2 className="mt-2 text-xl font-medium tracking-tight text-slate-50">Ritme kerja hari ini</h2>
+                </div>
+                <span className="status-pill bg-white/10 text-slate-300">Sales</span>
+              </div>
+
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                <div className="dashboard-lite-card p-4">
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">Pending aktif</p>
+                  <p className="mt-3 text-2xl font-semibold text-amber-300">{stats?.pendingInquiries ?? 0}</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">Butuh follow-up lebih dulu agar tidak menumpuk.</p>
+                </div>
+                <div className="dashboard-lite-card p-4">
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">Selesai</p>
+                  <p className="mt-3 text-2xl font-semibold text-emerald-300">{stats?.completedInquiries ?? 0}</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">Inquiry yang sudah ditutup dengan rapi.</p>
+                </div>
+                <div className="dashboard-lite-card p-4">
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">Total assignment</p>
+                  <p className="mt-3 text-2xl font-semibold text-slate-50">{stats?.assignedInquiries ?? 0}</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">Semua inquiry yang sedang Anda pegang.</p>
+                </div>
+              </div>
+
+              <div className="dashboard-lite-card mt-4 p-4">
+                <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Rekomendasi singkat</p>
+                <p className="mt-3 text-sm leading-7 text-slate-300">
+                  Mulai dari inquiry pending paling lama, lalu lanjut ke assignment terbaru agar waktu respon tetap terasa cepat di sisi customer.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section className="content-wrap mt-8">
+            <div className="dashboard-lite-surface p-5 sm:p-6">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Assignments</p>
+                  <h2 className="mt-2 text-xl font-medium tracking-tight text-slate-50">Assignment terbaru</h2>
+                </div>
+                <Link href="/inquiry" className="text-sm font-semibold text-slate-200 hover:text-white">
+                  Lihat semua
+                </Link>
+              </div>
+
+              <div className="mt-5 grid gap-3 lg:grid-cols-2">
+                {salesRecentAssignments.length ? (
+                  salesRecentAssignments.map((inquiry) => (
+                    <InteractiveCard key={inquiry.id} disabled className="dashboard-lite-card p-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="text-sm font-semibold text-slate-50">{inquiry.product?.name ?? "Produk"}</p>
+                          <p className="mt-1.5 text-sm leading-6 text-slate-400">
+                            {inquiry.user?.name ?? "Customer"} • {formatDate(inquiry.createdAt)}
+                          </p>
+                        </div>
+                        <span className={`status-pill ${inquiryToneMap[inquiry.status] ?? "bg-white/10 text-slate-300"}`}>
+                          {inquiry.status}
+                        </span>
+                      </div>
+                      <p className="mt-3 text-sm leading-6 text-slate-300">
+                        {inquiry.message ? inquiry.message : "Belum ada pesan tambahan pada assignment ini."}
+                      </p>
+                    </InteractiveCard>
+                  ))
+                ) : (
+                  <div className="dashboard-lite-card px-5 py-8 text-center text-slate-300 lg:col-span-2">
+                    Belum ada assignment yang masuk untuk akun sales ini.
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+        </>
+      )}
+
+      {isCustomer && (
+        <>
+          <section className="content-wrap mt-8 grid gap-5 xl:grid-cols-[0.88fr_1.12fr]">
+            <div className="dashboard-lite-surface p-5 sm:p-6">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Shortcut</p>
+                  <h2 className="mt-2 text-xl font-medium tracking-tight text-slate-50">Akses cepat</h2>
+                </div>
+                <span className="status-pill bg-white/10 text-slate-300">Customer</span>
+              </div>
+
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <Link href="/products" className="dashboard-lite-card p-4 transition-colors hover:border-[color:var(--primary)]/20 hover:bg-white/[0.05]">
+                  <p className="text-sm font-semibold text-slate-50">Lihat katalog</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">Temukan produk baru dan lanjutkan ke pembayaran saat sudah siap.</p>
+                </Link>
+                <Link href="/wishlist" className="dashboard-lite-card p-4 transition-colors hover:border-[color:var(--primary)]/20 hover:bg-white/[0.05]">
+                  <p className="text-sm font-semibold text-slate-50">Wishlist saya</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">Buka daftar favorit untuk meninjau item yang ingin dibeli lebih dulu.</p>
+                </Link>
+              </div>
+
+              <div className="dashboard-lite-card mt-4 p-4">
+                <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Profil singkat</p>
+                <div className="mt-3 space-y-3 text-sm text-slate-300">
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-slate-500">Nama</span>
+                    <span className="font-medium text-slate-100">{session.user.name}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-slate-500">Email</span>
+                    <span className="font-medium text-slate-100 break-all text-right">{session.user.email}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className="text-slate-500">Role</span>
+                    <span className="font-medium text-slate-100">Customer</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="dashboard-lite-surface p-5 sm:p-6">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Orders</p>
+                  <h2 className="mt-2 text-xl font-medium tracking-tight text-slate-50">Pesanan terbaru</h2>
+                </div>
+                <span className="status-pill bg-[color:var(--primary)]/10 text-[color:var(--primary)]">
+                  {customerActivity.transactions.length} tercatat
+                </span>
+              </div>
+
+              <div className="mt-5 grid gap-3">
+                {customerActivity.transactions.length ? (
+                  customerActivity.transactions.map((transaction) => (
+                    <InteractiveCard key={transaction.id} disabled className="dashboard-lite-card p-4">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                          <p className="text-sm font-semibold text-slate-50">{transaction.product?.name ?? "Produk"}</p>
+                          <p className="mt-1.5 text-sm leading-6 text-slate-400">
+                            Dibayar pada {formatDate(transaction.createdAt)}
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="status-pill bg-white/10 text-slate-300">
+                            {paymentLabelMap[transaction.paymentType] ?? transaction.paymentType}
+                          </span>
+                          <span className="status-pill bg-emerald-500/15 text-emerald-300">
+                            {transaction.status}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="mt-3 flex items-center justify-between gap-4">
+                        <p className="text-base font-semibold text-[color:var(--primary)]">
+                          Rp {transaction.amount.toLocaleString("id-ID")}
+                        </p>
+                        <Link href={`/products/${transaction.productId}/payment`} className="text-sm font-semibold text-slate-200 hover:text-white">
+                          Bayar lagi
+                        </Link>
+                      </div>
+                    </InteractiveCard>
+                  ))
+                ) : (
+                  <div className="rounded-[24px] border border-white/8 bg-[#141416]/55 px-5 py-8 text-center text-slate-300">
+                    <p>Belum ada pesanan yang tercatat.</p>
+                    <Link href="/products" className="mt-4 inline-flex font-semibold text-slate-200 hover:text-white">
+                      Mulai belanja
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+
+          <section className="content-wrap mt-8 grid gap-5 xl:grid-cols-2">
+            <div className="dashboard-lite-surface p-5 sm:p-6">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Wishlist</p>
+                  <h2 className="mt-2 text-xl font-medium tracking-tight text-slate-50">Favorit terbaru</h2>
+                </div>
+                <Link href="/wishlist" className="text-sm font-semibold text-slate-200 hover:text-white">
+                  Lihat semua
+                </Link>
+              </div>
+
+              <div className="mt-5 grid gap-3">
+                {customerActivity.wishlists.length ? (
+                  customerActivity.wishlists.map((item) => (
+                    <InteractiveCard key={item.id} disabled className="dashboard-lite-card p-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="text-sm font-semibold text-slate-50">{item.product?.name}</p>
+                          <p className="mt-1.5 text-sm leading-6 text-slate-400 line-clamp-2">
+                            {item.product?.description}
+                          </p>
+                        </div>
+                        <span className="status-pill bg-white/10 text-slate-300">Wishlist</span>
+                      </div>
+                      <div className="mt-3 flex items-center justify-between gap-4">
+                        <p className="text-sm font-semibold text-[color:var(--primary)]">
+                          Rp {item.product?.price?.toLocaleString("id-ID")}
+                        </p>
+                        <Link href={`/products/${item.productId}/payment`} className="text-sm font-semibold text-slate-200 hover:text-white">
+                          Checkout
+                        </Link>
+                      </div>
+                    </InteractiveCard>
+                  ))
+                ) : (
+                  <div className="rounded-[24px] border border-white/8 bg-[#141416]/55 px-5 py-8 text-center text-slate-300">
+                    <p>Wishlist Anda masih kosong.</p>
+                    <Link href="/products" className="mt-4 inline-flex font-semibold text-slate-200 hover:text-white">
+                      Temukan produk
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="dashboard-lite-surface p-5 sm:p-6">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Inquiry</p>
+                  <h2 className="mt-2 text-xl font-medium tracking-tight text-slate-50">Percakapan terbaru</h2>
+                </div>
+                <span className="status-pill bg-white/10 text-slate-300">Riwayat</span>
+              </div>
+
+              <div className="mt-5 grid gap-3">
+                {customerActivity.inquiries.length ? (
+                  customerActivity.inquiries.map((inquiry) => (
+                    <InteractiveCard key={inquiry.id} disabled className="dashboard-lite-card p-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="text-sm font-semibold text-slate-50">{inquiry.product?.name ?? "Produk"}</p>
+                          <p className="mt-1.5 text-sm leading-6 text-slate-400">
+                            Dikirim pada {formatDate(inquiry.createdAt)}
+                          </p>
+                        </div>
+                        <span className={`status-pill ${inquiryToneMap[inquiry.status] ?? "bg-white/10 text-slate-300"}`}>
+                          {inquiry.status}
+                        </span>
+                      </div>
+                      <p className="mt-3 text-sm leading-6 text-slate-300">
+                        {inquiry.message ? inquiry.message : "Belum ada pesan tambahan pada inquiry ini."}
+                      </p>
+                    </InteractiveCard>
+                  ))
+                ) : (
+                  <div className="rounded-[24px] border border-white/8 bg-[#141416]/55 px-5 py-8 text-center text-slate-300">
+                    <p>Belum ada inquiry yang tersimpan.</p>
+                    <Link href="/products" className="mt-4 inline-flex font-semibold text-slate-200 hover:text-white">
+                      Jelajahi produk
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+        </>
+      )}
+
+      {isAdmin && stats && (
         <section className="content-wrap mt-8 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
           <div className="glass-panel p-6 sm:p-8">
             <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-rose-300">Notifications</p>
-                <h2 className="mt-2 text-3xl font-semibold text-slate-50">Notifikasi sederhana</h2>
+               <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Notifications</p>
+                <h2 className="mt-2 text-2xl font-medium tracking-tight text-slate-50">Notifikasi sederhana</h2>
               </div>
-              <span className="status-pill bg-rose-500/15 text-rose-300">Admin alerts</span>
-            </div>
+              <span className="status-pill bg-[color:var(--primary)]/10 text-[color:var(--primary)] border border-[color:var(--primary)]/20">Admin alerts</span>
+             </div>
 
             <div className="mt-6 space-y-4">
-              <InteractiveCard className="glass-card p-4">
+              <InteractiveCard className="glass-card p-5">
                 <p className="text-sm font-semibold text-slate-50">Inquiry baru menunggu tindak lanjut</p>
                 <p className="mt-2 text-sm text-slate-300">
                   Saat ini ada {stats.pendingInquiries} inquiry dengan status pending.
@@ -323,9 +805,9 @@ export default function DashboardPage() {
           <div className="glass-panel p-6 sm:p-8">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-300">Export</p>
-                <h2 className="mt-2 text-3xl font-semibold text-slate-50">Unduh laporan</h2>
-                <p className="mt-3 text-sm leading-7 text-slate-300">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Export</p>
+                <h2 className="mt-2 text-2xl font-medium tracking-tight text-slate-50">Unduh laporan</h2>
+                <p className="mt-3 text-sm leading-relaxed text-slate-400">
                   Admin bisa mengekspor data produk, inquiry, dan ringkasan dashboard. CSV bisa dibuka di Excel.
                 </p>
               </div>
@@ -340,25 +822,25 @@ export default function DashboardPage() {
         </section>
       )}
 
-      {session.user.role === "ADMIN" && stats && (
+      {isAdmin && stats && (
         <section className="content-wrap mt-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
           <div className="glass-panel p-6 sm:p-8">
             <div className="flex items-center justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-teal-300">Insight</p>
-                <h2 className="mt-2 text-3xl font-semibold text-slate-50">Produk terpopuler</h2>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Insight</p>
+                <h2 className="mt-2 text-2xl font-medium tracking-tight text-slate-50">Produk terpopuler</h2>
               </div>
-              <span className="status-pill bg-teal-500/15 text-teal-300">Top inquiry</span>
+              <span className="status-pill bg-[color:var(--primary)]/10 text-[color:var(--primary)] border border-[color:var(--primary)]/20">Top inquiry</span>
             </div>
             <div className="mt-6 space-y-4">
               {stats.popularProducts?.length ? (
                 stats.popularProducts.map((item: any, index: number) => (
-                  <InteractiveCard key={index} className="glass-card flex items-center justify-between p-4">
+                  <InteractiveCard key={index} className="glass-card flex items-center justify-between p-5">
                     <div>
-                      <p className="text-lg font-semibold text-slate-50">{item.product?.name}</p>
-                      <p className="mt-1 text-sm text-slate-300">Produk ini sering masuk ke alur inquiry customer.</p>
+                      <p className="text-base font-semibold text-slate-50">{item.product?.name}</p>
+                      <p className="mt-1 text-sm text-slate-400">Produk ini sering masuk ke alur inquiry customer.</p>
                     </div>
-                    <span className="status-pill bg-slate-900 text-white">{item.inquiryCount} inquiry</span>
+                    <span className="status-pill bg-[#141416] text-[color:var(--primary)] border border-[color:var(--primary)]/20">{item.inquiryCount} inquiry</span>
                   </InteractiveCard>
                 ))
               ) : (
@@ -368,17 +850,17 @@ export default function DashboardPage() {
           </div>
 
           <div className="glass-panel p-6 sm:p-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-300">Revenue</p>
-            <h2 className="mt-2 text-3xl font-semibold text-slate-50">Ringkasan transaksi</h2>
-            <p className="mt-6 text-5xl font-semibold text-slate-50">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Revenue</p>
+            <h2 className="mt-2 text-2xl font-medium tracking-tight text-slate-50">Ringkasan transaksi</h2>
+            <p className="mt-6 text-4xl sm:text-5xl font-semibold text-slate-50 tracking-tight text-[color:var(--primary)]">
               Rp {stats.totalRevenue?.toLocaleString()}
             </p>
-            <p className="mt-3 text-sm leading-7 text-slate-300">
+            <p className="mt-3 text-sm leading-relaxed text-slate-400">
               Total {stats.totalTransactions} transaksi berhasil tersimpan di sistem.
             </p>
-            <div className="mt-8 rounded-[24px] bg-slate-900 px-5 py-5 text-white">
-              <p className="text-xs uppercase tracking-[0.22em] text-white/55">Aksi berikutnya</p>
-              <p className="mt-2 text-sm leading-7 text-white/75">
+            <div className="mt-8 rounded-[24px] bg-[#141416] border border-white/5 shadow-inner px-5 py-5 text-white">
+              <p className="text-xs uppercase tracking-[0.22em] text-[color:var(--primary)]/70 font-semibold">Aksi berikutnya</p>
+              <p className="mt-2 text-sm leading-relaxed text-slate-300">
                 Fokuskan pengecekan pada stok rendah dan inquiry pending agar tim sales bisa bergerak lebih cepat.
               </p>
             </div>
@@ -386,19 +868,19 @@ export default function DashboardPage() {
         </section>
       )}
 
-      {session.user.role === "ADMIN" && stats && (
+      {isAdmin && stats && (
         <section className="content-wrap mt-8">
           <div className="glass-panel p-6 sm:p-8">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-300">Sales chart</p>
-                <h2 className="mt-2 text-3xl font-semibold text-slate-50">Grafik penjualan admin</h2>
-                <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Sales chart</p>
+                <h2 className="mt-2 text-2xl font-medium tracking-tight text-slate-50">Grafik penjualan admin</h2>
+                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-400">
                   Pantau total penjualan berdasarkan transaksi yang sudah selesai. Tampilan bisa diganti per hari, minggu, bulan, atau tahun.
                 </p>
               </div>
 
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 mt-4 lg:mt-0">
                 {[
                   ["daily", "Per Hari"],
                   ["weekly", "Per Minggu"],
@@ -408,10 +890,10 @@ export default function DashboardPage() {
                   <button
                     key={value}
                     onClick={() => setChartPeriod(value as "daily" | "weekly" | "monthly" | "yearly")}
-                    className={`rounded-full px-4 py-2 text-sm font-semibold ${
+                    className={`rounded-full px-4 py-2 text-[13px] font-medium transition-colors ${
                       chartPeriod === value
-                        ? "bg-cyan-400 text-slate-950"
-                        : "bg-slate-950/70 text-slate-300"
+                        ? "bg-[color:var(--primary)] text-[#101012] shadow-md shadow-[#dcb37b]/20"
+                        : "bg-white/5 border border-white/5 text-slate-300 hover:bg-white/10"
                     }`}
                   >
                     {label}
@@ -420,14 +902,14 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="mt-8 h-[360px] rounded-[28px] border border-slate-800 bg-slate-950/55 p-4 sm:p-6">
+            <div className="mt-8 h-[360px] rounded-[24px] border border-white/5 bg-[#141416]/50 p-4 sm:p-6 shadow-inner">
               {salesChartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={salesChartData}>
                     <defs>
                       <linearGradient id="salesRevenue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#2dd4bf" stopOpacity={0.9} />
-                        <stop offset="100%" stopColor="#2dd4bf" stopOpacity={0.08} />
+                        <stop offset="0%" stopColor="#dcb37b" stopOpacity={0.9} />
+                        <stop offset="100%" stopColor="#dcb37b" stopOpacity={0.05} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid stroke="rgba(148,163,184,0.12)" vertical={false} />
@@ -448,10 +930,10 @@ export default function DashboardPage() {
                       labelStyle={{ color: "#f8fafc" }}
                       formatter={(value: number, _name, entry: any) => [entry.payload.revenueLabel, "Revenue"]}
                     />
-                    <Area
+                      <Area
                       type="monotone"
                       dataKey="revenue"
-                      stroke="#2dd4bf"
+                      stroke="#dcb37b"
                       strokeWidth={3}
                       fill="url(#salesRevenue)"
                     />
@@ -494,19 +976,19 @@ export default function DashboardPage() {
         </section>
       )}
 
-      {session.user.role === "ADMIN" && stats && (
+      {isAdmin && stats && (
         <section className="content-wrap mt-8">
           <div className="glass-panel p-6 sm:p-8">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-fuchsia-300">Stock movement</p>
-                <h2 className="mt-2 text-3xl font-semibold text-slate-50">Laporan pergerakan stok</h2>
-                <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Stock movement</p>
+                <h2 className="mt-2 text-2xl font-medium tracking-tight text-slate-50">Laporan pergerakan stok</h2>
+                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-400">
                   Untuk MVP, barang masuk dihitung dari stok awal saat produk dibuat dan barang keluar dihitung dari transaksi selesai.
                 </p>
               </div>
 
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 mt-4 lg:mt-0">
                 {[
                   ["weekly", "Mingguan"],
                   ["monthly", "Bulanan"],
@@ -514,8 +996,10 @@ export default function DashboardPage() {
                   <button
                     key={value}
                     onClick={() => setStockPeriod(value as "weekly" | "monthly")}
-                    className={`rounded-full px-4 py-2 text-sm font-semibold ${
-                      stockPeriod === value ? "bg-fuchsia-400 text-slate-950" : "bg-slate-950/70 text-slate-300"
+                    className={`rounded-full px-4 py-2 text-[13px] font-medium transition-colors ${
+                      stockPeriod === value 
+                        ? "bg-[color:var(--primary)] text-[#101012] shadow-md shadow-[#dcb37b]/20" 
+                        : "bg-white/5 border border-white/5 text-slate-300 hover:bg-white/10"
                     }`}
                   >
                     {label}
@@ -524,7 +1008,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="mt-8 h-[340px] rounded-[28px] border border-slate-800 bg-slate-950/55 p-4 sm:p-6">
+            <div className="mt-8 h-[340px] rounded-[24px] border border-white/5 bg-[#141416]/50 p-4 sm:p-6 shadow-inner">
               {stockMovementData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={stockMovementData}>
@@ -534,13 +1018,13 @@ export default function DashboardPage() {
                     <Tooltip
                       contentStyle={{
                         background: "rgba(2, 6, 23, 0.94)",
-                        border: "1px solid rgba(217, 70, 239, 0.2)",
+                        border: "1px solid rgba(220, 179, 123, 0.2)",
                         borderRadius: "18px",
                         color: "#e2e8f0",
                       }}
                     />
-                    <Bar dataKey="incoming" fill="#60a5fa" radius={[8, 8, 0, 0]} />
-                    <Bar dataKey="outgoing" fill="#f472b6" radius={[8, 8, 0, 0]} />
+                    <Bar dataKey="incoming" fill="#dcb37b" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="outgoing" fill="#5c4323" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
