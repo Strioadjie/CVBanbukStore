@@ -32,7 +32,8 @@ export async function POST(req: Request) {
     }
 
     // Get transaction status from Midtrans
-    const statusResponse = await coreApi.get().transaction.status(orderId);
+    const api = await coreApi.get();
+    const statusResponse = await api.transaction.status(orderId);
     const transactionStatus = statusResponse.transaction_status;
     const fraudStatus = statusResponse.fraud_status;
 

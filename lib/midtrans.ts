@@ -1,6 +1,3 @@
-// Midtrans Configuration
-import midtransClient from 'midtrans-client';
-
 // Check if Midtrans is configured
 export function isMidtransConfigured(): boolean {
   return !!(
@@ -15,12 +12,18 @@ export function isMidtransConfigured(): boolean {
 let snapInstance: any = null;
 let coreApiInstance: any = null;
 
-function getSnap() {
+async function getMidtransClient() {
+  const mod = await import("midtrans-client");
+  return mod.default ?? mod;
+}
+
+async function getSnap() {
   if (!isMidtransConfigured()) {
     throw new Error('Midtrans belum dikonfigurasi. Silakan setup MIDTRANS_SERVER_KEY dan MIDTRANS_CLIENT_KEY di .env');
   }
   
   if (!snapInstance) {
+    const midtransClient = await getMidtransClient();
     snapInstance = new midtransClient.Snap({
       isProduction: false, // Set true untuk production
       serverKey: process.env.MIDTRANS_SERVER_KEY || '',
@@ -30,12 +33,13 @@ function getSnap() {
   return snapInstance;
 }
 
-function getCoreApi() {
+async function getCoreApi() {
   if (!isMidtransConfigured()) {
     throw new Error('Midtrans belum dikonfigurasi');
   }
   
   if (!coreApiInstance) {
+    const midtransClient = await getMidtransClient();
     coreApiInstance = new midtransClient.CoreApi({
       isProduction: false,
       serverKey: process.env.MIDTRANS_SERVER_KEY || '',
@@ -89,7 +93,7 @@ export async function createMidtransTransaction(params: {
   };
 
   try {
-    const snapApi = getSnap();
+    const snapApi = await getSnap();
     const transaction = await snapApi.createTransaction(parameter);
     return {
       success: true,
@@ -115,7 +119,7 @@ export async function checkTransactionStatus(orderId: string) {
   }
 
   try {
-    const api = getCoreApi();
+    const api = await getCoreApi();
     const status = await api.transaction.status(orderId);
     return {
       success: true,
