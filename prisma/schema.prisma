@@ -1,0 +1,95 @@
+// Prisma Schema untuk Virtual Product Gallery Web3
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Model User dengan 3 role: ADMIN, SALES, CUSTOMER
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("CUSTOMER")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  inquiries       Inquiry[]
+  wishlists       Wishlist[]
+  transactions    Transaction[]
+  assignedInquiries Inquiry[] @relation("AssignedSales")
+}
+
+// Model Product
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  price       Float
+  stock       Int
+  description String
+  material    String   // Bahan
+  size        String   // Ukuran
+  image       String?  // URL gambar
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  inquiries    Inquiry[]
+  wishlists    Wishlist[]
+  transactions Transaction[]
+}
+
+// Model Inquiry (sistem inquiry untuk customer)
+model Inquiry {
+  id         String   @id @default(cuid())
+  productId  String
+  userId     String
+  status     String   @default("PENDING")
+  assignedTo String?  // ID sales yang ditugaskan
+  message    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  product Product @relation(fields: [productId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+  sales   User?   @relation("AssignedSales", fields: [assignedTo], references: [id])
+}
+
+// Model Wishlist
+model Wishlist {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  // Relations
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+}
+
+// Model Transaction (untuk pembayaran crypto & biasa)
+model Transaction {
+  id              String   @id @default(cuid())
+  userId          String
+  productId       String
+  amount          Float
+  paymentType     String
+  txHash          String?  // Hash transaksi blockchain
+  walletAddress   String?  // Alamat wallet pembeli
+  status          String   @default("PENDING")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  user    User    @relation(fields: [userId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+}
