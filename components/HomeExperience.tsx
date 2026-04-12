@@ -30,106 +30,136 @@ export default function HomeExperience() {
 
   useGSAP(
     () => {
-      const items = gsap.utils.toArray<HTMLElement>("[data-reveal]");
+      const mm = gsap.matchMedia();
 
-      gsap.set(items, { opacity: 0, y: 28 });
-      gsap.to(items, {
-        opacity: 1,
-        y: 0,
-        duration: 0.9,
-        ease: "power3.out",
-        stagger: 0.1,
-      });
+      mm.add(
+        {
+          reduceMotion: "(prefers-reduced-motion: reduce)",
+          desktop: "(min-width: 1024px)",
+        },
+        (context) => {
+          const { reduceMotion, desktop } = context.conditions ?? {};
+          const items = gsap.utils.toArray<HTMLElement>("[data-reveal]");
+
+          if (reduceMotion || items.length === 0) {
+            gsap.set(items, { clearProps: "all" });
+            return;
+          }
+
+          gsap.set(items, {
+            opacity: 0,
+            y: desktop ? 28 : 20,
+            willChange: "transform, opacity",
+          });
+
+          const tl = gsap.timeline({
+            defaults: {
+              duration: desktop ? 0.82 : 0.68,
+              ease: "power3.out",
+            },
+            onComplete: () => {
+              gsap.set(items, { clearProps: "willChange" });
+            },
+          });
+
+          tl.to(items, {
+            opacity: 1,
+            y: 0,
+            stagger: desktop ? 0.1 : 0.06,
+          });
+        }
+      );
+
+      return () => mm.revert();
     },
     { scope: rootRef }
   );
 
   return (
-    <div ref={rootRef}>
-      <section className="content-wrap pt-8 sm:pt-12">
-        <div className="glass-panel relative overflow-hidden px-6 py-8 sm:px-8 sm:py-10 lg:px-10">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_12%_18%,rgba(255,255,255,0.1),transparent_20%),radial-gradient(circle_at_84%_28%,rgba(255,255,255,0.09),transparent_22%),linear-gradient(135deg,rgba(255,255,255,0.02),transparent_45%,rgba(255,255,255,0.03))]" />
-          <div className="absolute -left-20 top-0 h-80 w-80 rounded-full border border-white/14 opacity-90" />
-          <div className="absolute -left-4 top-24 h-52 w-52 rounded-full border border-white/10 opacity-70" />
-          <div className="absolute left-[8%] top-[14%] h-44 w-44 rounded-full bg-white/10 blur-3xl" />
-          <div className="absolute left-[30%] top-[8%] h-px w-44 bg-gradient-to-r from-transparent via-white/35 to-transparent" />
-          <div className="absolute left-[42%] top-0 h-24 w-px bg-gradient-to-b from-transparent via-white/22 to-transparent" />
-          <div className="absolute right-4 top-8 h-64 w-64 rounded-full border border-white/12 opacity-85" />
-          <div className="absolute right-20 top-24 h-32 w-32 rounded-full border border-white/10 opacity-65" />
-          <div className="absolute right-[14%] top-[20%] h-52 w-52 rounded-full bg-white/10 blur-3xl" />
-          <div className="absolute bottom-12 left-10 h-px w-64 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
-          <div className="absolute bottom-7 left-28 h-px w-36 bg-gradient-to-r from-transparent via-white/24 to-transparent" />
-          <div className="absolute bottom-10 right-8 h-px w-60 bg-gradient-to-r from-transparent via-white/34 to-transparent" />
-          <div className="absolute right-10 top-[18%] h-32 w-px bg-gradient-to-b from-transparent via-white/22 to-transparent" />
-          <div className="absolute right-[28%] bottom-0 h-24 w-px bg-gradient-to-b from-transparent via-white/18 to-transparent" />
-          <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
-            <div className="max-w-3xl">
-              <span data-reveal className="section-kicker">
-                CV Banbuk Mandiri Jaya
-              </span>
-              <h1 data-reveal className="max-w-3xl text-5xl font-semibold leading-[0.98] text-slate-100 md:text-6xl xl:text-7xl">
-                Platform katalog produk dan pembayaran yang dirancang untuk operasional yang lebih rapi.
-              </h1>
-              <p data-reveal className="section-subtitle max-w-2xl">
-                Kelola produk, tindak lanjut inquiry, dan proses pembayaran dalam satu pengalaman yang terasa tenang, jelas, dan profesional.
-              </p>
+    <div ref={rootRef} className="flex flex-col relative z-20 min-h-[calc(100vh-140px)] justify-center">
+      <section className="content-wrap w-full max-w-5xl mx-auto flex flex-col items-center text-center mt-12 md:mt-16">
+        <h1 data-reveal className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.05] text-[#f2ede4] tracking-tight">
+          CV Banbuk <br />
+          Mandiri Jaya
+        </h1>
+        <p data-reveal className="mt-6 text-[17px] md:text-[19px] text-slate-300 tracking-wide font-medium">
+          Platform katalog produk, inquiry, dan pembayaran yang siap dipakai secara profesional.
+        </p>
 
-              <div data-reveal className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link href="/products" className="app-button-primary">
-                  Lihat Katalog
-                </Link>
-                <Link href="/register" className="app-button-secondary">
-                  Mulai sebagai Customer
-                </Link>
+        <div data-reveal className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <Link href="/register" className="app-button-primary w-full sm:w-auto px-8">
+            Mulai Sekarang
+          </Link>
+          <Link href="/products" className="app-button-secondary w-full sm:w-auto px-8">
+            Lihat Katalog
+          </Link>
+        </div>
+      </section>
+
+      <section className="content-wrap deferred-section w-full max-w-5xl mx-auto mt-20 md:mt-28">
+        <div data-reveal className="flex flex-col gap-4">
+          <h2 className="text-[13px] md:text-sm font-semibold text-slate-300 tracking-wide mb-2 text-left pl-2">
+            Platform Overview
+          </h2>
+
+          <div className="glass-panel flex items-center justify-between px-4 py-6 md:px-8 bg-white/5 border-white/10 rounded-2xl md:rounded-[24px]">
+            <button className="text-slate-500 hover:text-slate-300 transition-colors p-2">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <div className="flex-1 grid grid-cols-2 lg:grid-cols-4 gap-6 text-center divide-x divide-white/5">
+              <div className="flex flex-col items-center gap-3">
+                <svg className="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><rect width="14" height="18" x="5" y="3" rx="2"/><path d="M9 7h6"/><path d="M9 11h6"/><path d="M9 15h4"/></svg>
+                <span className="text-sm font-medium text-slate-300">Terstruktur</span>
+              </div>
+              <div className="flex flex-col items-center gap-3">
+                <svg className="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path d="M21 3v6h-6"/><path d="M21 3 9 15"/><path d="M3 21v-6h6"/><path d="M3 21 15 9"/></svg>
+                <span className="text-sm font-medium text-slate-300">Workflow</span>
+              </div>
+              <div className="flex flex-col items-center gap-3 hidden md:flex">
+                <svg className="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span className="text-sm font-medium text-slate-300">Siap untuk Tim</span>
+              </div>
+              <div className="flex flex-col items-center gap-3 hidden lg:flex">
+                <svg className="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="m16 11 2 2 4-4"/></svg>
+                <span className="text-sm font-medium text-slate-300">Siap untuk Customer</span>
               </div>
             </div>
+            <button className="text-slate-500 hover:text-slate-300 transition-colors p-2">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+          </div>
 
-            <div data-reveal className="rounded-[30px] border border-white/10 bg-white/5 p-6">
-              <p className="text-xs font-semibold uppercase tracking-[0.26em] text-[color:var(--primary)]">
-                Platform overview
-              </p>
-              <div className="mt-5 space-y-4">
-                <div className="rounded-[22px] bg-white/5 p-4">
-                  <p className="text-sm text-slate-500">Experience</p>
-                  <p className="mt-2 text-2xl font-semibold text-slate-100">Terstruktur dan siap digunakan</p>
-                </div>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-[22px] border border-white/10 bg-white/5 p-4">
-                    <p className="text-sm text-slate-500">Workflow</p>
-                    <p className="mt-2 text-lg font-semibold text-slate-100">Produk, inquiry, pembayaran</p>
-                  </div>
-                  <div className="rounded-[22px] border border-white/10 bg-white/5 p-4">
-                    <p className="text-sm text-slate-500">Availability</p>
-                    <p className="mt-2 text-lg font-semibold text-slate-100">Siap untuk tim internal dan customer</p>
-                  </div>
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border border-white/5 rounded-2xl md:rounded-[24px] bg-white/[0.02] overflow-hidden mt-2">
+            {experienceItems.map((item, idx) => (
+              <div key={item.label} className={`p-6 md:p-8 flex flex-col gap-2 ${idx !== experienceItems.length - 1 ? 'border-b md:border-b-0 md:border-r border-white/5' : ''}`}>
+                <h3 className="text-[11px] font-bold tracking-[0.1em] text-slate-400 uppercase">
+                  {item.label}
+                </h3>
+                <p className="text-[14px] leading-relaxed text-slate-300">
+                  {item.title}
+                </p>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="content-wrap mt-8">
-        <div className="grid gap-6 lg:grid-cols-3">
-          {experienceItems.map((item) => (
-            <article
-              key={item.label}
-              data-reveal
-              className="glass-card p-6"
-            >
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
-                {item.label}
-              </p>
-              <h2 className="mt-3 text-2xl font-semibold text-slate-100">
-                {item.title}
-              </h2>
-              <p className="mt-4 text-sm leading-7 text-slate-400">
-                {item.detail}
-              </p>
-            </article>
-          ))}
+      <footer data-reveal className="content-wrap deferred-section w-full max-w-5xl mx-auto mt-24 mb-8 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="flex items-center gap-6 text-[13px] text-slate-400">
+          <Link href="/" className="hover:text-slate-200 transition-colors">Home</Link>
+          <Link href="#" className="hover:text-[color:var(--primary)] transition-colors">About us</Link>
+          <Link href="#" className="hover:text-slate-200 transition-colors">Workflow</Link>
+          <Link href="#" className="hover:text-slate-200 transition-colors">Contact</Link>
         </div>
-      </section>
+        <a
+          href="https://github.com/rhmatzeka"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[13px] text-slate-400 transition-colors hover:text-slate-200"
+        >
+          matsganz@gmail.com
+        </a>
+      </footer>
     </div>
   );
 }

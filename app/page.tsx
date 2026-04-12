@@ -3,7 +3,7 @@ import HomeExperience from "@/components/HomeExperience";
 
 export default function Home() {
   return (
-    <main className="page-shell pb-16">
+    <main className="page-shell landing-shell pb-16">
       <AppNavbar />
       <HomeExperience />
     </main>
