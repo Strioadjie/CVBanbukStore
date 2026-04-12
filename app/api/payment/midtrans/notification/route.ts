@@ -3,6 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { coreApi } from "@/lib/midtrans";
 import crypto from "crypto";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 // Webhook untuk menerima notifikasi dari Midtrans
 export async function POST(req: Request) {
   try {
