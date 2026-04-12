@@ -1,15 +1,48 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 import AppNavbar from "@/components/AppNavbar";
 import Web3Payment from "@/components/Web3Payment";
 import MidtransPayment from "@/components/MidtransPayment";
 import ProductImage from "@/components/ProductImage";
 import InteractiveCard from "@/components/InteractiveCard";
 
+gsap.registerPlugin(useGSAP);
+
+const PAYMENT_METHODS = [
+  {
+    type: "MIDTRANS",
+    title: "Gateway",
+    helper: "Transfer bank, e-wallet, QRIS, dan metode umum lain.",
+    detail: "Checkout cepat dengan alur pembayaran yang paling familiar untuk customer.",
+  },
+  {
+    type: "CRYPTO",
+    title: "Crypto ETH",
+    helper: "Wallet Ethereum untuk pembayaran blockchain yang lebih fleksibel.",
+    detail: "Cocok untuk pembayaran on-chain dengan wallet Ethereum yang sudah terhubung.",
+  },
+  {
+    type: "REGULAR",
+    title: "Manual",
+    helper: "Pembayaran dicatat langsung untuk proses internal.",
+    detail: "Pilihan paling sederhana jika transaksi ingin dicatat manual oleh tim.",
+  },
+] as const;
+
 export default function PaymentPage() {
+  type PaymentNotice = {
+    id: number;
+    tone: "success" | "info" | "error";
+    title: string;
+    message: string;
+    redirectToDashboard?: boolean;
+  };
+
   const { data: session, status } = useSession();
   const router = useRouter();
   const params = useParams();
@@ -18,6 +51,11 @@ export default function PaymentPage() {
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [paymentType, setPaymentType] = useState<"MIDTRANS" | "CRYPTO" | "REGULAR">("MIDTRANS");
+  const [paymentNotice, setPaymentNotice] = useState<PaymentNotice | null>(null);
+  const selectorRef = useRef<HTMLDivElement>(null);
+  const detailPanelRef = useRef<HTMLDivElement>(null);
+  const noticeRef = useRef<HTMLDivElement>(null);
+  const noticeTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -30,6 +68,137 @@ export default function PaymentPage() {
       fetchProduct();
     }
   }, [productId]);
+
+  useEffect(() => {
+    return () => {
+      if (noticeTimeoutRef.current) {
+        window.clearTimeout(noticeTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  useGSAP(
+    () => {
+      const selectedCard = selectorRef.current?.querySelector<HTMLElement>(`[data-method="${paymentType}"]`);
+      const detailPanel = detailPanelRef.current;
+
+      if (selectedCard) {
+        const checkBadge = selectedCard.querySelector<HTMLElement>("[data-check-badge]");
+        const helperCopy = selectedCard.querySelector<HTMLElement>("[data-selected-copy]");
+
+        gsap.fromTo(
+          selectedCard,
+          { y: 10, scale: 0.985 },
+          {
+            y: 0,
+            scale: 1,
+            duration: 0.28,
+            ease: "power2.out",
+            clearProps: "transform",
+          }
+        );
+
+        if (checkBadge) {
+          gsap.fromTo(
+            checkBadge,
+            { scale: 0.72, autoAlpha: 0 },
+            {
+              scale: 1,
+              autoAlpha: 1,
+              duration: 0.24,
+              ease: "back.out(1.8)",
+              clearProps: "transform,opacity",
+            }
+          );
+        }
+
+        if (helperCopy) {
+          gsap.fromTo(
+            helperCopy,
+            { y: 8, autoAlpha: 0 },
+            {
+              y: 0,
+              autoAlpha: 1,
+              duration: 0.24,
+              ease: "power2.out",
+              clearProps: "transform,opacity",
+            }
+          );
+        }
+      }
+
+      if (detailPanel) {
+        gsap.fromTo(
+          detailPanel,
+          { y: 18, autoAlpha: 0 },
+          {
+            y: 0,
+            autoAlpha: 1,
+            duration: 0.32,
+            ease: "power2.out",
+            clearProps: "transform,opacity",
+          }
+        );
+      }
+    },
+    { dependencies: [paymentType], revertOnUpdate: true }
+  );
+
+  useGSAP(
+    () => {
+      if (!paymentNotice || !noticeRef.current) {
+        return;
+      }
+
+      gsap.fromTo(
+        noticeRef.current,
+        { y: 20, autoAlpha: 0, scale: 0.96 },
+        {
+          y: 0,
+          autoAlpha: 1,
+          scale: 1,
+          duration: 0.3,
+          ease: "power2.out",
+          clearProps: "transform,opacity",
+        }
+      );
+    },
+    { dependencies: [paymentNotice?.id], revertOnUpdate: true }
+  );
+
+  const activeMethod = PAYMENT_METHODS.find((method) => method.type === paymentType) ?? PAYMENT_METHODS[0];
+
+  const showPaymentNotice = (notice: Omit<PaymentNotice, "id">) => {
+    if (noticeTimeoutRef.current) {
+      window.clearTimeout(noticeTimeoutRef.current);
+      noticeTimeoutRef.current = null;
+    }
+
+    const nextNotice = {
+      ...notice,
+      id: Date.now(),
+    };
+
+    setPaymentNotice(nextNotice);
+
+    noticeTimeoutRef.current = window.setTimeout(() => {
+      if (nextNotice.redirectToDashboard) {
+        router.push("/dashboard");
+        return;
+      }
+
+      setPaymentNotice(null);
+    }, notice.redirectToDashboard ? 1800 : 3600);
+  };
+
+  const dismissPaymentNotice = () => {
+    if (noticeTimeoutRef.current) {
+      window.clearTimeout(noticeTimeoutRef.current);
+      noticeTimeoutRef.current = null;
+    }
+
+    setPaymentNotice(null);
+  };
 
   const fetchProduct = async () => {
     try {
@@ -55,14 +224,28 @@ export default function PaymentPage() {
         }),
       });
 
+      const data = await res.json().catch(() => null);
+
       if (res.ok) {
-        alert("Pembayaran berhasil!");
-        router.push("/dashboard");
+        showPaymentNotice({
+          tone: "success",
+          title: "Pembayaran berhasil",
+          message: "Pembayaran manual sudah tercatat dan pesanan Anda akan segera diproses.",
+          redirectToDashboard: true,
+        });
       } else {
-        alert("Pembayaran gagal");
+        showPaymentNotice({
+          tone: "error",
+          title: "Pembayaran gagal",
+          message: data?.error || "Pembayaran belum berhasil dicatat. Silakan coba lagi.",
+        });
       }
     } catch (error) {
-      alert("Terjadi kesalahan");
+      showPaymentNotice({
+        tone: "error",
+        title: "Terjadi kesalahan",
+        message: "Kami belum bisa menyimpan pembayaran manual Anda. Silakan ulangi beberapa saat lagi.",
+      });
     }
   };
 
@@ -81,11 +264,27 @@ export default function PaymentPage() {
       });
 
       if (res.ok) {
-        alert("Pembayaran crypto berhasil!");
-        router.push("/dashboard");
+        showPaymentNotice({
+          tone: "success",
+          title: "Pembayaran crypto berhasil",
+          message: "Transaksi blockchain Anda sudah tercatat dan kami akan mengarahkan Anda ke akun.",
+          redirectToDashboard: true,
+        });
+        return;
       }
+
+      const data = await res.json().catch(() => null);
+      showPaymentNotice({
+        tone: "error",
+        title: "Transaksi belum tersimpan",
+        message: data?.error || "Pembayaran berhasil di wallet, tetapi pencatatan transaksi belum selesai.",
+      });
     } catch (error) {
-      alert("Gagal menyimpan transaksi");
+      showPaymentNotice({
+        tone: "error",
+        title: "Gagal menyimpan transaksi",
+        message: "Pembayaran crypto berhasil dikirim, tetapi transaksi belum tersimpan di sistem.",
+      });
     }
   };
 
@@ -109,100 +308,279 @@ export default function PaymentPage() {
     <main className="page-shell pb-16">
       <AppNavbar />
 
+      {paymentNotice && (
+        <div className="pointer-events-none fixed inset-x-4 bottom-4 z-[130] flex justify-center sm:inset-x-auto sm:right-6 sm:w-auto sm:justify-end">
+          <div
+            ref={noticeRef}
+            className={`pointer-events-auto w-full max-w-[420px] rounded-[28px] border px-5 py-5 shadow-[0_30px_80px_rgba(0,0,0,0.35)] ${
+              paymentNotice.tone === "success"
+                ? "border-emerald-400/20 bg-[linear-gradient(135deg,rgba(16,40,28,0.96),rgba(11,18,15,0.98))]"
+                : paymentNotice.tone === "info"
+                  ? "border-sky-400/20 bg-[linear-gradient(135deg,rgba(15,34,48,0.96),rgba(10,16,22,0.98))]"
+                  : "border-rose-400/20 bg-[linear-gradient(135deg,rgba(52,20,24,0.96),rgba(18,12,14,0.98))]"
+            }`}
+          >
+            <div className="flex items-start gap-4">
+              <div
+                className={`mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${
+                  paymentNotice.tone === "success"
+                    ? "bg-emerald-400/15 text-emerald-300"
+                    : paymentNotice.tone === "info"
+                      ? "bg-sky-400/15 text-sky-300"
+                      : "bg-rose-400/15 text-rose-300"
+                }`}
+              >
+                {paymentNotice.tone === "success" ? (
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m5 12 5 5L20 7" />
+                  </svg>
+                ) : paymentNotice.tone === "info" ? (
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M12 8h.01" />
+                    <path d="M11 12h1v4h1" />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="m15 9-6 6" />
+                    <path d="m9 9 6 6" />
+                  </svg>
+                )}
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <p className="text-base font-semibold text-white">{paymentNotice.title}</p>
+                <p className="mt-2 text-sm leading-6 text-slate-300">{paymentNotice.message}</p>
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  {paymentNotice.redirectToDashboard ? (
+                    <button
+                      type="button"
+                      onClick={() => router.push("/dashboard")}
+                      className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#141416] transition-opacity hover:opacity-90"
+                    >
+                      Buka Akun
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={dismissPaymentNotice}
+                      className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#141416] transition-opacity hover:opacity-90"
+                    >
+                      Tutup
+                    </button>
+                  )}
+
+                  {paymentNotice.redirectToDashboard && (
+                    <p className="text-xs uppercase tracking-[0.18em] text-white/45">
+                      Mengalihkan otomatis...
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <section className="content-wrap pt-8">
-        <div className="glass-panel px-6 py-8 sm:px-8 sm:py-10">
-          <span className="section-kicker">Checkout</span>
-          <h1 className="section-title">Pembayaran produk</h1>
-          <p className="section-subtitle">
-            Pilih metode pembayaran yang paling sesuai. Flow manual, gateway, dan crypto tetap dipertahankan, hanya tampilannya dibuat lebih rapi.
-          </p>
+        <div className="mx-auto max-w-6xl">
+          <div className="glass-panel px-6 py-7 sm:px-8 sm:py-8">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+              <div className="max-w-2xl">
+                <span className="section-kicker">Checkout</span>
+                <h1 className="section-title">Pembayaran produk</h1>
+                <p className="section-subtitle">
+                  Pilih metode pembayaran yang paling sesuai untuk menyelesaikan pesanan dengan tampilan yang lebih ringkas dan fokus.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 sm:w-fit">
+                <div className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3">
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-slate-500">Produk</p>
+                  <p className="mt-1.5 text-sm font-semibold text-slate-100 line-clamp-1">{product.name}</p>
+                </div>
+                <div className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3">
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-slate-500">Total</p>
+                  <p className="mt-1.5 text-sm font-semibold text-[color:var(--primary)]">
+                    Rp {product.price.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="content-wrap mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <InteractiveCard className="glass-panel overflow-hidden">
-          <div className="relative h-56 overflow-hidden">
-            <ProductImage src={product.image} alt={product.name} />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/45 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-              <span className="status-pill w-fit bg-white/15 text-white">Detail produk</span>
-              <div className="mt-4">
-                <h2 className="text-4xl font-semibold">{product.name}</h2>
-                <p className="mt-3 max-w-md text-sm leading-7 text-white/75">{product.description}</p>
+      <section className="content-wrap mt-8">
+        <div className="mx-auto grid max-w-6xl gap-5 lg:grid-cols-[340px_minmax(0,1fr)]">
+          <InteractiveCard disabled className="glass-panel overflow-hidden border border-white/6 bg-[#141416]/50">
+            <div className="relative h-44 overflow-hidden">
+              <ProductImage src={product.image} alt={product.name} />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+            </div>
+
+            <div className="space-y-4 p-5">
+              <div>
+                <span className="status-pill bg-white/10 text-slate-200">Ringkasan pesanan</span>
+                <h2 className="mt-3 text-2xl font-semibold text-slate-50">{product.name}</h2>
+                <p className="mt-2 text-sm leading-6 text-slate-400 line-clamp-3">
+                  {product.description}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="rounded-2xl border border-white/8 bg-slate-950/45 px-4 py-3">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Bahan</p>
+                  <p className="mt-1.5 font-semibold text-slate-100">{product.material}</p>
+                </div>
+                <div className="rounded-2xl border border-white/8 bg-slate-950/45 px-4 py-3">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Ukuran</p>
+                  <p className="mt-1.5 font-semibold text-slate-100">{product.size}</p>
+                </div>
+                <div className="rounded-2xl border border-white/8 bg-slate-950/45 px-4 py-3">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Stok</p>
+                  <p className="mt-1.5 font-semibold text-slate-100">{product.stock}</p>
+                </div>
+                <div className="rounded-2xl border border-[color:var(--primary)]/14 bg-[color:var(--primary)]/6 px-4 py-3">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Total</p>
+                  <p className="mt-1.5 font-semibold text-[color:var(--primary)]">
+                    Rp {product.price.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-sm leading-6 text-slate-400">
+                Pesanan akan diproses setelah pembayaran selesai atau tercatat pada sistem.
               </div>
             </div>
-          </div>
+          </InteractiveCard>
 
-          <div className="p-6">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl bg-slate-950/55 px-4 py-4">
-                <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Bahan</p>
-                <p className="mt-2 text-sm font-semibold text-slate-100">{product.material}</p>
+          <div className="space-y-5">
+            <div className="glass-panel border border-white/6 bg-[#141416]/50 p-5 sm:p-6">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-slate-500">Metode</p>
+                  <h2 className="mt-2 text-2xl font-semibold text-slate-50">Pilih metode pembayaran</h2>
+                </div>
+                <p className="max-w-sm text-sm leading-6 text-slate-400">
+                  Pilih metode yang paling nyaman untuk menyelesaikan pesanan ini.
+                </p>
               </div>
-              <div className="rounded-2xl bg-slate-950/55 px-4 py-4">
-                <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Ukuran</p>
-                <p className="mt-2 text-sm font-semibold text-slate-100">{product.size}</p>
-              </div>
-              <div className="rounded-2xl bg-slate-950/55 px-4 py-4">
-                <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Stok</p>
-                <p className="mt-2 text-sm font-semibold text-slate-100">{product.stock}</p>
-              </div>
-              <div className="rounded-2xl bg-slate-950/55 px-4 py-4">
-                <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Harga</p>
-                <p className="mt-2 text-sm font-semibold text-teal-300">Rp {product.price.toLocaleString()}</p>
+
+              <div ref={selectorRef} className="mt-5 grid gap-3">
+                {PAYMENT_METHODS.map(({ type, title, helper, detail }) => (
+                  <button
+                    key={type}
+                    data-method={type}
+                    type="button"
+                    aria-pressed={paymentType === type}
+                    onClick={() => setPaymentType(type)}
+                    className={`rounded-[24px] border px-4 py-4 text-left transition-all duration-200 ${
+                      paymentType === type
+                        ? "border-[color:var(--primary)]/30 bg-[linear-gradient(135deg,rgba(220,179,123,0.16),rgba(220,179,123,0.05))] shadow-[0_18px_50px_rgba(220,179,123,0.12)]"
+                        : "border-white/8 bg-slate-950/35 hover:border-white/14 hover:bg-white/[0.045]"
+                    }`}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div
+                        className={`mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border transition-colors ${
+                          paymentType === type
+                            ? "border-[color:var(--primary)]/35 bg-[color:var(--primary)]/14 text-[color:var(--primary)]"
+                            : "border-white/8 bg-white/[0.04] text-slate-500"
+                        }`}
+                      >
+                        <span
+                          data-check-badge
+                          className={`flex h-5 w-5 items-center justify-center rounded-full ${
+                            paymentType === type
+                              ? "bg-[color:var(--primary)] text-[#141416]"
+                              : "border border-white/12 bg-transparent text-transparent"
+                          }`}
+                        >
+                          <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M3.5 8.5 6.5 11.5 12.5 4.5" />
+                          </svg>
+                        </span>
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <p className="text-base font-semibold text-slate-50">{title}</p>
+                        <p className="mt-1.5 text-sm leading-6 text-slate-300">{helper}</p>
+
+                        {paymentType === type && (
+                          <p data-selected-copy className="mt-3 text-xs leading-5 text-[color:var(--primary)]">
+                            {detail}
+                          </p>
+                        )}
+                      </div>
+
+                      <span
+                        className={`status-pill ${
+                          paymentType === type
+                            ? "bg-[color:var(--primary)] text-[#141416]"
+                            : "bg-slate-800 text-slate-300"
+                        }`}
+                      >
+                        {paymentType === type ? "Dipilih" : "Pilih"}
+                      </span>
+                    </div>
+                  </button>
+                ))}
               </div>
             </div>
-          </div>
-        </InteractiveCard>
 
-        <div className="space-y-6">
-          <div className="glass-panel p-6">
-            <h2 className="text-3xl font-semibold text-slate-50">Pilih metode pembayaran</h2>
-            <div className="mt-5 grid gap-3">
-              {[ 
-                ["MIDTRANS", "Pembayaran", "Bank transfer, e-wallet, QRIS, dan metode lain."],
-                ["CRYPTO", "Crypto ETH", "MetaMask atau wallet testnet Ethereum Sepolia."],
-                ["REGULAR", "Manual", "Pembayaran dicatat langsung ke sistem untuk proses internal."],
-              ].map(([type, title, helper]) => (
-                <button
-                  key={type}
-                  onClick={() => setPaymentType(type as "MIDTRANS" | "CRYPTO" | "REGULAR")}
-                  className={`rounded-[24px] border p-5 text-left ${paymentType === type ? "border-teal-400 bg-teal-500/10" : "border-slate-800 bg-slate-950/35"}`}
-                >
+            <div ref={detailPanelRef} className="space-y-4">
+              <div className="glass-panel border border-[color:var(--primary)]/12 bg-[linear-gradient(135deg,rgba(220,179,123,0.08),rgba(20,20,22,0.72))] p-5 sm:p-6">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.22em] text-slate-500">Metode dipilih</p>
+                    <h3 className="mt-2 text-xl font-semibold text-slate-50">{activeMethod.title}</h3>
+                    <p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">
+                      {activeMethod.detail}
+                    </p>
+                  </div>
+                  <span className="status-pill bg-[color:var(--primary)] text-[#141416]">Dipilih</span>
+                </div>
+              </div>
+
+              {paymentType === "MIDTRANS" ? (
+                <MidtransPayment
+                  productId={productId}
+                  productName={product.name}
+                  price={product.price}
+                  onStatusChange={showPaymentNotice}
+                />
+              ) : paymentType === "REGULAR" ? (
+                <div className="glass-panel border border-white/6 bg-[#141416]/50 p-5 sm:p-6">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-lg font-semibold text-slate-50">{title}</p>
-                      <p className="mt-2 text-sm leading-6 text-slate-300">{helper}</p>
+                      <h3 className="text-xl font-semibold text-slate-50">Pembayaran manual</h3>
+                      <p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">
+                        Gunakan metode ini jika pembayaran ingin dicatat langsung ke sistem untuk proses internal.
+                      </p>
                     </div>
-                    <span className={`status-pill ${paymentType === type ? "bg-teal-700 text-white" : "bg-slate-800 text-slate-300"}`}>
-                      {paymentType === type ? "Aktif" : "Pilih"}
-                    </span>
+                    <span className="status-pill bg-white/10 text-slate-300">Manual</span>
                   </div>
-                </button>
-              ))}
+
+                  <div className="mt-5 rounded-[22px] border border-white/8 bg-slate-950/35 px-4 py-4 text-sm leading-6 text-slate-400">
+                    Pastikan jumlah pembayaran sesuai total pesanan sebelum melanjutkan pencatatan.
+                  </div>
+
+                  <button onClick={handleRegularPayment} className="app-button-primary mt-5 w-full sm:w-auto">
+                    Bayar Sekarang
+                  </button>
+                </div>
+              ) : (
+                <Web3Payment
+                  productId={productId}
+                  productName={product.name}
+                  price={product.price}
+                  onSuccess={handleCryptoSuccess}
+                />
+              )}
             </div>
           </div>
-
-          {paymentType === "MIDTRANS" ? (
-            <MidtransPayment productId={productId} productName={product.name} price={product.price} />
-          ) : paymentType === "REGULAR" ? (
-            <div className="glass-panel p-6">
-              <h3 className="text-2xl font-semibold text-slate-50">Pembayaran manual</h3>
-              <p className="mt-3 text-sm leading-7 text-slate-300">
-                Gunakan metode ini untuk pencatatan pembayaran langsung ke sistem.
-              </p>
-              <button onClick={handleRegularPayment} className="app-button-primary mt-6 w-full">
-                Bayar Sekarang
-              </button>
-            </div>
-          ) : (
-            <Web3Payment
-              productId={productId}
-              productName={product.name}
-              price={product.price}
-              onSuccess={handleCryptoSuccess}
-            />
-          )}
         </div>
       </section>
     </main>

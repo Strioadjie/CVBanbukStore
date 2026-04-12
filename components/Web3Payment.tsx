@@ -182,14 +182,14 @@ export default function Web3Payment({ productId, productName, price, onSuccess }
 
   if (!isConfigured) {
     return (
-      <div className="glass-panel p-6">
-        <h3 className="text-2xl font-semibold text-slate-50">Pembayaran crypto belum siap</h3>
-        <p className="mt-3 text-sm leading-7 text-slate-300">
+      <div className="glass-panel border border-white/6 bg-[#141416]/50 p-5 sm:p-6">
+        <h3 className="text-xl font-semibold text-slate-50">Pembayaran crypto belum siap</h3>
+        <p className="mt-2 text-sm leading-6 text-slate-300">
           Smart contract belum di-deploy. Isi contract address di file `.env`, lalu restart aplikasi untuk mengaktifkan checkout ETH.
         </p>
-        <div className="mt-5 rounded-[24px] bg-slate-900 p-5 text-sm text-white">
+        <div className="mt-4 rounded-[22px] border border-white/8 bg-slate-900/70 p-4 text-sm text-white">
           <p className="font-semibold">Langkah singkat</p>
-          <p className="mt-2 leading-7 text-white/75">
+          <p className="mt-2 leading-6 text-white/75">
             Compile contract, deploy ke Sepolia, salin address hasil deploy ke `NEXT_PUBLIC_CONTRACT_ADDRESS`, lalu hubungkan MetaMask ke Sepolia Testnet.
           </p>
         </div>
@@ -198,33 +198,33 @@ export default function Web3Payment({ productId, productName, price, onSuccess }
   }
 
   return (
-    <div className="glass-panel p-6">
+    <div className="glass-panel border border-white/6 bg-[#141416]/50 p-5 sm:p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h3 className="text-2xl font-semibold text-slate-50">Pembayaran Crypto</h3>
-          <p className="mt-2 text-sm leading-7 text-slate-300">
-            Gunakan ETH di Sepolia untuk uji coba pembayaran blockchain.
+          <h3 className="text-xl font-semibold text-slate-50">Pembayaran crypto</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-300">
+            Gunakan wallet Ethereum untuk menyelesaikan pembayaran blockchain secara langsung.
           </p>
         </div>
-        <span className="status-pill bg-indigo-500/15 text-indigo-300">ETH Sepolia</span>
+        <span className="status-pill bg-indigo-500/15 text-indigo-300">Ethereum</span>
       </div>
 
-      <div className="mt-5 rounded-[24px] bg-slate-950/55 p-5">
+      <div className="mt-5 rounded-[22px] border border-white/8 bg-slate-950/45 p-4">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Produk</p>
-            <p className="mt-2 text-lg font-semibold text-slate-50">{productName}</p>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Produk</p>
+            <p className="mt-1.5 text-base font-semibold text-slate-50">{productName}</p>
           </div>
           <div className="text-right">
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Nilai transfer</p>
-            <p className="mt-2 text-lg font-semibold text-indigo-300">0.001 ETH</p>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Nilai transfer</p>
+            <p className="mt-1.5 text-base font-semibold text-indigo-300">0.001 ETH</p>
             <p className="text-sm text-slate-500">Sekitar Rp {price.toLocaleString()}</p>
           </div>
         </div>
       </div>
 
       {isConnected && (
-        <div className="mt-5 rounded-[24px] border border-emerald-500/20 bg-emerald-500/10 p-5 text-sm text-slate-200">
+        <div className="mt-4 rounded-[22px] border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-slate-200">
           <div className="flex items-center justify-between gap-4">
             <p className="font-semibold text-emerald-300">Wallet terhubung</p>
             <span className="status-pill bg-slate-950/70 text-emerald-300">Aktif</span>
@@ -238,30 +238,27 @@ export default function Web3Payment({ productId, productName, price, onSuccess }
       )}
 
       {txStatus && (
-        <div className="mt-5 rounded-[24px] border border-sky-200 bg-sky-50 px-5 py-4 text-sm text-sky-700">
+        <div className="mt-4 rounded-[22px] border border-sky-500/20 bg-sky-500/10 px-4 py-4 text-sm text-sky-200">
           {txStatus}
         </div>
       )}
 
       {error && (
-        <div className="mt-5 rounded-[24px] border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700">
+        <div className="mt-4 rounded-[22px] border border-red-500/20 bg-red-500/10 px-4 py-4 text-sm text-red-200">
           {error}
         </div>
       )}
 
       {!isConnected ? (
-        <button onClick={connectWallet} disabled={loading} className="app-button-primary mt-6 w-full">
+        <button onClick={connectWallet} disabled={loading} className="app-button-primary mt-5 w-full sm:w-auto">
           {loading ? "Menghubungkan wallet..." : "Connect MetaMask"}
         </button>
       ) : (
-        <button onClick={handlePayment} disabled={loading || !!error} className="app-button-primary mt-6 w-full disabled:cursor-not-allowed disabled:opacity-60">
+        <button onClick={handlePayment} disabled={loading || !!error} className="app-button-primary mt-5 w-full disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto">
           {loading ? "Memproses pembayaran..." : "Bayar dengan ETH"}
         </button>
       )}
 
-        <div className="mt-5 rounded-[24px] bg-slate-950/40 px-5 py-4 text-sm leading-7 text-slate-300">
-        Pastikan Anda menggunakan Sepolia Testnet dan punya ETH testnet yang cukup untuk nilai transfer dan gas fee.
-      </div>
     </div>
   );
 }
