@@ -71,7 +71,7 @@ export async function createMidtransTransaction(params: {
       error: 'Midtrans belum dikonfigurasi. Silakan hubungi administrator untuk setup payment gateway.',
     };
   }
-
+  
   const parameter = {
     transaction_details: {
       order_id: params.orderId,
