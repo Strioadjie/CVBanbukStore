@@ -24,10 +24,10 @@ export default function LoadingScreen({
 
           <div className="loading-copy mt-8 max-w-xl">
             <p className="section-kicker">Loading experience</p>
-            <h2 className="mt-3 text-4xl font-semibold text-slate-900 sm:text-5xl">
+            <h2 className="mt-3 text-4xl font-semibold text-slate-100 sm:text-5xl">
               {label}
             </h2>
-            <p className="mt-4 text-sm leading-7 text-slate-600 sm:text-base">
+            <p className="mt-4 text-sm leading-7 text-slate-400 sm:text-base">
               {detail}
             </p>
           </div>

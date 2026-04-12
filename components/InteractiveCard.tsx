@@ -4,11 +4,13 @@ import { HTMLAttributes, ReactNode, useRef } from "react";
 
 type InteractiveCardProps = HTMLAttributes<HTMLDivElement> & {
   children: ReactNode;
+  disabled?: boolean;
 };
 
 export default function InteractiveCard({
   children,
   className = "",
+  disabled = false,
   onMouseMove,
   onMouseLeave,
   ...props
@@ -42,9 +44,9 @@ export default function InteractiveCard({
   return (
     <div
       ref={ref}
-      className={`interactive-card ${className}`}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      className={`interactive-card ${disabled ? "interactive-card-static" : ""} ${className}`}
+      onMouseMove={disabled ? onMouseMove : handleMouseMove}
+      onMouseLeave={disabled ? onMouseLeave : handleMouseLeave}
       {...props}
     >
       {children}

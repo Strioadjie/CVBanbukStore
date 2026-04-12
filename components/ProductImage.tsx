@@ -2,18 +2,23 @@ type ProductImageProps = {
   src?: string | null;
   alt: string;
   className?: string;
+  loading?: "eager" | "lazy";
 };
 
 export default function ProductImage({
   src,
   alt,
   className = "",
+  loading = "lazy",
 }: ProductImageProps) {
   if (src) {
     return (
       <img
         src={src}
         alt={alt}
+        loading={loading}
+        decoding="async"
+        draggable={false}
         className={`h-full w-full object-cover ${className}`}
       />
     );
