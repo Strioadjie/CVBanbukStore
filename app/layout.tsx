@@ -3,6 +3,8 @@ import { Cormorant_Garamond, Manrope } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 
+export const dynamic = "force-dynamic";
+
 const manrope = Manrope({
   subsets: ["latin"],
   variable: "--font-manrope",
