@@ -38,40 +38,12 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="page-shell flex min-h-screen items-center justify-center px-4 py-10">
-      <div className="grid w-full max-w-5xl overflow-hidden rounded-[32px] border border-white/60 bg-white/50 shadow-[0_30px_90px_rgba(15,23,42,0.14)] backdrop-blur-xl lg:grid-cols-[1fr_0.95fr]">
-        <div className="hidden bg-slate-900 px-10 py-12 text-white lg:block">
-          <p className="text-sm uppercase tracking-[0.3em] text-white/55">Welcome back</p>
-          <h1 className="mt-5 text-5xl font-semibold leading-tight">
-            Login untuk masuk ke workspace Banbuk.
-          </h1>
-          <p className="mt-5 max-w-md text-sm leading-7 text-white/72">
-            Gunakan akun demo untuk mencoba alur admin, sales, dan customer. Tampilan baru dibuat lebih bersih agar dashboard terasa profesional namun tetap ringan untuk dipelajari.
-          </p>
-
-          <div className="mt-10 space-y-4">
-            <div className="rounded-[24px] bg-white/10 p-5">
-              <p className="text-xs uppercase tracking-[0.2em] text-white/55">Admin Demo</p>
-              <p className="mt-2 text-lg font-semibold">admin@test.com</p>
-              <p className="text-sm text-white/70">Password: admin123</p>
-            </div>
-            <div className="rounded-[24px] bg-white/10 p-5">
-              <p className="text-xs uppercase tracking-[0.2em] text-white/55">Sales Demo</p>
-              <p className="mt-2 text-lg font-semibold">sales@test.com</p>
-              <p className="text-sm text-white/70">Password: sales123</p>
-            </div>
-            <div className="rounded-[24px] bg-white/10 p-5">
-              <p className="text-xs uppercase tracking-[0.2em] text-white/55">Customer Demo</p>
-              <p className="mt-2 text-lg font-semibold">customer@test.com</p>
-              <p className="text-sm text-white/70">Password: customer123</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-[rgba(255,253,248,0.9)] p-8 sm:p-10">
+    <main className="page-shell flex min-h-screen items-center justify-center px-4 py-6">
+      <div className="w-full max-w-xl overflow-hidden rounded-[30px] border border-white/10 bg-[rgba(12,12,16,0.84)] shadow-[0_22px_60px_rgba(0,0,0,0.24)] backdrop-blur-xl">
+        <div className="bg-[rgba(12,12,16,0.82)] p-6 sm:p-7">
           <p className="section-kicker">Authentication</p>
-          <h1 className="text-4xl font-semibold text-slate-900">Masuk ke akun Anda</h1>
-          <p className="mt-3 text-sm leading-7 text-slate-600">
+          <h1 className="text-4xl font-semibold text-slate-100">Masuk ke akun Anda</h1>
+          <p className="mt-3 text-sm leading-7 text-slate-400">
             Akses dashboard sesuai role untuk mengelola produk, inquiry, wishlist, dan pembayaran.
           </p>
 
@@ -83,7 +55,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="mb-2 block text-sm font-medium text-slate-300">
                 Email
               </label>
               <input
@@ -97,7 +69,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="mb-2 block text-sm font-medium text-slate-300">
                 Password
               </label>
               <input
@@ -115,21 +87,12 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-slate-600">
+          <p className="mt-6 text-center text-sm text-slate-400">
             Belum punya akun?{" "}
-            <Link href="/register" className="font-semibold text-teal-700 hover:text-teal-800">
+            <Link href="/register" className="font-semibold text-[color:var(--primary)] hover:text-[color:var(--primary-deep)]">
               Register
             </Link>
           </p>
-
-          <div className="mt-8 rounded-[24px] border border-slate-200/80 bg-white/70 p-5 lg:hidden">
-            <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Demo Accounts</p>
-            <div className="mt-3 space-y-2 text-sm text-slate-600">
-              <p>Admin: admin@test.com / admin123</p>
-              <p>Sales: sales@test.com / sales123</p>
-              <p>Customer: customer@test.com / customer123</p>
-            </div>
-          </div>
         </div>
       </div>
     </main>

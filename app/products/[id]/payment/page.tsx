@@ -159,10 +159,10 @@ export default function PaymentPage() {
           <div className="glass-panel p-6">
             <h2 className="text-3xl font-semibold text-slate-50">Pilih metode pembayaran</h2>
             <div className="mt-5 grid gap-3">
-              {[
-                ["MIDTRANS", "Payment Gateway", "Bank transfer, e-wallet, QRIS, dan metode lain."],
+              {[ 
+                ["MIDTRANS", "Pembayaran", "Bank transfer, e-wallet, QRIS, dan metode lain."],
                 ["CRYPTO", "Crypto ETH", "MetaMask atau wallet testnet Ethereum Sepolia."],
-                ["REGULAR", "Manual", "Simulasi pembayaran sederhana untuk demo cepat."],
+                ["REGULAR", "Manual", "Pembayaran dicatat langsung ke sistem untuk proses internal."],
               ].map(([type, title, helper]) => (
                 <button
                   key={type}
@@ -189,7 +189,7 @@ export default function PaymentPage() {
             <div className="glass-panel p-6">
               <h3 className="text-2xl font-semibold text-slate-50">Pembayaran manual</h3>
               <p className="mt-3 text-sm leading-7 text-slate-300">
-                Untuk demo lokal, gunakan tombol di bawah ini agar transaksi tersimpan langsung ke database.
+                Gunakan metode ini untuk pencatatan pembayaran langsung ke sistem.
               </p>
               <button onClick={handleRegularPayment} className="app-button-primary mt-6 w-full">
                 Bayar Sekarang

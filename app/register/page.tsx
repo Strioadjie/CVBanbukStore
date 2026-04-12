@@ -59,14 +59,14 @@ export default function RegisterPage() {
 
   return (
     <main className="page-shell flex min-h-screen items-center justify-center px-4 py-10">
-      <div className="grid w-full max-w-5xl overflow-hidden rounded-[32px] border border-white/60 bg-white/50 shadow-[0_30px_90px_rgba(15,23,42,0.14)] backdrop-blur-xl lg:grid-cols-[0.92fr_1.08fr]">
-        <div className="hidden bg-[linear-gradient(180deg,#115e59,#1f2937)] px-10 py-12 text-white lg:block">
-          <p className="text-sm uppercase tracking-[0.3em] text-white/55">Customer onboarding</p>
+      <div className="grid w-full max-w-6xl overflow-hidden rounded-[36px] border border-white/10 bg-[rgba(12,12,16,0.84)] shadow-[0_30px_90px_rgba(0,0,0,0.28)] backdrop-blur-xl lg:grid-cols-[0.96fr_1.04fr]">
+        <div className="hidden bg-[linear-gradient(180deg,#101014,#18181f)] px-10 py-12 text-white lg:block">
+          <p className="text-sm uppercase tracking-[0.3em] text-white/55">Customer access</p>
           <h1 className="mt-5 text-5xl font-semibold leading-tight">
-            Daftar dan mulai simpan produk favorit Anda.
+            Buat akun untuk mulai menjelajahi katalog Banbuk.
           </h1>
           <p className="mt-5 max-w-md text-sm leading-7 text-white/74">
-            Akun customer memberi akses ke wishlist, inquiry cart, dan pilihan pembayaran. Form tetap dibuat sederhana agar mudah dipahami pengguna baru.
+            Registrasi memberi akses ke wishlist, inquiry, dan pembayaran dalam pengalaman yang dirancang agar tetap sederhana dan mudah dipahami.
           </p>
 
           <div className="mt-10 space-y-4">
@@ -80,12 +80,16 @@ export default function RegisterPage() {
               </div>
             ))}
           </div>
+
+          <div className="mt-10 border-t border-white/10 pt-6 text-sm text-white/70">
+            Akses customer dibuat cepat agar proses melihat produk hingga pembayaran terasa lebih lancar.
+          </div>
         </div>
 
-        <div className="bg-[rgba(255,253,248,0.9)] p-8 sm:p-10">
+        <div className="bg-[rgba(12,12,16,0.82)] p-8 sm:p-10">
           <p className="section-kicker">Create account</p>
-          <h1 className="text-4xl font-semibold text-slate-900">Buat akun baru</h1>
-          <p className="mt-3 text-sm leading-7 text-slate-600">
+          <h1 className="text-5xl font-semibold text-slate-100">Buat akun baru</h1>
+          <p className="mt-3 text-sm leading-7 text-slate-400">
             Registrasi sebagai customer untuk mulai menyimpan wishlist dan mengirim inquiry produk.
           </p>
 
@@ -97,7 +101,7 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="mb-2 block text-sm font-medium text-slate-300">
                 Nama Lengkap
               </label>
               <input
@@ -111,7 +115,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="mb-2 block text-sm font-medium text-slate-300">
                 Email
               </label>
               <input
@@ -125,7 +129,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="mb-2 block text-sm font-medium text-slate-300">
                 Password
               </label>
               <input
@@ -139,7 +143,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label className="mb-2 block text-sm font-medium text-slate-300">
                 Konfirmasi Password
               </label>
               <input
@@ -157,9 +161,9 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-slate-600">
+          <p className="mt-6 text-center text-sm text-slate-400">
             Sudah punya akun?{" "}
-            <Link href="/login" className="font-semibold text-teal-700 hover:text-teal-800">
+            <Link href="/login" className="font-semibold text-[color:var(--primary)] hover:text-[color:var(--primary-deep)]">
               Login
             </Link>
           </p>

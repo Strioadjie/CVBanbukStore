@@ -17,16 +17,6 @@ function HeartIcon() {
   );
 }
 
-function CartIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h2l2.1 9.2a1 1 0 0 0 1 .8h8.6a1 1 0 0 0 1-.76L21 7H7" />
-      <circle cx="10" cy="19" r="1.5" />
-      <circle cx="18" cy="19" r="1.5" />
-    </svg>
-  );
-}
-
 export default function AppNavbar() {
   const { data: session } = useSession();
   const router = useRouter();
@@ -73,15 +63,15 @@ export default function AppNavbar() {
           <div
             className={`glass-panel mx-auto transition-all duration-300 ${
               isScrolled
-                ? "rounded-[20px] px-4 py-1.5 sm:px-5 shadow-[0_22px_60px_rgba(2,8,23,0.56)]"
-                : "rounded-[26px] px-4 py-3 sm:px-6"
+                ? "rounded-[22px] px-4 py-2 sm:px-5 shadow-[0_18px_40px_rgba(92,63,35,0.12)]"
+                : "rounded-[28px] px-4 py-3 sm:px-6"
             }`}
           >
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex items-center justify-between gap-4">
                 <Link href={session ? "/dashboard" : "/"} className="flex items-center gap-3">
                   <div
-                    className={`flex items-center justify-center rounded-2xl bg-slate-950 text-sm font-bold text-white shadow-lg transition-all duration-300 ${
+                    className={`flex items-center justify-center rounded-2xl bg-white text-sm font-bold text-black shadow-lg transition-all duration-300 ${
                       isScrolled ? "h-8 w-8" : "h-11 w-11"
                     }`}
                   >
@@ -89,21 +79,21 @@ export default function AppNavbar() {
                   </div>
                   <div>
                     <p
-                      className={`font-semibold text-slate-50 transition-all duration-300 ${
+                      className={`font-semibold text-slate-100 transition-all duration-300 ${
                         isScrolled ? "text-sm" : "text-base"
                       }`}
                     >
                       CV Banbuk Mandiri Jaya
                     </p>
-                    <p className="text-xs uppercase tracking-[0.22em] text-slate-400">
-                      Virtual Product Gallery Web3
+                    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
+                      Katalog produk, inquiry, dan pembayaran
                     </p>
                   </div>
                 </Link>
 
                 <button
                   onClick={() => setMenuOpen((value) => !value)}
-                  className="rounded-full border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200 lg:hidden"
+                  className="rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-slate-200 lg:hidden"
                 >
                   Menu
                 </button>
@@ -119,7 +109,7 @@ export default function AppNavbar() {
                     <Link
                       key={link.href}
                       href={link.href}
-                      className="rounded-full px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-900/70 hover:text-white"
+                      className="rounded-full px-4 py-2 text-sm font-medium text-slate-300 hover:bg-white/5 hover:text-white"
                     >
                       {link.label}
                     </Link>
@@ -128,10 +118,10 @@ export default function AppNavbar() {
 
                 {session ? (
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-                    <div className={`rounded-2xl bg-slate-950/60 px-4 text-sm text-slate-300 transition-all duration-300 ${isScrolled ? "py-2" : "py-3"}`}>
-                      <p className="font-semibold text-slate-50">{session.user.name}</p>
+                    <div className={`rounded-2xl border border-white/10 bg-white/5 px-4 text-sm text-slate-400 transition-all duration-300 ${isScrolled ? "py-2" : "py-3"}`}>
+                      <p className="font-semibold text-slate-100">{session.user.name}</p>
                       <div className="mt-1 flex items-center gap-2">
-                        <span className="status-pill bg-emerald-500/15 text-emerald-300">
+                        <span className="status-pill bg-white/10 text-slate-200">
                           {roleLabel}
                         </span>
                       </div>
@@ -142,16 +132,9 @@ export default function AppNavbar() {
                         <Link
                           href="/wishlist"
                           aria-label="Wishlist"
-                          className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-700 bg-slate-950/55 text-slate-200 hover:border-rose-400/40 hover:text-rose-300"
+                          className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-slate-200 hover:border-white/20 hover:text-white"
                         >
                           <HeartIcon />
-                        </Link>
-                        <Link
-                          href="/inquiry"
-                          aria-label="Keranjang"
-                          className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-700 bg-slate-950/55 text-slate-200 hover:border-cyan-400/40 hover:text-cyan-300"
-                        >
-                          <CartIcon />
                         </Link>
                       </div>
                     )}

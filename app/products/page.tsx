@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import AppNavbar from "@/components/AppNavbar";
 import Link from "next/link";
+import AppNavbar from "@/components/AppNavbar";
 import InteractiveCard from "@/components/InteractiveCard";
 import ProductImage from "@/components/ProductImage";
+import LoadingScreen from "@/components/LoadingScreen";
 
 export default function ProductsPage() {
   const { data: session } = useSession();
@@ -62,20 +63,22 @@ export default function ProductsPage() {
         if (res.ok) {
           setWishlistMap((prev) => ({ ...prev, [productId]: false }));
         }
-      } else {
-        const res = await fetch("/api/wishlist", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ productId }),
-        });
-
-        if (res.ok) {
-          setWishlistMap((prev) => ({ ...prev, [productId]: true }));
-        } else {
-          const data = await res.json();
-          alert(data.error || "Gagal menambahkan ke wishlist");
-        }
+        return;
       }
+
+      const res = await fetch("/api/wishlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId }),
+      });
+
+      if (res.ok) {
+        setWishlistMap((prev) => ({ ...prev, [productId]: true }));
+        return;
+      }
+
+      const data = await res.json();
+      alert(data.error || "Gagal menambahkan ke wishlist");
     } catch (error) {
       alert("Terjadi kesalahan");
     }
@@ -83,11 +86,19 @@ export default function ProductsPage() {
 
   const createInquiry = async (productId: string) => {
     try {
-      const storedCart = localStorage.getItem("inquiry-cart");
-      const cartIds: string[] = storedCart ? JSON.parse(storedCart) : [];
-      const nextIds = Array.from(new Set([...cartIds, productId]));
-      localStorage.setItem("inquiry-cart", JSON.stringify(nextIds));
-      alert("Produk ditambahkan ke keranjang inquiry!");
+      const res = await fetch("/api/inquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        alert(data.error || "Gagal mengirim inquiry");
+        return;
+      }
+
+      alert("Inquiry berhasil dikirim.");
     } catch (error) {
       alert("Terjadi kesalahan");
     }
@@ -113,11 +124,7 @@ export default function ProductsPage() {
   };
 
   if (loading) {
-    return (
-      <div className="page-shell flex min-h-screen items-center justify-center">
-        <div className="glass-panel px-8 py-6 text-sm text-slate-300">Memuat katalog produk...</div>
-      </div>
-    );
+    return <LoadingScreen label="Memuat katalog" detail="Produk dan detail utama sedang disiapkan." />;
   }
 
   return (
@@ -129,19 +136,18 @@ export default function ProductsPage() {
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <span className="section-kicker">Catalog</span>
-              <h1 className="section-title">Katalog produk Banbuk</h1>
+              <h1 className="section-title">Katalog produk</h1>
               <p className="section-subtitle">
-                Tampilan sekarang memakai dark theme dengan card interaktif, foto produk, dan CTA yang lebih terasa seperti e-commerce modern.
+                Tampilan katalog dibuat lebih sederhana, fokus ke produk, spesifikasi utama, dan aksi yang benar-benar diperlukan.
               </p>
             </div>
 
-            {session?.user.role === "ADMIN" && (
-              <Link href="/products/add" className="app-button-primary">
-                Tambah Produk
-              </Link>
-            )}
-
             <div className="flex flex-wrap gap-3">
+              {session?.user.role === "ADMIN" && (
+                <Link href="/products/add" className="app-button-primary">
+                  Tambah Produk
+                </Link>
+              )}
               <Link href="/products/compare" className="app-button-secondary">
                 Compare ({compareIds.length}/2)
               </Link>
@@ -155,53 +161,50 @@ export default function ProductsPage() {
           <InteractiveCard key={product.id} className="glass-panel overflow-hidden">
             <div className="relative h-56 overflow-hidden">
               <ProductImage src={product.image} alt={product.name} />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/35 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
+
               {session?.user.role === "CUSTOMER" && (
                 <button
                   onClick={() => addToWishlist(product.id)}
                   className={`absolute right-4 top-4 flex h-11 w-11 items-center justify-center rounded-full border text-lg ${
                     wishlistMap[product.id]
-                      ? "border-rose-400/50 bg-rose-500/20 text-rose-300"
-                      : "border-white/15 bg-slate-950/45 text-white"
+                      ? "border-white/30 bg-white/15 text-white"
+                      : "border-white/15 bg-black/40 text-white"
                   }`}
                   aria-label={wishlistMap[product.id] ? "Hapus dari wishlist" : "Tambah ke wishlist"}
                 >
-                  {wishlistMap[product.id] ? "♥" : "♡"}
+                  {wishlistMap[product.id] ? "W" : "+"}
                 </button>
               )}
+
               <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-                <span className="status-pill w-fit bg-white/15 text-white">Stok {product.stock}</span>
-                <div className="mt-4">
-                  <p className="text-xs uppercase tracking-[0.24em] text-white/65">Material unggulan</p>
-                  <h2 className="mt-3 text-3xl font-semibold">{product.name}</h2>
-                </div>
+                <span className="status-pill w-fit bg-white/10 text-white">Stok {product.stock}</span>
+                <h2 className="mt-4 text-3xl font-semibold">{product.name}</h2>
               </div>
             </div>
 
             <div className="p-6">
-              <p className="line-clamp-3 text-sm leading-7 text-slate-300">
-                {product.description}
-              </p>
+              <p className="line-clamp-3 text-sm leading-7 text-slate-400">{product.description}</p>
 
               <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl bg-slate-950/55 px-4 py-3">
+                <div className="rounded-2xl border border-white/8 bg-white/4 px-4 py-3">
                   <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Ukuran</p>
                   <p className="mt-2 text-sm font-semibold text-slate-100">{product.size}</p>
                 </div>
-                <div className="rounded-2xl bg-slate-950/55 px-4 py-3">
+                <div className="rounded-2xl border border-white/8 bg-white/4 px-4 py-3">
                   <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Bahan</p>
                   <p className="mt-2 text-sm font-semibold text-slate-100">{product.material}</p>
                 </div>
-                <div className="rounded-2xl bg-slate-950/55 px-4 py-3">
+                <div className="rounded-2xl border border-white/8 bg-white/4 px-4 py-3">
                   <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">Harga</p>
-                  <p className="mt-2 text-sm font-semibold text-teal-300">Rp {product.price.toLocaleString()}</p>
+                  <p className="mt-2 text-sm font-semibold text-slate-100">Rp {product.price.toLocaleString()}</p>
                 </div>
               </div>
 
               {session?.user.role === "CUSTOMER" && (
                 <div className="mt-6 grid gap-3 sm:grid-cols-2">
                   <button onClick={() => createInquiry(product.id)} className="app-button-secondary w-full">
-                    Masuk Keranjang
+                    Kirim Inquiry
                   </button>
                   <Link href={`/products/${product.id}/payment`} className="app-button-primary w-full">
                     Beli
@@ -237,7 +240,7 @@ export default function ProductsPage() {
 
       {products.length === 0 && (
         <section className="content-wrap mt-8">
-          <div className="empty-state text-slate-300">Belum ada produk yang tersedia.</div>
+          <div className="empty-state text-slate-400">Belum ada produk yang tersedia.</div>
         </section>
       )}
     </main>

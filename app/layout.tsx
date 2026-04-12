@@ -15,8 +15,8 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "Virtual Product Gallery Web3 - CV Banbuk Mandiri Jaya",
-  description: "Platform pengelolaan produk dan penjualan dengan pembayaran crypto",
+  title: "CV Banbuk Mandiri Jaya",
+  description: "Platform katalog produk, inquiry, dan pembayaran CV Banbuk Mandiri Jaya.",
 };
 
 export default function RootLayout({

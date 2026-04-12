@@ -83,7 +83,7 @@ export default function MidtransPayment({ productId, productName, price }: Midtr
       <div className="glass-panel p-6">
         <h3 className="text-2xl font-semibold text-slate-50">Midtrans belum dikonfigurasi</h3>
         <p className="mt-3 text-sm leading-7 text-slate-300">
-          Isi `MIDTRANS_SERVER_KEY` dan `NEXT_PUBLIC_MIDTRANS_CLIENT_KEY` pada `.env`, lalu restart aplikasi untuk mengaktifkan payment gateway.
+          Isi `MIDTRANS_SERVER_KEY` dan `NEXT_PUBLIC_MIDTRANS_CLIENT_KEY` pada `.env`, lalu restart aplikasi untuk mengaktifkan metode ini.
         </p>
       </div>
     );
@@ -93,12 +93,12 @@ export default function MidtransPayment({ productId, productName, price }: Midtr
     <div className="glass-panel p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h3 className="text-2xl font-semibold text-slate-50">Payment Gateway</h3>
+          <h3 className="text-2xl font-semibold text-slate-50">Pembayaran</h3>
           <p className="mt-2 text-sm leading-7 text-slate-300">
-            Midtrans sandbox cocok untuk demo dengan alur pembayaran yang familiar.
+            Lanjutkan pembayaran dengan alur yang sudah familiar dan metode yang umum digunakan.
           </p>
         </div>
-        <span className="status-pill bg-emerald-500/15 text-emerald-300">Sandbox</span>
+        <span className="status-pill bg-emerald-500/15 text-emerald-300">Aktif</span>
       </div>
 
       <div className="mt-5 rounded-[24px] bg-slate-950/55 p-5">
@@ -119,7 +119,7 @@ export default function MidtransPayment({ productId, productName, price }: Midtr
       )}
 
       <button onClick={handlePayment} disabled={loading} className="app-button-primary mt-6 w-full disabled:cursor-not-allowed disabled:opacity-60">
-        {loading ? "Membuka popup pembayaran..." : "Bayar dengan Midtrans"}
+        {loading ? "Membuka popup pembayaran..." : "Bayar"}
       </button>
     </div>
   );

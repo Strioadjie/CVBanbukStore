@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import AppNavbar from "@/components/AppNavbar";
 import InteractiveCard from "@/components/InteractiveCard";
+import LoadingScreen from "@/components/LoadingScreen";
 import { jsPDF } from "jspdf";
 import {
   Area,
@@ -245,11 +246,7 @@ export default function DashboardPage() {
   };
 
   if (status === "loading" || loading) {
-    return (
-      <div className="page-shell flex min-h-screen items-center justify-center">
-        <div className="glass-panel px-8 py-6 text-sm text-slate-300">Memuat dashboard...</div>
-      </div>
-    );
+    return <LoadingScreen label="Menyiapkan dashboard" detail="Ringkasan role, statistik, dan insight sedang diproses." />;
   }
 
   if (!session) {
@@ -263,7 +260,7 @@ export default function DashboardPage() {
       <AppNavbar />
 
       <section className="content-wrap pt-8">
-        <div className="glass-panel px-6 py-8 sm:px-8 sm:py-10">
+        <div className="glass-panel editorial-shell grain-overlay px-6 py-8 sm:px-8 sm:py-10">
           <span className="section-kicker">Overview</span>
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
@@ -272,9 +269,9 @@ export default function DashboardPage() {
                 {currentRole.subtitle} Selamat datang, {session.user.name}.
               </p>
             </div>
-            <div className="glass-card px-5 py-4 text-sm text-slate-300">
+            <div className="glass-card px-5 py-4 text-sm text-slate-400">
               <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Role aktif</p>
-              <p className="mt-2 text-xl font-semibold text-slate-50">{session.user.role}</p>
+              <p className="mt-2 text-xl font-semibold text-slate-100">{session.user.role}</p>
             </div>
           </div>
         </div>
@@ -285,7 +282,7 @@ export default function DashboardPage() {
           <InteractiveCard key={String(label)} className="metric-card">
             <p className="metric-label">{label}</p>
             <p className="metric-value">{value ?? 0}</p>
-            <p className="mt-2 text-sm leading-6 text-slate-300">{helper}</p>
+            <p className="mt-2 text-sm leading-6 text-slate-400">{helper}</p>
           </InteractiveCard>
         ))}
       </section>

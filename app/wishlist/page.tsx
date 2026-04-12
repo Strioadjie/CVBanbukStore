@@ -96,8 +96,8 @@ export default function WishlistPage() {
             </div>
 
             <div className="p-6">
-              <p className="line-clamp-3 text-sm leading-7 text-slate-300">{item.product.description}</p>
-              <p className="mt-5 text-2xl font-semibold text-teal-300">
+              <p className="line-clamp-3 text-sm leading-7 text-slate-400">{item.product.description}</p>
+              <p className="mt-5 text-2xl font-semibold text-slate-100">
                 Rp {item.product.price.toLocaleString()}
               </p>
 
@@ -116,9 +116,9 @@ export default function WishlistPage() {
 
       {wishlists.length === 0 && (
         <section className="content-wrap mt-8">
-          <div className="empty-state text-slate-300">
+          <div className="empty-state text-slate-400">
             <p>Wishlist masih kosong.</p>
-            <Link href="/products" className="mt-4 inline-flex font-semibold text-teal-700 hover:text-teal-800">
+            <Link href="/products" className="mt-4 inline-flex font-semibold text-slate-200 hover:text-white">
               Lihat produk
             </Link>
           </div>
