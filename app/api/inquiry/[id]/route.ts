@@ -5,13 +5,15 @@ import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 // PUT - Update inquiry (assign sales atau update status)
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
+    const inquiryId = context.params.id;
     const session = await getServerSession(authOptions);
 
     if (!session) {
@@ -26,7 +28,7 @@ export async function PUT(
     // Admin bisa assign sales
     if (session.user.role === "ADMIN" && data.assignedTo) {
       const inquiry = await prisma.inquiry.update({
-        where: { id: params.id },
+        where: { id: inquiryId },
         data: { assignedTo: data.assignedTo },
         include: {
           product: true,
@@ -41,7 +43,7 @@ export async function PUT(
     // Sales bisa update status
     if (session.user.role === "SALES" && data.status) {
       const inquiry = await prisma.inquiry.findUnique({
-        where: { id: params.id },
+        where: { id: inquiryId },
       });
 
       if (inquiry?.assignedTo !== session.user.id) {
@@ -52,7 +54,7 @@ export async function PUT(
       }
 
       const updatedInquiry = await prisma.inquiry.update({
-        where: { id: params.id },
+        where: { id: inquiryId },
         data: { status: data.status },
         include: {
           product: true,
