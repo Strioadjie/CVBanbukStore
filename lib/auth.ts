@@ -1,8 +1,6 @@
 // NextAuth Configuration
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { prisma } from "./prisma";
-import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -16,6 +14,12 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
+
+        const [{ prisma }, bcryptModule] = await Promise.all([
+          import("./prisma"),
+          import("bcryptjs"),
+        ]);
+        const bcrypt = bcryptModule.default ?? bcryptModule;
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email }
