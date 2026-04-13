@@ -88,7 +88,7 @@ const ProductCard = memo(function ProductCard({
           <button
             type="button"
             onClick={() => onToggleWishlist(product.id)}
-            className={`absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full border text-sm transition-colors ${
+            className={`absolute right-2 top-2 z-20 flex h-8 w-8 items-center justify-center rounded-full border text-sm transition-colors ${
               isWishlisted
                 ? "border-[color:var(--primary)] bg-[color:var(--primary)]/10 text-[color:var(--primary)]"
                 : "border-white/20 bg-black/35 text-white hover:bg-white/10"
@@ -110,7 +110,7 @@ const ProductCard = memo(function ProductCard({
           </button>
         )}
 
-        <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end px-4 pb-3 text-white">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-col justify-end px-4 pb-3 text-white">
           <span className="mb-1.5 inline-flex w-fit rounded border border-[color:var(--primary)]/30 bg-[#101012]/80 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-[color:var(--primary)]">
             Stok {product.stock}
           </span>
@@ -122,7 +122,7 @@ const ProductCard = memo(function ProductCard({
           </p>
         </div>
 
-        <div className="absolute inset-0 flex translate-y-2 flex-col items-center justify-center gap-2 bg-[#101012]/88 p-4 opacity-0 transition duration-200 group-hover:translate-y-0 group-hover:opacity-100">
+        <div className="pointer-events-none absolute inset-0 z-10 flex translate-y-2 flex-col items-center justify-center gap-2 bg-[#101012]/88 p-4 opacity-0 transition duration-200 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100">
           <p className="mb-2 line-clamp-3 text-center text-[11px] leading-relaxed text-slate-300">
             {product.description}
           </p>
