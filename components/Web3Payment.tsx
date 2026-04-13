@@ -9,6 +9,73 @@ const CONTRACT_ABI = [
   "event PaymentReceived(uint256 indexed paymentId, address indexed buyer, uint256 amount, uint256 productId, uint256 timestamp)"
 ];
 
+type SupportedChainConfig = {
+  chainId: bigint;
+  chainName: string;
+  currencySymbol: string;
+  rpcUrl?: string;
+  blockExplorerUrl?: string;
+};
+
+const KNOWN_CHAINS: Record<string, SupportedChainConfig> = {
+  "1": {
+    chainId: BigInt(1),
+    chainName: "Ethereum Mainnet",
+    currencySymbol: "ETH",
+    rpcUrl: "https://ethereum-rpc.publicnode.com",
+    blockExplorerUrl: "https://etherscan.io",
+  },
+  "11155111": {
+    chainId: BigInt(11155111),
+    chainName: "Sepolia Testnet",
+    currencySymbol: "ETH",
+    rpcUrl: "https://ethereum-sepolia-rpc.publicnode.com",
+    blockExplorerUrl: "https://sepolia.etherscan.io",
+  },
+};
+
+function getConfiguredChain(): SupportedChainConfig {
+  const chainIdFromEnv = process.env.NEXT_PUBLIC_CHAIN_ID;
+  const chainNameFromEnv = process.env.NEXT_PUBLIC_CHAIN_NAME;
+  const currencyFromEnv = process.env.NEXT_PUBLIC_CHAIN_CURRENCY_SYMBOL;
+  const rpcUrlFromEnv = process.env.NEXT_PUBLIC_RPC_URL;
+
+  if (chainIdFromEnv && KNOWN_CHAINS[chainIdFromEnv]) {
+    const knownChain = KNOWN_CHAINS[chainIdFromEnv];
+    return {
+      ...knownChain,
+      chainName: chainNameFromEnv || knownChain.chainName,
+      currencySymbol: currencyFromEnv || knownChain.currencySymbol,
+      rpcUrl: rpcUrlFromEnv || knownChain.rpcUrl,
+    };
+  }
+
+  if (rpcUrlFromEnv?.toLowerCase().includes("sepolia")) {
+    return {
+      ...KNOWN_CHAINS["11155111"],
+      chainName: chainNameFromEnv || KNOWN_CHAINS["11155111"].chainName,
+      currencySymbol: currencyFromEnv || KNOWN_CHAINS["11155111"].currencySymbol,
+      rpcUrl: rpcUrlFromEnv,
+    };
+  }
+
+  if (rpcUrlFromEnv?.toLowerCase().includes("mainnet") || rpcUrlFromEnv?.toLowerCase().includes("ethereum-rpc")) {
+    return {
+      ...KNOWN_CHAINS["1"],
+      chainName: chainNameFromEnv || KNOWN_CHAINS["1"].chainName,
+      currencySymbol: currencyFromEnv || KNOWN_CHAINS["1"].currencySymbol,
+      rpcUrl: rpcUrlFromEnv,
+    };
+  }
+
+  return {
+    ...KNOWN_CHAINS["11155111"],
+    chainName: chainNameFromEnv || KNOWN_CHAINS["11155111"].chainName,
+    currencySymbol: currencyFromEnv || KNOWN_CHAINS["11155111"].currencySymbol,
+    rpcUrl: rpcUrlFromEnv || KNOWN_CHAINS["11155111"].rpcUrl,
+  };
+}
+
 interface Web3PaymentProps {
   productId: string;
   productName: string;
@@ -17,7 +84,12 @@ interface Web3PaymentProps {
 }
 
 export default function Web3Payment({ productId, productName, price, onSuccess }: Web3PaymentProps) {
-  const sepoliaChainId = BigInt(11155111);
+  const configuredChain = getConfiguredChain();
+  const configuredChainId = configuredChain.chainId;
+  const configuredChainName = configuredChain.chainName;
+  const configuredCurrencySymbol = configuredChain.currencySymbol;
+  const displayNetworkLabel = process.env.NEXT_PUBLIC_NETWORK_LABEL || "Ethereum";
+  const fixedEthAmount = "0.001";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [walletAddress, setWalletAddress] = useState("");
@@ -26,6 +98,58 @@ export default function Web3Payment({ productId, productName, price, onSuccess }
   const [balance, setBalance] = useState("0");
   const [network, setNetwork] = useState("");
   const [txStatus, setTxStatus] = useState("");
+
+  const switchNetwork = async () => {
+    if (!window.ethereum) {
+      setError("MetaMask tidak terdeteksi");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError("");
+
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: ethers.toBeHex(Number(configuredChainId)) }],
+      });
+
+      await checkNetwork();
+      if (walletAddress) {
+        await updateBalance(walletAddress);
+      }
+    } catch (err: any) {
+      if (err?.code === 4902 && configuredChain.rpcUrl) {
+        try {
+          await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [{
+              chainId: ethers.toBeHex(Number(configuredChainId)),
+              chainName: configuredChainName,
+              nativeCurrency: {
+                name: configuredCurrencySymbol,
+                symbol: configuredCurrencySymbol,
+                decimals: 18,
+              },
+              rpcUrls: [configuredChain.rpcUrl],
+              blockExplorerUrls: configuredChain.blockExplorerUrl ? [configuredChain.blockExplorerUrl] : undefined,
+            }],
+          });
+
+          await checkNetwork();
+          if (walletAddress) {
+            await updateBalance(walletAddress);
+          }
+        } catch (addError: any) {
+          setError(addError?.message || `Gagal menambahkan ${configuredChainName} ke MetaMask`);
+        }
+      } else {
+        setError(err?.message || "Gagal menyinkronkan jaringan wallet");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const contractAddress = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
@@ -71,8 +195,8 @@ export default function Web3Payment({ productId, productName, price, onSuccess }
       const currentNetwork = await provider.getNetwork();
       setNetwork(currentNetwork.name);
 
-      if (currentNetwork.chainId !== sepoliaChainId) {
-        setError("Silakan switch ke Sepolia Testnet di MetaMask.");
+      if (currentNetwork.chainId !== configuredChainId) {
+        setError("Jaringan wallet belum sesuai untuk checkout ETH ini.");
       } else {
         setError("");
       }
@@ -129,16 +253,15 @@ export default function Web3Payment({ productId, productName, price, onSuccess }
       const signer = await provider.getSigner();
       const currentNetwork = await provider.getNetwork();
 
-      if (currentNetwork.chainId !== sepoliaChainId) {
-        throw new Error("Silakan switch ke Sepolia Testnet");
+      if (currentNetwork.chainId !== configuredChainId) {
+        throw new Error("Jaringan wallet belum sesuai untuk checkout ETH ini.");
       }
 
       const currentBalance = await provider.getBalance(walletAddress);
-      const ethAmount = "0.001";
-      const valueInWei = ethers.parseEther(ethAmount);
+      const valueInWei = ethers.parseEther(fixedEthAmount);
 
       if (currentBalance < valueInWei) {
-        throw new Error("Balance tidak cukup. Minimal 0.001 ETH ditambah gas fee");
+        throw new Error(`Balance tidak cukup. Minimal ${fixedEthAmount} ${configuredCurrencySymbol} ditambah gas fee`);
       }
 
       const contract = new ethers.Contract(contractAddress, CONTRACT_ABI, signer);
@@ -190,7 +313,7 @@ export default function Web3Payment({ productId, productName, price, onSuccess }
         <div className="mt-4 rounded-[22px] border border-white/8 bg-slate-900/70 p-4 text-sm text-white">
           <p className="font-semibold">Langkah singkat</p>
           <p className="mt-2 leading-6 text-white/75">
-            Compile contract, deploy ke Sepolia, salin address hasil deploy ke `NEXT_PUBLIC_CONTRACT_ADDRESS`, lalu hubungkan MetaMask ke Sepolia Testnet.
+            Compile contract, deploy ke jaringan Ethereum yang dipakai aplikasi, salin address hasil deploy ke `NEXT_PUBLIC_CONTRACT_ADDRESS`, lalu hubungkan MetaMask ke jaringan yang sesuai.
           </p>
         </div>
       </div>
@@ -206,7 +329,7 @@ export default function Web3Payment({ productId, productName, price, onSuccess }
             Gunakan wallet Ethereum untuk menyelesaikan pembayaran blockchain secara langsung.
           </p>
         </div>
-        <span className="status-pill bg-indigo-500/15 text-indigo-300">Ethereum</span>
+        <span className="status-pill bg-indigo-500/15 text-indigo-300">{displayNetworkLabel}</span>
       </div>
 
       <div className="mt-5 rounded-[22px] border border-white/8 bg-slate-950/45 p-4">
@@ -217,7 +340,7 @@ export default function Web3Payment({ productId, productName, price, onSuccess }
           </div>
           <div className="text-right">
             <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Nilai transfer</p>
-            <p className="mt-1.5 text-base font-semibold text-indigo-300">0.001 ETH</p>
+            <p className="mt-1.5 text-base font-semibold text-indigo-300">{fixedEthAmount} {configuredCurrencySymbol}</p>
             <p className="text-sm text-slate-500">Sekitar Rp {price.toLocaleString()}</p>
           </div>
         </div>
@@ -231,7 +354,7 @@ export default function Web3Payment({ productId, productName, price, onSuccess }
           </div>
           <div className="mt-3 space-y-2">
             <p>Address: {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}</p>
-            <p>Balance: {parseFloat(balance).toFixed(4)} ETH</p>
+            <p>Balance: {parseFloat(balance).toFixed(4)} {configuredCurrencySymbol}</p>
             <p>Network: {network}</p>
           </div>
         </div>
@@ -245,7 +368,19 @@ export default function Web3Payment({ productId, productName, price, onSuccess }
 
       {error && (
         <div className="mt-4 rounded-[22px] border border-red-500/20 bg-red-500/10 px-4 py-4 text-sm text-red-200">
-          {error}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p>{error}</p>
+            {isConnected && network !== "" && (
+              <button
+                type="button"
+                onClick={switchNetwork}
+                disabled={loading}
+                className="rounded-full border border-red-300/20 bg-red-950/30 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-red-100 transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {loading ? "Menyinkronkan..." : "Sinkronkan jaringan"}
+              </button>
+            )}
+          </div>
         </div>
       )}
 

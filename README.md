@@ -18,7 +18,7 @@ Platform e-commerce modern untuk **CV Banbuk Mandiri Jaya** dengan dukungan pemb
 
 ### 💰 Payment Methods
 - 💳 **Payment Gateway** (Midtrans) - Bank Transfer, E-Wallet, QRIS, dll
-- 🔐 **Crypto Payment** (Ethereum) - MetaMask, Sepolia Testnet
+- 🔐 **Crypto Payment** (Ethereum) - MetaMask, network configurable (Sepolia/Mainnet)
 - 💵 **Manual Payment** - Simulasi untuk testing
 
 ### 🎯 Core Features
@@ -27,7 +27,7 @@ Platform e-commerce modern untuk **CV Banbuk Mandiri Jaya** dengan dukungan pemb
 - ✅ Wishlist
 - ✅ Dashboard dengan statistik
 - ✅ WhatsApp Integration
-- ✅ Smart Contract di Sepolia Testnet
+- ✅ Smart Contract di network yang bisa dikonfigurasi
 
 ---
 
@@ -109,7 +109,7 @@ Customer: customer@test.com / customer123
 
 ## 🔐 Smart Contract
 
-**Contract Address (Sepolia):**
+**Contract Address (contoh Sepolia):**
 ```
 0xd23F22620160b0f05D16eba0F9D7D979709bA44D
 ```
@@ -125,6 +125,9 @@ npx hardhat compile
 
 # Deploy to Sepolia
 npx hardhat run scripts/deploy.js --network sepolia
+
+# Deploy to Ethereum Mainnet
+npx hardhat run scripts/deploy.js --network mainnet
 ```
 
 ---
@@ -141,7 +144,12 @@ NEXTAUTH_URL="http://localhost:3000"
 
 # Web3 (Optional - untuk crypto payment)
 NEXT_PUBLIC_CONTRACT_ADDRESS="0x..."
+NEXT_PUBLIC_CHAIN_ID="11155111"
+NEXT_PUBLIC_CHAIN_NAME="Sepolia Testnet"
+NEXT_PUBLIC_CHAIN_CURRENCY_SYMBOL="ETH"
 NEXT_PUBLIC_RPC_URL="https://ethereum-sepolia-rpc.publicnode.com"
+SEPOLIA_RPC_URL="https://ethereum-sepolia-rpc.publicnode.com"
+MAINNET_RPC_URL="https://ethereum-rpc.publicnode.com"
 PRIVATE_KEY="your-private-key"
 
 # Midtrans (Optional - untuk payment gateway)
@@ -180,8 +188,8 @@ Pembayaran dengan MetaMask dan Ethereum
 
 ### Crypto Payment (Perlu Setup)
 1. Install MetaMask
-2. Switch ke Sepolia Testnet
-3. Get Sepolia ETH dari faucet
+2. Set `.env` ke network target yang dipakai aplikasi
+3. Switch MetaMask ke network yang sama
 4. Connect wallet & bayar
 
 ---
