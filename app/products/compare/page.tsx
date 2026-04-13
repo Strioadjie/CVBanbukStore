@@ -4,6 +4,7 @@ import { Fragment, useEffect, useMemo, useState } from "react";
 import AppNavbar from "@/components/AppNavbar";
 import ProductImage from "@/components/ProductImage";
 import Link from "next/link";
+import LoadingScreen from "@/components/LoadingScreen";
 
 export default function CompareProductsPage() {
   const [products, setProducts] = useState<any[]>([]);
@@ -40,11 +41,7 @@ export default function CompareProductsPage() {
   };
 
   if (loading) {
-    return (
-      <div className="page-shell flex min-h-screen items-center justify-center">
-        <div className="glass-panel px-8 py-6 text-sm text-slate-300">Memuat perbandingan produk...</div>
-      </div>
-    );
+    return <LoadingScreen label="Memuat perbandingan produk" detail="Data produk sedang disejajarkan untuk dibandingkan." />;
   }
 
   return (

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AppNavbar from "@/components/AppNavbar";
 import InteractiveCard from "@/components/InteractiveCard";
+import LoadingScreen from "@/components/LoadingScreen";
 
 type InquiryNotice = {
   id: number;
@@ -191,11 +192,7 @@ export default function InquiryPage() {
   };
 
   if (loading) {
-    return (
-      <div className="page-shell flex min-h-screen items-center justify-center">
-        <div className="glass-panel px-8 py-6 text-sm text-slate-300">Memuat data inquiry...</div>
-      </div>
-    );
+    return <LoadingScreen label="Memuat inquiry" detail="Percakapan dan status tindak lanjut sedang disiapkan." />;
   }
 
   return (

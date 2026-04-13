@@ -10,35 +10,21 @@ export default function LoadingScreen({
   detail = "Memuat tampilan, data, dan detail produk dengan transisi yang halus.",
 }: LoadingScreenProps) {
   return (
-    <div className="page-shell flex min-h-screen items-center justify-center px-4 py-10">
-      <div className="loading-stage grain-overlay editorial-shell relative w-full max-w-3xl rounded-[36px] px-8 py-12 sm:px-12 sm:py-14">
-        <div className="relative z-10 flex flex-col items-center text-center">
-          <div className="loading-orbit">
-            <div className="loading-ring">
-              <span />
-              <span />
-              <span />
-            </div>
-            <div className="loading-core" />
-          </div>
+    <div className="loading-screen page-shell" role="status" aria-live="polite" aria-label={label}>
+      <span className="sr-only">{detail}</span>
+      <div className="loading-screen__ambient" />
+      <div className="loading-screen__ambient loading-screen__ambient--secondary" />
 
-          <div className="loading-copy mt-8 max-w-xl">
-            <p className="section-kicker">Loading experience</p>
-            <h2 className="mt-3 text-4xl font-semibold text-slate-100 sm:text-5xl">
-              {label}
-            </h2>
-            <p className="mt-4 text-sm leading-7 text-slate-400 sm:text-base">
-              {detail}
-            </p>
-          </div>
+      <div className="loading-screen__center">
+        <div className="loading-mark">
+          <span className="loading-mark__frame" />
+          <span className="loading-mark__frame loading-mark__frame--inner" />
+          <span className="loading-mark__beam" />
+        </div>
 
-          <div className="editorial-divider mt-8 w-full max-w-lg" />
-
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-xs uppercase tracking-[0.24em] text-slate-500">
-            <span>Katalog</span>
-            <span>Inquiry</span>
-            <span>Pembayaran</span>
-          </div>
+        <div className="loading-trail">
+          <span className="loading-trail__line" />
+          <span className="loading-trail__pulse" />
         </div>
       </div>
     </div>

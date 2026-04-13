@@ -10,6 +10,7 @@ import Web3Payment from "@/components/Web3Payment";
 import MidtransPayment from "@/components/MidtransPayment";
 import ProductImage from "@/components/ProductImage";
 import InteractiveCard from "@/components/InteractiveCard";
+import LoadingScreen from "@/components/LoadingScreen";
 
 gsap.registerPlugin(useGSAP);
 
@@ -289,11 +290,7 @@ export default function PaymentPage() {
   };
 
   if (loading) {
-    return (
-      <div className="page-shell flex min-h-screen items-center justify-center">
-        <div className="glass-panel px-8 py-6 text-sm text-slate-300">Memuat halaman pembayaran...</div>
-      </div>
-    );
+    return <LoadingScreen label="Menyiapkan pembayaran" detail="Detail produk dan metode checkout sedang dimuat." />;
   }
 
   if (!product) {

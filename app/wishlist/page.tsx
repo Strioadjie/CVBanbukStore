@@ -7,6 +7,7 @@ import AppNavbar from "@/components/AppNavbar";
 import Link from "next/link";
 import InteractiveCard from "@/components/InteractiveCard";
 import ProductImage from "@/components/ProductImage";
+import LoadingScreen from "@/components/LoadingScreen";
 
 export default function WishlistPage() {
   const { data: session, status } = useSession();
@@ -53,11 +54,7 @@ export default function WishlistPage() {
   };
 
   if (loading) {
-    return (
-      <div className="page-shell flex min-h-screen items-center justify-center">
-        <div className="glass-panel px-8 py-6 text-sm text-slate-300">Memuat wishlist...</div>
-      </div>
-    );
+    return <LoadingScreen label="Memuat wishlist" detail="Daftar produk favorit sedang disiapkan." />;
   }
 
   return (
