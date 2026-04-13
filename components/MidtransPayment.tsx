@@ -20,10 +20,16 @@ declare global {
   }
 }
 
+const MIDTRANS_SCRIPT_SELECTOR = 'script[data-midtrans-snap="true"]';
+
 export default function MidtransPayment({ productId, productName, price, onStatusChange }: MidtransPaymentProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [isConfigured, setIsConfigured] = useState(true);
+  const isProduction = process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === "true";
+  const snapScriptUrl = isProduction
+    ? "https://app.midtrans.com/snap/snap.js"
+    : "https://app.sandbox.midtrans.com/snap/snap.js";
 
   useEffect(() => {
     const clientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY;
@@ -48,15 +54,34 @@ export default function MidtransPayment({ productId, productName, price, onStatu
         throw new Error(data.error || "Failed to create transaction");
       }
 
-      if (!window.snap) {
+      const existingScript = document.querySelector<HTMLScriptElement>(MIDTRANS_SCRIPT_SELECTOR);
+      const activeClientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || "";
+      const shouldReloadScript =
+        !existingScript ||
+        existingScript.src !== snapScriptUrl ||
+        existingScript.getAttribute("data-client-key") !== activeClientKey;
+
+      if (shouldReloadScript) {
+        if (existingScript) {
+          existingScript.remove();
+        }
+
+        window.snap = undefined;
+
         const script = document.createElement("script");
-        script.src = "https://app.sandbox.midtrans.com/snap/snap.js";
-        script.setAttribute("data-client-key", process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || "");
+        script.src = snapScriptUrl;
+        script.setAttribute("data-client-key", activeClientKey);
+        script.setAttribute("data-midtrans-snap", "true");
         document.body.appendChild(script);
 
-        await new Promise((resolve) => {
-          script.onload = resolve;
+        await new Promise<void>((resolve, reject) => {
+          script.onload = () => resolve();
+          script.onerror = () => reject(new Error("Gagal memuat script Midtrans Snap"));
         });
+      }
+
+      if (!window.snap) {
+        throw new Error("Snap Midtrans belum siap. Coba refresh halaman lalu ulangi pembayaran.");
       }
 
       window.snap.pay(data.token, {
@@ -133,6 +158,12 @@ export default function MidtransPayment({ productId, productName, price, onStatu
       <div className="mt-4 rounded-[22px] border border-white/8 bg-slate-950/35 px-4 py-4 text-sm leading-6 text-slate-300">
         Metode yang umumnya tersedia: transfer bank, kartu, e-wallet, QRIS, dan channel retail sesuai konfigurasi Midtrans Anda.
       </div>
+
+      {!isProduction && (
+        <div className="mt-4 rounded-[22px] border border-amber-500/20 bg-amber-500/10 px-4 py-4 text-sm leading-6 text-amber-100">
+          Anda sedang memakai Midtrans sandbox. Beberapa channel bisa sesekali tidak stabil saat testing, tetapi daftar metode pembayaran tidak dibatasi oleh aplikasi.
+        </div>
+      )}
 
       {error && (
         <div className="mt-4 rounded-[22px] border border-red-500/20 bg-red-500/10 px-4 py-4 text-sm text-red-200">

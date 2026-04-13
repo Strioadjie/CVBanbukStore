@@ -19,6 +19,15 @@ const cormorant = Cormorant_Garamond({
 export const metadata: Metadata = {
   title: "CV Banbuk Mandiri Jaya",
   description: "Platform katalog produk, inquiry, dan pembayaran CV Banbuk Mandiri Jaya.",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: [
+      { url: "/apple-icon.svg", type: "image/svg+xml" },
+    ],
+    shortcut: ["/icon.svg"],
+  },
 };
 
 export default function RootLayout({

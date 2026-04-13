@@ -8,6 +8,19 @@ export function isMidtransConfigured(): boolean {
   );
 }
 
+function isMidtransProduction(): boolean {
+  return process.env.MIDTRANS_IS_PRODUCTION === "true";
+}
+
+function getEnabledPayments(): string[] | undefined {
+  const configured = process.env.MIDTRANS_ENABLED_PAYMENTS
+    ?.split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  return configured && configured.length > 0 ? configured : undefined;
+}
+
 // Lazy initialization - only create when needed and configured
 let snapInstance: any = null;
 let coreApiInstance: any = null;
@@ -25,7 +38,7 @@ async function getSnap() {
   if (!snapInstance) {
     const midtransClient = await getMidtransClient();
     snapInstance = new midtransClient.Snap({
-      isProduction: false, // Set true untuk production
+      isProduction: isMidtransProduction(),
       serverKey: process.env.MIDTRANS_SERVER_KEY || '',
       clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || '',
     });
@@ -41,7 +54,7 @@ async function getCoreApi() {
   if (!coreApiInstance) {
     const midtransClient = await getMidtransClient();
     coreApiInstance = new midtransClient.CoreApi({
-      isProduction: false,
+      isProduction: isMidtransProduction(),
       serverKey: process.env.MIDTRANS_SERVER_KEY || '',
       clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || '',
     });
@@ -90,6 +103,7 @@ export async function createMidtransTransaction(params: {
     credit_card: {
       secure: true,
     },
+    enabled_payments: getEnabledPayments(),
   };
 
   try {
