@@ -48,8 +48,8 @@ export default function CompareProductsPage() {
     <main className="page-shell pb-16">
       <AppNavbar />
 
-      <section className="content-wrap pt-8">
-        <div className="glass-panel px-6 py-8 sm:px-8 sm:py-10">
+      <section className="bg-[color:var(--canvas-parchment)]">
+        <div className="content-wrap py-20">
           <span className="section-kicker">Compare</span>
           <h1 className="section-title">Perbandingan produk</h1>
           <p className="section-subtitle">
@@ -58,24 +58,24 @@ export default function CompareProductsPage() {
         </div>
       </section>
 
-      <section className="content-wrap mt-8">
+      <section className="content-wrap py-8">
         {selectedProducts.length === 2 ? (
-          <div className="glass-panel overflow-hidden">
-            <div className="grid gap-px bg-slate-800 lg:grid-cols-[220px_1fr_1fr]">
-              <div className="bg-slate-950/65 p-6" />
+          <div className="overflow-hidden rounded-[18px] border border-[color:var(--hairline)] bg-[color:var(--hairline)]">
+            <div className="grid gap-px lg:grid-cols-[220px_1fr_1fr]">
+              <div className="bg-white p-6" />
               {selectedProducts.map((product) => (
-                <div key={product.id} className="bg-slate-950/65 p-6">
-                  <div className="overflow-hidden rounded-[24px] border border-slate-800">
-                    <div className="h-44">
+                <div key={product.id} className="bg-white p-6">
+                  <div className="overflow-hidden rounded-lg bg-[color:var(--canvas-parchment)] p-7">
+                    <div className="aspect-square">
                       <ProductImage src={product.image} alt={product.name} />
                     </div>
                   </div>
                   <div className="mt-5 flex items-start justify-between gap-4">
                     <div>
-                      <h2 className="text-3xl font-semibold text-slate-50">{product.name}</h2>
-                      <p className="mt-2 text-sm text-slate-300">Rp {product.price.toLocaleString()}</p>
+                      <h2 className="text-[21px] font-semibold leading-[1.19] tracking-[0.231px] text-[color:var(--ink)]">{product.name}</h2>
+                      <p className="mt-2 text-[17px] text-[color:var(--ink-muted-80)]">Rp {product.price.toLocaleString()}</p>
                     </div>
-                    <button onClick={() => removeCompare(product.id)} className="app-button-secondary">
+                    <button onClick={() => removeCompare(product.id)} className="text-[17px] text-[color:var(--primary)]">
                       Hapus
                     </button>
                   </div>
@@ -90,11 +90,11 @@ export default function CompareProductsPage() {
                 ["Deskripsi", selectedProducts.map((product) => product.description)],
               ] as Array<[string, string[]]>).map(([label, values]) => (
                 <Fragment key={String(label)}>
-                  <div className="bg-slate-950/45 p-6 text-sm font-semibold text-slate-200">
+                  <div className="bg-[color:var(--canvas-parchment)] p-6 text-[14px] font-semibold leading-[1.29] tracking-[-0.224px] text-[color:var(--ink)]">
                     {label}
                   </div>
                   {values.map((value: string, index: number) => (
-                    <div key={`${label}-${index}`} className="bg-slate-950/25 p-6 text-sm leading-7 text-slate-300">
+                    <div key={`${label}-${index}`} className="bg-white p-6 text-[17px] leading-[1.47] tracking-[-0.374px] text-[color:var(--ink-muted-80)]">
                       {value}
                     </div>
                   ))}
@@ -105,7 +105,7 @@ export default function CompareProductsPage() {
         ) : (
           <div className="empty-state text-slate-300">
             <p>Pilih dua produk dari katalog untuk menggunakan fitur compare.</p>
-            <Link href="/products" className="mt-4 inline-flex font-semibold text-teal-300 hover:text-teal-200">
+            <Link href="/products" className="mt-4 inline-flex text-[color:var(--primary)]">
               Kembali ke katalog
             </Link>
           </div>

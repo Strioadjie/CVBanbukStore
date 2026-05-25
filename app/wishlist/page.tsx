@@ -61,8 +61,8 @@ export default function WishlistPage() {
     <main className="page-shell pb-16">
       <AppNavbar />
 
-      <section className="content-wrap pt-8">
-        <div className="glass-panel px-6 py-8 sm:px-8 sm:py-10">
+      <section className="bg-[color:var(--canvas-parchment)]">
+        <div className="content-wrap py-20">
           <span className="section-kicker">Favorites</span>
           <h1 className="section-title">Wishlist produk</h1>
           <p className="section-subtitle">
@@ -71,38 +71,34 @@ export default function WishlistPage() {
         </div>
       </section>
 
-      <section className="content-wrap mt-8 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <section className="content-wrap grid gap-5 py-8 md:grid-cols-2 xl:grid-cols-4">
         {wishlists.map((item) => (
-          <InteractiveCard key={item.id} className="glass-panel overflow-hidden">
-            <div className="relative h-48 overflow-hidden">
+          <InteractiveCard key={item.id} disabled className="store-utility-card flex flex-col">
+            <div className="relative aspect-square overflow-hidden rounded-lg bg-[color:var(--canvas-parchment)] p-7">
               <ProductImage src={item.product.image} alt={item.product.name} />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
-              <div className="absolute left-4 right-4 top-4 flex items-start justify-between gap-4">
-                <span className="status-pill w-fit bg-white/15 text-white">Wishlist item</span>
+              <div className="absolute right-3 top-3">
                 <button
                   onClick={() => removeFromWishlist(item.product.id)}
-                  className="flex h-11 w-11 items-center justify-center rounded-full border border-rose-400/50 bg-rose-500/20 text-lg text-rose-300"
+                  className="flex h-11 w-11 items-center justify-center rounded-full bg-[color:var(--primary)] text-lg text-white"
                   aria-label="Hapus dari wishlist"
                 >
                   ♥
                 </button>
               </div>
-              <div className="absolute inset-x-0 bottom-0 p-6">
-                <h2 className="text-3xl font-semibold text-white">{item.product.name}</h2>
-              </div>
             </div>
 
-            <div className="p-6">
-              <p className="line-clamp-3 text-sm leading-7 text-slate-400">{item.product.description}</p>
-              <p className="mt-5 text-2xl font-semibold text-slate-100">
+            <div className="flex flex-1 flex-col pt-5">
+              <h2 className="text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[color:var(--ink)]">{item.product.name}</h2>
+              <p className="mt-3 line-clamp-3 text-[14px] leading-[1.43] tracking-[-0.224px] text-[color:var(--ink-muted-80)]">{item.product.description}</p>
+              <p className="mt-5 text-[17px] leading-[1.47] tracking-[-0.374px] text-[color:var(--ink-muted-80)]">
                 Rp {item.product.price.toLocaleString()}
               </p>
 
-              <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                <Link href={`/products/${item.product.id}/payment`} className="app-button-primary w-full">
-                  Lanjut Bayar
+              <div className="mt-auto flex flex-wrap gap-3 pt-6">
+                <Link href={`/products/${item.product.id}/payment`} className="app-button-primary min-h-0 px-4 py-2 text-[14px]">
+                  Buy
                 </Link>
-                <button onClick={() => removeFromWishlist(item.product.id)} className="app-button-secondary w-full">
+                <button onClick={() => removeFromWishlist(item.product.id)} className="text-[17px] text-[color:var(--primary)]">
                   Hapus
                 </button>
               </div>

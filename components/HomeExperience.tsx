@@ -1,164 +1,96 @@
 "use client";
 
 import Link from "next/link";
-import { useRef } from "react";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
 
-gsap.registerPlugin(useGSAP);
-
-const experienceItems = [
+const platformTiles = [
   {
-    label: "Admin",
-    title: "Kontrol produk dan alur inquiry dalam satu tempat.",
-    detail: "Manajemen katalog, stok, dan laporan dibuat tetap rapi tanpa kesan dashboard yang berat.",
+    tone: "product-tile-dark",
+    title: "Katalog yang memberi ruang pada produk.",
+    copy: "Setiap item tampil sebagai objek utama: foto besar, spesifikasi ringkas, dan aksi yang tidak mengganggu keputusan customer.",
+    primary: "Lihat Store",
+    href: "/products",
   },
   {
-    label: "Sales",
-    title: "Follow-up customer lebih fokus dan lebih ringan dipakai.",
-    detail: "Assignment, status, dan komunikasi tetap jelas dengan tampilan yang lebih sederhana.",
-  },
-  {
-    label: "Customer",
-    title: "Jelajah katalog yang bersih, cepat, dan tidak melelahkan.",
-    detail: "Wishlist, inquiry, dan pembayaran terasa lebih natural di setiap langkahnya.",
+    tone: "product-tile-parchment",
+    title: "Inquiry, sales, dan stok tersusun rapi.",
+    copy: "Admin dan sales bekerja dari satu alur yang tenang: assignment jelas, status mudah dibaca, dan dashboard fokus pada hal penting.",
+    primary: "Masuk Dashboard",
+    href: "/dashboard",
   },
 ];
 
 export default function HomeExperience() {
-  const rootRef = useRef<HTMLDivElement>(null);
-
-  useGSAP(
-    () => {
-      const mm = gsap.matchMedia();
-
-      mm.add(
-        {
-          reduceMotion: "(prefers-reduced-motion: reduce)",
-          desktop: "(min-width: 1024px)",
-        },
-        (context) => {
-          const { reduceMotion, desktop } = context.conditions ?? {};
-          const items = gsap.utils.toArray<HTMLElement>("[data-reveal]");
-
-          if (reduceMotion || items.length === 0) {
-            gsap.set(items, { clearProps: "all" });
-            return;
-          }
-
-          gsap.set(items, {
-            opacity: 0,
-            y: desktop ? 28 : 20,
-            willChange: "transform, opacity",
-          });
-
-          const tl = gsap.timeline({
-            defaults: {
-              duration: desktop ? 0.82 : 0.68,
-              ease: "power3.out",
-            },
-            onComplete: () => {
-              gsap.set(items, { clearProps: "willChange" });
-            },
-          });
-
-          tl.to(items, {
-            opacity: 1,
-            y: 0,
-            stagger: desktop ? 0.1 : 0.06,
-          });
-        }
-      );
-
-      return () => mm.revert();
-    },
-    { scope: rootRef }
-  );
-
   return (
-    <div ref={rootRef} className="flex flex-col relative z-20 min-h-[calc(100vh-140px)] justify-center">
-      <section className="content-wrap w-full max-w-5xl mx-auto flex flex-col items-center text-center mt-12 md:mt-16">
-        <h1 data-reveal className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.05] text-[#f2ede4] tracking-tight">
-          CV Banbuk <br />
-          Mandiri Jaya
+    <div className="relative z-10">
+      <section className="product-tile product-tile-light">
+        <p className="section-kicker">CV Banbuk Mandiri Jaya</p>
+        <h1 className="max-w-4xl text-[clamp(40px,6vw,56px)] font-semibold leading-[1.07] tracking-[-0.28px] text-[color:var(--ink)]">
+          Product gallery yang bersih, tenang, dan siap dipakai tim.
         </h1>
-        <p data-reveal className="mt-6 text-[17px] md:text-[19px] text-slate-300 tracking-wide font-medium">
-          Platform katalog produk, inquiry, dan pembayaran yang siap dipakai secara profesional.
+        <p className="max-w-3xl text-[clamp(21px,3vw,28px)] font-normal leading-[1.14] tracking-[0.196px] text-[color:var(--ink-muted-80)]">
+          Katalog, inquiry, wishlist, dan pembayaran disusun seperti store modern: UI menghilang, produk yang berbicara.
         </p>
-
-        <div data-reveal className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link href="/register" className="app-button-primary w-full sm:w-auto px-8">
-            Mulai Sekarang
-          </Link>
-          <Link href="/products" className="app-button-secondary w-full sm:w-auto px-8">
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Link href="/products" className="app-button-primary">
             Lihat Katalog
           </Link>
+          <Link href="/register" className="app-button-secondary">
+            Buat Akun
+          </Link>
         </div>
-      </section>
-
-      <section className="content-wrap deferred-section w-full max-w-5xl mx-auto mt-20 md:mt-28">
-        <div data-reveal className="flex flex-col gap-4">
-          <h2 className="text-[13px] md:text-sm font-semibold text-slate-300 tracking-wide mb-2 text-left pl-2">
-            Platform Overview
-          </h2>
-
-          <div className="glass-panel flex items-center justify-between px-4 py-6 md:px-8 bg-white/5 border-white/10 rounded-2xl md:rounded-[24px]">
-            <button className="text-slate-500 hover:text-slate-300 transition-colors p-2">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-            </button>
-            <div className="flex-1 grid grid-cols-2 lg:grid-cols-4 gap-6 text-center divide-x divide-white/5">
-              <div className="flex flex-col items-center gap-3">
-                <svg className="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><rect width="14" height="18" x="5" y="3" rx="2"/><path d="M9 7h6"/><path d="M9 11h6"/><path d="M9 15h4"/></svg>
-                <span className="text-sm font-medium text-slate-300">Terstruktur</span>
-              </div>
-              <div className="flex flex-col items-center gap-3">
-                <svg className="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path d="M21 3v6h-6"/><path d="M21 3 9 15"/><path d="M3 21v-6h6"/><path d="M3 21 15 9"/></svg>
-                <span className="text-sm font-medium text-slate-300">Workflow</span>
-              </div>
-              <div className="flex flex-col items-center gap-3 hidden md:flex">
-                <svg className="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                <span className="text-sm font-medium text-slate-300">Siap untuk Tim</span>
-              </div>
-              <div className="flex flex-col items-center gap-3 hidden lg:flex">
-                <svg className="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="m16 11 2 2 4-4"/></svg>
-                <span className="text-sm font-medium text-slate-300">Siap untuk Customer</span>
-              </div>
+        <div className="product-shadow mt-8 flex aspect-[16/7] w-full max-w-5xl items-center justify-center overflow-hidden bg-[color:var(--canvas-parchment)]">
+          <div className="grid h-full w-full grid-cols-3">
+            <div className="flex items-center justify-center bg-white p-8">
+              <span className="text-[clamp(28px,4vw,56px)] font-semibold tracking-[-0.28px] text-[color:var(--ink)]">Store</span>
             </div>
-            <button className="text-slate-500 hover:text-slate-300 transition-colors p-2">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border border-white/5 rounded-2xl md:rounded-[24px] bg-white/[0.02] overflow-hidden mt-2">
-            {experienceItems.map((item, idx) => (
-              <div key={item.label} className={`p-6 md:p-8 flex flex-col gap-2 ${idx !== experienceItems.length - 1 ? 'border-b md:border-b-0 md:border-r border-white/5' : ''}`}>
-                <h3 className="text-[11px] font-bold tracking-[0.1em] text-slate-400 uppercase">
-                  {item.label}
-                </h3>
-                <p className="text-[14px] leading-relaxed text-slate-300">
-                  {item.title}
-                </p>
-              </div>
-            ))}
+            <div className="flex items-center justify-center bg-[color:var(--surface-tile-1)] p-8">
+              <span className="text-[clamp(28px,4vw,56px)] font-semibold tracking-[-0.28px] text-white">Inquiry</span>
+            </div>
+            <div className="flex items-center justify-center bg-[color:var(--canvas-parchment)] p-8">
+              <span className="text-[clamp(28px,4vw,56px)] font-semibold tracking-[-0.28px] text-[color:var(--ink)]">Pay</span>
+            </div>
           </div>
         </div>
       </section>
 
-      <footer data-reveal className="content-wrap deferred-section w-full max-w-5xl mx-auto mt-24 mb-8 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-        <div className="flex items-center gap-6 text-[13px] text-slate-400">
-          <Link href="/" className="hover:text-slate-200 transition-colors">Home</Link>
-          <Link href="#" className="hover:text-[color:var(--primary)] transition-colors">About us</Link>
-          <Link href="#" className="hover:text-slate-200 transition-colors">Workflow</Link>
-          <Link href="#" className="hover:text-slate-200 transition-colors">Contact</Link>
+      {platformTiles.map((tile) => (
+        <section key={tile.title} className={`product-tile ${tile.tone}`}>
+          <h2 className="max-w-3xl text-[clamp(34px,4vw,40px)] font-semibold leading-[1.1] tracking-[-0.28px]">
+            {tile.title}
+          </h2>
+          <p className={`max-w-3xl text-[24px] font-light leading-[1.5] ${tile.tone.includes("dark") ? "text-[color:var(--body-muted)]" : "text-[color:var(--ink-muted-80)]"}`}>
+            {tile.copy}
+          </p>
+          <Link href={tile.href} className="app-button-primary">
+            {tile.primary}
+          </Link>
+        </section>
+      ))}
+
+      <section className="bg-[color:var(--canvas)] px-5 py-20 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-[1440px] gap-5 md:grid-cols-3">
+          {[
+            ["Admin", "Kelola produk, stok, inquiry, user, dan laporan dari satu tempat."],
+            ["Sales", "Prioritaskan follow-up customer dengan status dan assignment yang jelas."],
+            ["Customer", "Jelajah produk, simpan wishlist, kirim inquiry, lalu checkout dengan mudah."],
+          ].map(([title, copy]) => (
+            <div key={title} className="store-utility-card">
+              <h3 className="text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[color:var(--ink)]">{title}</h3>
+              <p className="mt-3 text-[17px] leading-[1.47] tracking-[-0.374px] text-[color:var(--ink-muted-80)]">{copy}</p>
+            </div>
+          ))}
         </div>
-        <a
-          href="https://github.com/rhmatzeka"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[13px] text-slate-400 transition-colors hover:text-slate-200"
-        >
-          matsganz@gmail.com
-        </a>
+      </section>
+
+      <footer className="bg-[color:var(--canvas-parchment)] px-5 py-16 text-[12px] leading-none tracking-[-0.12px] text-[color:var(--ink-muted-48)] sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-[1440px] flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <p>CV Banbuk Mandiri Jaya. Katalog, inquiry, dan pembayaran dalam satu pengalaman.</p>
+          <div className="flex flex-wrap gap-5 text-[color:var(--ink-muted-80)]">
+            <Link href="/products">Store</Link>
+            <Link href="/login">Login</Link>
+            <Link href="/register">Register</Link>
+          </div>
+        </div>
       </footer>
     </div>
   );

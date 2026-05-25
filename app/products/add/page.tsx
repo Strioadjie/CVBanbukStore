@@ -73,17 +73,21 @@ export default function AddProductPage() {
     <main className="page-shell pb-16">
       <AppNavbar />
 
-      <div className="content-wrap py-8">
-        <div className="glass-panel p-6 sm:p-8">
+      <section className="bg-[color:var(--canvas-parchment)]">
+        <div className="content-wrap py-20">
           <span className="section-kicker">Admin tools</span>
           <h1 className="section-title">Tambah produk baru</h1>
           <p className="section-subtitle">
-            Admin bisa menambahkan foto produk langsung dari komputer. Untuk MVP, gambar akan disimpan ke field `image` dan langsung tampil di katalog.
+            Tambahkan foto, harga, stok, dan spesifikasi dalam form yang ringkas.
           </p>
+        </div>
+      </section>
 
-          <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+      <div className="content-wrap py-8">
+        <div className="mx-auto max-w-5xl rounded-[18px] border border-[color:var(--hairline)] bg-white p-6 sm:p-8">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-200">
+              <label className="mb-2 block text-[14px] font-semibold leading-[1.29] tracking-[-0.224px] text-[color:var(--ink)]">
                 Nama Produk *
               </label>
               <input
@@ -97,7 +101,7 @@ export default function AddProductPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-200">
+                <label className="mb-2 block text-[14px] font-semibold leading-[1.29] tracking-[-0.224px] text-[color:var(--ink)]">
                   Harga (Rp) *
                 </label>
                 <input
@@ -110,7 +114,7 @@ export default function AddProductPage() {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-200">
+                <label className="mb-2 block text-[14px] font-semibold leading-[1.29] tracking-[-0.224px] text-[color:var(--ink)]">
                   Stok *
                 </label>
                 <input
@@ -124,7 +128,7 @@ export default function AddProductPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-200">
+              <label className="mb-2 block text-[14px] font-semibold leading-[1.29] tracking-[-0.224px] text-[color:var(--ink)]">
                 Deskripsi *
               </label>
               <textarea
@@ -137,7 +141,7 @@ export default function AddProductPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-200">
+              <label className="mb-2 block text-[14px] font-semibold leading-[1.29] tracking-[-0.224px] text-[color:var(--ink)]">
                 Bahan *
               </label>
               <input
@@ -151,7 +155,7 @@ export default function AddProductPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-200">
+              <label className="mb-2 block text-[14px] font-semibold leading-[1.29] tracking-[-0.224px] text-[color:var(--ink)]">
                 Ukuran *
               </label>
               <input
@@ -166,16 +170,16 @@ export default function AddProductPage() {
 
             <div className="grid gap-5 lg:grid-cols-[1fr_0.9fr]">
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-200">
+                <label className="mb-2 block text-[14px] font-semibold leading-[1.29] tracking-[-0.224px] text-[color:var(--ink)]">
                   Upload Foto Produk
                 </label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
-                  className="app-input file:mr-4 file:rounded-full file:border-0 file:bg-teal-500/15 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-teal-300"
+                  className="app-input file:mr-4 file:rounded-full file:border-0 file:bg-[color:var(--primary)] file:px-4 file:py-2 file:text-sm file:font-normal file:text-white"
                 />
-                <p className="mt-2 text-xs text-slate-400">
+                <p className="mt-2 text-[12px] leading-none tracking-[-0.12px] text-[color:var(--ink-muted-48)]">
                   Bisa upload dari device atau isi manual dengan URL jika diperlukan.
                 </p>
 
@@ -189,9 +193,9 @@ export default function AddProductPage() {
               </div>
 
               <div>
-                <p className="mb-2 text-sm font-medium text-slate-200">Preview</p>
-                <div className="overflow-hidden rounded-[24px] border border-slate-800 bg-slate-950/70">
-                  <div className="h-56">
+                <p className="mb-2 text-[14px] font-semibold leading-[1.29] tracking-[-0.224px] text-[color:var(--ink)]">Preview</p>
+                <div className="overflow-hidden rounded-lg bg-[color:var(--canvas-parchment)] p-7">
+                  <div className="aspect-square">
                     <ProductImage src={formData.image} alt={formData.name || "Preview produk"} />
                   </div>
                 </div>

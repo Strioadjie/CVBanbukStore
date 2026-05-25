@@ -1,20 +1,8 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Manrope } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 
 export const dynamic = "force-dynamic";
-
-const manrope = Manrope({
-  subsets: ["latin"],
-  variable: "--font-manrope",
-});
-
-const cormorant = Cormorant_Garamond({
-  subsets: ["latin"],
-  variable: "--font-display",
-  weight: ["500", "600", "700"],
-});
 
 export const metadata: Metadata = {
   title: "CV Banbuk Mandiri Jaya",
@@ -37,7 +25,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id">
-      <body className={`${manrope.variable} ${cormorant.variable}`}>
+      <body>
         <Providers>{children}</Providers>
       </body>
     </html>

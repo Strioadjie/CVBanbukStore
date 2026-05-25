@@ -75,134 +75,78 @@ const ProductCard = memo(function ProductCard({
   );
 
   return (
-    <InteractiveCard
-      disabled
-      className="product-catalog-card glass-panel flex flex-col overflow-hidden border border-white/5 bg-white/[0.02]"
-    >
-      <div className="group relative aspect-[4/5] w-full shrink-0 overflow-hidden">
+    <InteractiveCard disabled className="product-catalog-card store-utility-card flex h-full flex-col">
+      <div className="relative aspect-square overflow-hidden rounded-lg bg-[color:var(--canvas-parchment)] p-7">
         <ProductImage src={product.image} alt={product.name} />
-
-        <div className="absolute inset-0 bg-gradient-to-t from-[#101012] via-[#101012]/10 to-transparent opacity-80" />
-
         {isCustomer && (
           <button
             type="button"
             onClick={() => onToggleWishlist(product.id)}
-            className={`absolute right-2 top-2 z-20 flex h-8 w-8 items-center justify-center rounded-full border text-sm transition-colors ${
-              isWishlisted
-                ? "border-[color:var(--primary)] bg-[color:var(--primary)]/10 text-[color:var(--primary)]"
-                : "border-white/20 bg-black/35 text-white hover:bg-white/10"
+            className={`absolute right-3 top-3 flex h-11 w-11 items-center justify-center rounded-full text-[color:var(--ink)] ${
+              isWishlisted ? "bg-[color:var(--primary)] text-white" : "bg-[color:var(--surface-chip)]"
             }`}
-            aria-label={
-              isWishlisted ? "Hapus dari wishlist" : "Tambah ke wishlist"
-            }
+            aria-label={isWishlisted ? "Hapus dari wishlist" : "Tambah ke wishlist"}
           >
-            <svg
-              width="13"
-              height="13"
-              fill={isWishlisted ? "currentColor" : "none"}
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            <svg width="18" height="18" fill={isWishlisted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+              <path d="M12 20.5s-7-4.35-9-8.5C1.56 8.99 3.33 5.5 7 5.5c2.06 0 3.3 1.02 5 3 1.7-1.98 2.94-3 5-3 3.67 0 5.44 3.49 4 6.5-2 4.15-9 8.5-9 8.5Z" />
             </svg>
           </button>
         )}
-
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-col justify-end px-4 pb-3 text-white">
-          <span className="mb-1.5 inline-flex w-fit rounded border border-[color:var(--primary)]/30 bg-[#101012]/80 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-widest text-[color:var(--primary)]">
-            Stok {product.stock}
-          </span>
-          <h2 className="line-clamp-1 text-lg font-medium leading-snug tracking-tight text-slate-100">
-            {product.name}
-          </h2>
-          <p className="mt-0.5 text-sm font-semibold text-[color:var(--primary)]">
-            Rp {product.price.toLocaleString()}
-          </p>
-        </div>
-
-        <div className="pointer-events-none absolute inset-0 z-10 flex translate-y-2 flex-col items-center justify-center gap-2 bg-[#101012]/88 p-4 opacity-0 transition duration-200 group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100">
-          <p className="mb-2 line-clamp-3 text-center text-[11px] leading-relaxed text-slate-300">
-            {product.description}
-          </p>
-
-          {isCustomer && (
-            <>
-              <button
-                type="button"
-                onClick={() => onCreateInquiry(product.id)}
-                className="app-button-secondary w-full py-2 text-[11px]"
-              >
-                Kirim Inquiry
-              </button>
-              <Link
-                href={`/products/${product.id}/payment`}
-                className="app-button-primary w-full py-2 text-[11px]"
-              >
-                Beli Sekarang
-              </Link>
-            </>
-          )}
-
-          <button
-            type="button"
-            onClick={() => onToggleCompare(product.id)}
-            className="app-button-secondary w-full py-2 text-[11px]"
-          >
-            {isCompared ? "Uncompare" : "Compare"}
-          </button>
-          <a
-            href={whatsappHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="app-button-secondary flex w-full items-center justify-center gap-1.5 py-2 text-[11px]"
-          >
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-            </svg>
-            Tanya WhatsApp
-          </a>
-        </div>
       </div>
 
-      <div className="flex flex-1 flex-col justify-between bg-white/[0.01] p-3.5">
-        <div className="flex w-full items-center justify-between divide-x divide-white/10 text-xs">
-          <div className="flex flex-1 flex-col pr-2">
-            <span className="text-[9px] uppercase tracking-widest text-slate-500">
-              Ukuran
-            </span>
-            <span className="mt-0.5 truncate font-medium text-slate-300">
-              {product.size}
-            </span>
+      <div className="flex flex-1 flex-col pt-5">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-[17px] font-semibold leading-[1.24] tracking-[-0.374px] text-[color:var(--ink)]">
+              {product.name}
+            </h2>
+            <p className="mt-1 text-[17px] leading-[1.47] tracking-[-0.374px] text-[color:var(--ink-muted-80)]">
+              Rp {product.price.toLocaleString("id-ID")}
+            </p>
           </div>
-          <div className="flex flex-1 flex-col pl-3">
-            <span className="text-[9px] uppercase tracking-widest text-slate-500">
-              Bahan
-            </span>
-            <span className="mt-0.5 truncate font-medium text-slate-300">
-              {product.material}
-            </span>
+          <span className="text-[12px] leading-none tracking-[-0.12px] text-[color:var(--ink-muted-48)]">
+            Stok {product.stock}
+          </span>
+        </div>
+
+        <p className="mt-4 line-clamp-3 text-[14px] leading-[1.43] tracking-[-0.224px] text-[color:var(--ink-muted-80)]">
+          {product.description}
+        </p>
+
+        <div className="mt-5 grid grid-cols-2 gap-3 text-[14px] leading-[1.43] tracking-[-0.224px] text-[color:var(--ink-muted-80)]">
+          <div className="rounded-lg bg-[color:var(--canvas-parchment)] px-3 py-2">
+            <span className="block text-[12px] leading-none tracking-[-0.12px] text-[color:var(--ink-muted-48)]">Ukuran</span>
+            <span className="mt-1 block truncate">{product.size}</span>
+          </div>
+          <div className="rounded-lg bg-[color:var(--canvas-parchment)] px-3 py-2">
+            <span className="block text-[12px] leading-none tracking-[-0.12px] text-[color:var(--ink-muted-48)]">Bahan</span>
+            <span className="mt-1 block truncate">{product.material}</span>
           </div>
         </div>
 
-        {isAdmin && (
-          <div className="mt-3 border-t border-white/5 pt-3">
-            <Link
-              href={`/products/${product.id}/edit`}
-              className="app-button-secondary w-full border-dashed py-1.5 text-center text-[10px] uppercase tracking-widest opacity-70 hover:opacity-100"
-            >
-              Edit Tool
+        <div className="mt-auto flex flex-wrap items-center gap-3 pt-6">
+          {isCustomer && (
+            <>
+              <Link href={`/products/${product.id}/payment`} className="app-button-primary min-h-0 px-4 py-2 text-[14px]">
+                Buy
+              </Link>
+              <button type="button" onClick={() => onCreateInquiry(product.id)} className="text-[17px] text-[color:var(--primary)]">
+                Inquiry
+              </button>
+            </>
+          )}
+          <button type="button" onClick={() => onToggleCompare(product.id)} className="text-[17px] text-[color:var(--primary)]">
+            {isCompared ? "Remove compare" : "Compare"}
+          </button>
+          <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="text-[17px] text-[color:var(--primary)]">
+            WhatsApp
+          </a>
+          {isAdmin && (
+            <Link href={`/products/${product.id}/edit`} className="button-pearl-capsule">
+              Edit
             </Link>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </InteractiveCard>
   );
@@ -468,23 +412,11 @@ export default function ProductsPage() {
         <div className="pointer-events-none fixed inset-x-4 bottom-4 z-[130] flex justify-center sm:inset-x-auto sm:right-6 sm:w-auto sm:justify-end">
           <div
             key={catalogNotice.id}
-            className={`pointer-events-auto w-full max-w-[400px] rounded-[26px] border px-5 py-4 shadow-[0_28px_70px_rgba(0,0,0,0.35)] transition-all duration-300 ${
-              catalogNotice.tone === "success"
-                ? "border-emerald-400/20 bg-[linear-gradient(135deg,rgba(16,40,28,0.97),rgba(11,18,15,0.98))]"
-                : catalogNotice.tone === "info"
-                  ? "border-sky-400/20 bg-[linear-gradient(135deg,rgba(15,34,48,0.97),rgba(10,16,22,0.98))]"
-                  : "border-rose-400/20 bg-[linear-gradient(135deg,rgba(52,20,24,0.97),rgba(18,12,14,0.98))]"
-            }`}
+            className="pointer-events-auto w-full max-w-[400px] rounded-[18px] border border-[color:var(--hairline)] bg-white px-5 py-4 transition-all duration-300"
           >
             <div className="flex items-start gap-4">
               <div
-                className={`mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${
-                  catalogNotice.tone === "success"
-                    ? "bg-emerald-400/15 text-emerald-300"
-                    : catalogNotice.tone === "info"
-                      ? "bg-sky-400/15 text-sky-300"
-                      : "bg-rose-400/15 text-rose-300"
-                }`}
+                className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[color:var(--canvas-parchment)] text-[color:var(--primary)]"
               >
                 {catalogNotice.tone === "success" ? (
                   <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -506,14 +438,14 @@ export default function ProductsPage() {
               </div>
 
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-white">{catalogNotice.title}</p>
-                <p className="mt-1.5 text-sm leading-6 text-slate-300">{catalogNotice.message}</p>
+                <p className="text-[14px] font-semibold leading-[1.29] tracking-[-0.224px] text-[color:var(--ink)]">{catalogNotice.title}</p>
+                <p className="mt-1.5 text-[14px] leading-[1.43] tracking-[-0.224px] text-[color:var(--ink-muted-80)]">{catalogNotice.message}</p>
               </div>
 
               <button
                 type="button"
                 onClick={() => setCatalogNotice(null)}
-                className="rounded-full border border-white/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-slate-300 transition-colors hover:border-white/20 hover:text-white"
+                className="text-[14px] leading-[1.29] tracking-[-0.224px] text-[color:var(--primary)]"
               >
                 Tutup
               </button>
@@ -522,8 +454,8 @@ export default function ProductsPage() {
         </div>
       )}
 
-      <section className="content-wrap pt-8">
-        <div className="glass-panel px-6 py-8 sm:px-8 sm:py-10">
+      <section className="bg-[color:var(--canvas-parchment)]">
+        <div className="content-wrap py-20">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <span className="section-kicker">Catalog</span>
@@ -548,7 +480,7 @@ export default function ProductsPage() {
         </div>
       </section>
 
-      <section className="content-wrap mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
+      <section className="content-wrap grid grid-cols-1 gap-5 py-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {products.map((product) => (
           <ProductCard
             key={product.id}
