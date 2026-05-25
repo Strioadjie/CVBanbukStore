@@ -228,13 +228,13 @@ textarea:focus-visible {
 
   .app-input {
     width: 100%;
-    height: 56px;
-    border-radius: 14px;
+    height: 50px;
+    border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.16);
     background: rgba(255, 255, 255, 0.02);
     color: var(--on-dark);
-    padding: 0 18px;
-    font-size: 18px;
+    padding: 0 15px;
+    font-size: 15px;
     outline: none;
   }
 
@@ -269,20 +269,20 @@ textarea:focus-visible {
     background: var(--seed-lime);
     color: var(--seed-green);
     text-align: center;
-    padding-block: 8px;
-    font-size: 14px;
+    padding-block: 6px;
+    font-size: 12px;
     font-weight: 600;
   }
 
   .seed-nav {
-    height: 68px;
+    height: 56px;
     color: var(--seed-cream);
   }
 
   .seed-hero {
-    min-height: 320px;
-    border-bottom-left-radius: 34px;
-    border-bottom-right-radius: 34px;
+    min-height: 240px;
+    border-bottom-left-radius: 24px;
+    border-bottom-right-radius: 24px;
     background:
       linear-gradient(90deg, rgba(15, 55, 17, 0.78), rgba(15, 55, 17, 0.18)),
       radial-gradient(circle at 80% 30%, rgba(216, 255, 138, 0.32), transparent 20rem),
@@ -290,27 +290,27 @@ textarea:focus-visible {
   }
 
   .seed-card {
-    border-radius: 22px;
+    border-radius: 16px;
     background: var(--seed-cream);
     color: var(--seed-green);
   }
 
   .seed-card-green {
-    border-radius: 22px;
+    border-radius: 16px;
     background: var(--seed-green-2);
     color: var(--seed-cream);
   }
 
   .seed-button {
     display: inline-flex;
-    min-height: 48px;
+    min-height: 40px;
     align-items: center;
     justify-content: center;
     border-radius: 9999px;
     background: var(--seed-green);
     color: var(--seed-cream);
-    padding: 12px 28px;
-    font-size: 15px;
+    padding: 9px 20px;
+    font-size: 13px;
     font-weight: 700;
   }
 
@@ -340,6 +340,67 @@ textarea:focus-visible {
     background: var(--canvas);
     color: var(--ink);
     box-shadow: none;
+  }
+
+  .auth-page {
+    background:
+      radial-gradient(circle at 50% 0%, rgba(0, 212, 164, 0.15), transparent 18rem),
+      var(--canvas-dark);
+  }
+
+  .dashboard-page {
+    --primary: var(--brand-green);
+    --foreground: #ffffff;
+    --foreground-soft: rgba(255, 255, 255, 0.68);
+    --hairline: rgba(255, 255, 255, 0.1);
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at 14% 8%, rgba(0, 212, 164, 0.16), transparent 22rem),
+      radial-gradient(circle at 88% 2%, rgba(55, 114, 207, 0.13), transparent 20rem),
+      linear-gradient(180deg, #070907 0%, #0a0d0b 46%, #0a0a0a 100%);
+    color: #ffffff;
+  }
+
+  .dashboard-page .mint-nav {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .dashboard-page .glass-panel,
+  .dashboard-page .glass-card,
+  .dashboard-page .dashboard-lite-card,
+  .dashboard-page .dashboard-lite-surface,
+  .dashboard-page .metric-card {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.045);
+    color: #ffffff;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.24);
+    backdrop-filter: blur(18px);
+  }
+
+  .dashboard-page .dashboard-lite-card,
+  .dashboard-page .glass-card {
+    background: rgba(255, 255, 255, 0.035);
+  }
+
+  .dashboard-page .app-button-primary {
+    background: var(--brand-green);
+    color: #06100d;
+  }
+
+  .dashboard-page .app-button-secondary {
+    border-color: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+  }
+
+  .dashboard-page .metric-label,
+  .dashboard-page .metric-value {
+    color: #ffffff;
+  }
+
+  .dashboard-page .empty-state {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    color: rgba(255, 255, 255, 0.7);
   }
 
   .metric-card {

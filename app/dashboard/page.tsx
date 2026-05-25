@@ -341,7 +341,7 @@ export default function DashboardPage() {
   const latestTransaction = customerActivity.transactions[0];
 
   return (
-    <main className="page-shell pb-16">
+    <main className="dashboard-page page-shell pb-16">
       <AppNavbar />
 
       <section className="content-wrap pt-8">

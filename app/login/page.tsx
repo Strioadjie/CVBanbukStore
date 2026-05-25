@@ -32,51 +32,41 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[color:var(--canvas-dark)] text-white">
-      <section className="mx-auto flex min-h-screen w-full max-w-[520px] flex-col justify-center px-6 py-12">
-        <Link href="/" className="mb-20 flex justify-center" aria-label="Home">
-          <span className="relative h-12 w-12 rounded-[14px] bg-[color:var(--brand-green)]">
-            <span className="absolute bottom-1 left-1 h-7 w-7 rounded-full bg-[color:var(--canvas-dark)]" />
+    <main className="auth-page min-h-dvh bg-[color:var(--canvas-dark)] text-white">
+      <section className="mx-auto flex min-h-dvh w-full max-w-[420px] flex-col justify-center px-6 py-8">
+        <Link href="/" className="mb-10 flex justify-center" aria-label="Home">
+          <span className="relative h-10 w-10 rounded-[12px] bg-[color:var(--brand-green)]">
+            <span className="absolute bottom-1 left-1 h-6 w-6 rounded-full bg-[color:var(--canvas-dark)]" />
           </span>
         </Link>
 
-        <h1 className="text-[40px] font-semibold leading-[1.1] tracking-[-0.04em]">Sign in to Mintlify</h1>
-        <p className="mt-3 text-[22px] text-white/70">
-          New here?{" "}
+        <h1 className="text-[32px] font-semibold leading-[1.12] tracking-[-0.04em]">Sign in to BanbukStore</h1>
+        <p className="mt-2 text-[15px] text-white/62">
+          Baru di sini?{" "}
           <Link href="/register" className="font-semibold text-[color:var(--brand-green)]">
-            Create account →
+            Buat akun →
           </Link>
         </p>
 
-        {isRegistered && <p className="mt-8 rounded-xl border border-white/10 bg-white/[0.04] p-4 text-white/72">Akun berhasil dibuat. Silakan masuk.</p>}
-        {error && <p className="mt-8 rounded-xl border border-red-400/20 bg-red-500/10 p-4 text-red-100">{error}</p>}
+        {isRegistered && <p className="mt-6 rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm text-white/72">Akun berhasil dibuat. Silakan masuk.</p>}
+        {error && <p className="mt-6 rounded-xl border border-red-400/20 bg-red-500/10 p-3 text-sm text-red-100">{error}</p>}
 
-        <form onSubmit={handleSubmit} className="mt-16 space-y-7">
+        <form onSubmit={handleSubmit} className="mt-9 space-y-5">
           <label className="block">
-            <span className="mb-3 block text-[20px] font-semibold">Enter your email</span>
+            <span className="mb-2 block text-sm font-semibold">Email</span>
             <input className="app-input" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="name@email.com" required />
           </label>
           <label className="block">
-            <span className="mb-3 block text-[20px] font-semibold">Password</span>
+            <span className="mb-2 block text-sm font-semibold">Password</span>
             <input className="app-input" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="••••••••" required />
           </label>
-          <button className="h-16 w-full rounded-2xl bg-white text-[18px] font-semibold text-black disabled:opacity-45" disabled={loading}>
-            {loading ? "Signing in..." : "Continue"}
+          <button className="h-12 w-full rounded-xl bg-white text-sm font-semibold text-black disabled:opacity-45" disabled={loading}>
+            {loading ? "Masuk..." : "Masuk"}
           </button>
         </form>
 
-        <div className="my-10 flex items-center gap-4 text-white/50">
-          <span className="h-px flex-1 bg-white/20" />
-          OR
-          <span className="h-px flex-1 bg-white/20" />
-        </div>
-
-        <button className="h-16 rounded-2xl border border-white/20 text-[18px] font-semibold text-white">
-          Continue with Google
-        </button>
-
-        <p className="mt-20 text-[20px] leading-8 text-white/50">
-          By signing in, you agree to the <span className="underline">Terms of Service</span> and <span className="underline">Privacy Policy</span>.
+        <p className="mt-8 text-sm leading-6 text-white/42">
+          Masuk untuk mengelola pesanan, wishlist, inquiry, dan checkout BanbukStore.
         </p>
       </section>
     </main>

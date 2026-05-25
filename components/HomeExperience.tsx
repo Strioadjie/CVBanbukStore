@@ -32,7 +32,7 @@ export default function HomeExperience() {
             <div className="border-r border-white/10 p-5">
               <div className="mb-5 flex items-center gap-2 text-white">
                 <span className="h-3 w-3 rounded-full bg-[color:var(--brand-green)]" />
-                mintlify
+                BanbukStore
               </div>
               {["Quickstart", "Global Settings", "AI optimizations", "Components", "Themes"].map((item, index) => (
                 <div key={item} className={`rounded-md px-3 py-2 ${index === 0 ? "bg-[rgba(0,212,164,0.12)] text-[color:var(--brand-green)]" : ""}`}>
@@ -144,7 +144,7 @@ export default function HomeExperience() {
           <div>
             <Link href="/" className="flex items-center gap-2 font-semibold text-white">
               <span className="h-4 w-4 rounded-full bg-[color:var(--brand-green)]" />
-              mintlify
+              BanbukStore
             </Link>
             <p className="mt-8 text-sm">AI automation powered. © 2026 Banbuk.</p>
           </div>

@@ -18,9 +18,9 @@ export default function AppNavbar() {
   };
 
   const links = [
-    { href: "/products", label: seedMode ? "Shop" : "Store" },
-    { href: "/products/compare", label: seedMode ? "Science" : "Compare" },
-    { href: session ? "/dashboard" : "/register", label: seedMode ? "Learn" : "Dashboard" },
+    { href: "/products", label: "Store" },
+    { href: "/products/compare", label: "Compare" },
+    { href: session ? "/dashboard" : "/register", label: "Dashboard" },
   ];
 
   if (seedMode) {
@@ -28,8 +28,8 @@ export default function AppNavbar() {
       <header className="sticky top-0 z-50">
         <nav className="seed-nav bg-[rgba(17,63,18,0.92)] backdrop-blur-xl">
           <div className="content-wrap flex h-full items-center justify-between">
-            <Link href="/" className="flex items-center gap-1 text-[28px] font-semibold tracking-[-0.04em]">
-              Seed<span className="h-4 w-4 rounded-full bg-[color:var(--seed-cream)]" />
+            <Link href="/" className="flex items-center gap-2 text-[22px] font-semibold tracking-[-0.03em]">
+              BanbukStore<span className="h-3 w-3 rounded-full bg-[color:var(--seed-lime)]" />
             </Link>
             <div className="hidden items-center gap-10 text-[14px] font-semibold md:flex">
               {links.map((link) => (
@@ -76,11 +76,26 @@ export default function AppNavbar() {
         <div className="content-wrap flex h-full items-center justify-between">
           <Link href="/" className="flex items-center gap-2 font-semibold text-white">
             <span className="h-5 w-5 rounded-full bg-[color:var(--brand-green)]" />
-            mintlify
+            BanbukStore
           </Link>
           <div className="hidden items-center gap-7 text-white/72 md:flex">
-            {["Resources", "Documentation", "Customers", "Blog", "Pricing"].map((item) => (
-              <Link key={item} href={item === "Documentation" ? "/products" : "#"}>
+            {["Store", "Compare", "Wishlist", "Inquiry", "Dashboard"].map((item) => (
+              <Link
+                key={item}
+                href={
+                  item === "Store"
+                    ? "/products"
+                    : item === "Compare"
+                      ? "/products/compare"
+                      : item === "Wishlist"
+                        ? "/wishlist"
+                        : item === "Inquiry"
+                          ? "/inquiry"
+                          : session
+                            ? "/dashboard"
+                            : "/login"
+                }
+              >
                 {item}
               </Link>
             ))}
@@ -96,7 +111,7 @@ export default function AppNavbar() {
               </Link>
             )}
             <Link href={session ? "/products" : "/register"} className="mint-pill mint-pill-light">
-              {session ? "Open store" : "Start for free"}
+              {session ? "Open store" : "Create account"}
             </Link>
           </div>
         </div>
