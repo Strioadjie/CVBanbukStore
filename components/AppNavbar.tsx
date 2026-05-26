@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { useState } from "react";
+import CartDrawer from "@/components/CartDrawer";
 
 export default function AppNavbar() {
   const { data: session } = useSession();
@@ -15,6 +16,10 @@ export default function AppNavbar() {
   const handleLogout = async () => {
     await signOut({ redirect: false });
     router.push("/");
+  };
+
+  const openCart = () => {
+    window.dispatchEvent(new Event("banbuk-cart-open"));
   };
 
   const links = [
@@ -49,9 +54,9 @@ export default function AppNavbar() {
                   Sign in
                 </Link>
               )}
-              <Link href="/cart" className="mint-pill mint-pill-green">
+              <button type="button" onClick={openCart} className="mint-pill mint-pill-green">
                 Cart
-              </Link>
+              </button>
               <button className="text-[14px] font-medium text-white md:hidden" onClick={() => setOpen((value) => !value)} aria-label="Toggle menu">
                 Menu
               </button>
@@ -67,6 +72,7 @@ export default function AppNavbar() {
             ))}
           </div>
         )}
+        <CartDrawer />
       </header>
     );
   }

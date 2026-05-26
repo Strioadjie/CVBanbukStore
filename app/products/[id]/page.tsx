@@ -30,6 +30,7 @@ function addCartItem(product: Product) {
     : [...current, { ...product, quantity: 1 }];
   localStorage.setItem(CART_KEY, JSON.stringify(next));
   window.dispatchEvent(new Event("banbuk-cart-updated"));
+  window.dispatchEvent(new Event("banbuk-cart-open"));
 }
 
 export default function ProductDetailPage() {
@@ -96,9 +97,9 @@ export default function ProductDetailPage() {
           <p className="mt-6 text-[24px] font-semibold">Rp {product.price.toLocaleString("id-ID")}</p>
           <p className="mt-2 text-sm text-[color:var(--seed-muted)]">Stock {product.stock}. Size {product.size}. Material {product.material}.</p>
           <button onClick={addToCart} className="seed-button mt-8 w-full">Add To Cart</button>
-          <Link href="/cart" className="mt-3 flex h-12 items-center justify-center rounded-full border border-[color:var(--seed-green)] font-bold">
+          <button type="button" onClick={() => window.dispatchEvent(new Event("banbuk-cart-open"))} className="mt-3 flex h-12 w-full items-center justify-center rounded-full border border-[color:var(--seed-green)] font-bold">
             View Cart
-          </Link>
+          </button>
           <div className="mt-8 space-y-4 text-sm">
             {["Naturally supports daily routines", "Designed around simple product education", "Ships with checkout-ready workflow"].map((item) => (
               <div key={item} className="flex gap-3 border-t border-[rgba(17,63,18,0.16)] pt-4">

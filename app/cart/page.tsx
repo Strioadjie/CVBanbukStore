@@ -23,90 +23,145 @@ export default function CartPage() {
   const [items, setItems] = useState<CartItem[]>([]);
 
   useEffect(() => {
-    setItems(JSON.parse(localStorage.getItem(CART_KEY) || "[]"));
+    const syncCart = () => setItems(JSON.parse(localStorage.getItem(CART_KEY) || "[]"));
+    syncCart();
+    window.addEventListener("banbuk-cart-updated", syncCart);
+    return () => window.removeEventListener("banbuk-cart-updated", syncCart);
   }, []);
 
   const save = (next: CartItem[]) => {
     setItems(next);
     localStorage.setItem(CART_KEY, JSON.stringify(next));
+    window.dispatchEvent(new Event("banbuk-cart-updated"));
   };
 
   const subtotal = useMemo(() => items.reduce((sum, item) => sum + item.price * item.quantity, 0), [items]);
-  const discount = Math.round(subtotal * 0.12);
+  const discount = Math.round(subtotal * 0.08);
   const total = Math.max(0, subtotal - discount);
+  const checkoutHref = items[0] ? `/products/${items[0].id}/payment` : "/products";
 
   return (
-    <main className="min-h-screen bg-[#d7d9d1] text-[color:var(--seed-green)]">
+    <main className="product-page min-h-screen text-white">
       <AppNavbar />
-      <section className="grid min-h-[calc(100vh-68px)] lg:grid-cols-[1fr_760px]">
-        <div className="hidden items-center justify-center overflow-hidden bg-[#a8b596] p-8 lg:flex">
-          <div className="aspect-[4/3] w-full max-w-3xl">
-            <ProductImage src={items[0]?.image} alt={items[0]?.name || "Cart product"} />
+
+      <section className="content-wrap pb-20 pt-10">
+        <div className="flex flex-col justify-between gap-4 border-b border-white/10 pb-8 md:flex-row md:items-end">
+          <div>
+            <p className="section-kicker">Checkout</p>
+            <h1 className="mt-2 text-[40px] font-semibold leading-tight md:text-[56px]">Cart</h1>
+            <p className="mt-3 max-w-2xl text-[15px] leading-6 text-white/56">
+              Review item, atur kuantitas, lalu lanjutkan pembayaran tanpa keluar dari alur katalog Banbuk.
+            </p>
           </div>
+          <Link href="/products" className="mint-pill mint-pill-outline w-fit">
+            Continue shopping
+          </Link>
         </div>
 
-        <aside className="m-3 rounded-[30px] bg-[color:var(--seed-cream)] p-6 md:p-10">
-          <div className="flex items-center justify-between">
-            <h1 className="text-[46px] font-semibold tracking-[-0.055em]">Your Cart</h1>
-            <Link href="/products" className="flex h-14 w-14 items-center justify-center rounded-full bg-[#e9ece2] text-2xl">×</Link>
+        {items.length === 0 ? (
+          <div className="product-card mt-8 p-10 text-center">
+            <h2 className="text-[24px] font-semibold">Cart masih kosong.</h2>
+            <p className="mt-2 text-[14px] text-white/54">Tambahkan produk dari katalog untuk mulai checkout.</p>
+            <Link href="/products" className="mint-pill mint-pill-green mt-6">
+              Shop products
+            </Link>
           </div>
-
-          <div className="mt-10 rounded-xl bg-[#e7ebdc] px-6 py-5 text-center text-[22px] font-semibold">
-            【 📦 You're getting free shipping 】
-          </div>
-
-          <div className="mt-8 divide-y divide-[rgba(17,63,18,0.16)]">
-            {items.map((item) => (
-              <div key={item.id} className="grid grid-cols-[120px_1fr] gap-6 py-8">
-                <Link href={`/products/${item.id}`} className="flex aspect-square items-center justify-center rounded-xl bg-white p-4">
-                  <ProductImage src={item.image} alt={item.name} />
-                </Link>
-                <div>
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <h2 className="text-[24px] font-semibold leading-[1.15] tracking-[-0.04em]">{item.name}</h2>
-                      <p className="mt-1 text-[18px] text-[#5d7354]">Delivered monthly</p>
-                      <span className="mt-2 inline-block bg-[color:var(--seed-lime)] px-1 text-[16px] font-bold">Rp {Math.round(item.price * 0.12).toLocaleString("id-ID")} off today</span>
+        ) : (
+          <div className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
+            <div className="space-y-3">
+              {items.map((item) => (
+                <article key={item.id} className="cart-page-item">
+                  <Link href={`/products/${item.id}`} className="cart-page-thumb">
+                    <ProductImage src={item.image} alt={item.name} className="max-h-[108px]" />
+                  </Link>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <h2 className="text-[22px] font-semibold leading-snug">{item.name}</h2>
+                        <p className="mt-2 line-clamp-2 text-[14px] leading-6 text-white/56">{item.description}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => save(items.filter((entry) => entry.id !== item.id))}
+                        className="w-fit text-[13px] font-medium text-white/44"
+                      >
+                        Remove
+                      </button>
                     </div>
-                    <button onClick={() => save(items.filter((entry) => entry.id !== item.id))} className="text-[#5d7354]">Remove</button>
-                  </div>
-                  <div className="mt-6 flex items-center justify-between">
-                    <p className="text-[22px] font-semibold">Rp {item.price.toLocaleString("id-ID")}</p>
-                    <div className="flex h-12 items-center overflow-hidden rounded-full border border-[rgba(17,63,18,0.24)]">
-                      <button className="px-5 text-2xl" onClick={() => save(items.map((entry) => entry.id === item.id ? { ...entry, quantity: Math.max(1, entry.quantity - 1) } : entry))}>−</button>
-                      <span className="px-2 text-xl font-semibold">{item.quantity}</span>
-                      <button className="px-5 text-2xl" onClick={() => save(items.map((entry) => entry.id === item.id ? { ...entry, quantity: entry.quantity + 1 } : entry))}>＋</button>
+
+                    <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+                      <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3 text-[13px]">
+                        <p className="text-white/36">Bahan</p>
+                        <p className="mt-1 font-medium text-white/78">{item.material}</p>
+                      </div>
+                      <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3 text-[13px]">
+                        <p className="text-white/36">Ukuran</p>
+                        <p className="mt-1 font-medium text-white/78">{item.size}</p>
+                      </div>
+                      <div className="flex items-center justify-between gap-4 sm:justify-end">
+                        <p className="text-[18px] font-semibold text-[color:var(--brand-green)]">
+                          Rp {(item.price * item.quantity).toLocaleString("id-ID")}
+                        </p>
+                        <div className="cart-quantity">
+                          <button
+                            type="button"
+                            onClick={() => save(items.map((entry) => entry.id === item.id ? { ...entry, quantity: Math.max(1, entry.quantity - 1) } : entry))}
+                          >
+                            -
+                          </button>
+                          <span>{item.quantity}</span>
+                          <button
+                            type="button"
+                            onClick={() => save(items.map((entry) => entry.id === item.id ? { ...entry, quantity: entry.quantity + 1 } : entry))}
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
+                </article>
+              ))}
+            </div>
+
+            <aside className="cart-page-summary">
+              <div>
+                <p className="section-kicker">Order summary</p>
+                <h2 className="mt-2 text-[26px] font-semibold">Ringkasan</h2>
+              </div>
+
+              <div className="mt-5 rounded-lg border border-[rgba(0,212,164,0.2)] bg-[rgba(0,212,164,0.08)] p-4 text-[14px] leading-6 text-[color:var(--brand-green)]">
+                Diskon checkout otomatis diterapkan sebelum masuk ke pembayaran.
+              </div>
+
+              <div className="mt-5 space-y-3 border-y border-white/10 py-5 text-[14px] text-white/58">
+                <div className="flex justify-between">
+                  <span>Subtotal</span>
+                  <span>Rp {subtotal.toLocaleString("id-ID")}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Diskon</span>
+                  <span>-Rp {discount.toLocaleString("id-ID")}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Estimasi pajak</span>
+                  <span>Checkout</span>
                 </div>
               </div>
-            ))}
-          </div>
 
-          {items.length === 0 && (
-            <div className="py-20 text-center">
-              <p className="text-[24px] font-semibold">Cart masih kosong.</p>
-              <Link href="/products" className="seed-button mt-6">Shop products</Link>
-            </div>
-          )}
+              <div className="mt-5 flex items-end justify-between gap-4">
+                <span className="text-[18px] font-semibold">Total</span>
+                <span className="text-right text-[28px] font-semibold text-[color:var(--brand-green)]">
+                  Rp {total.toLocaleString("id-ID")}
+                </span>
+              </div>
 
-          {items.length > 0 && (
-            <div className="sticky bottom-0 -mx-6 mt-4 border-t border-[rgba(17,63,18,0.16)] bg-[color:var(--seed-cream)] px-6 py-6 md:-mx-10 md:px-10">
-              <div className="flex justify-between text-[20px]">
-                <span>Discounts</span>
-                <span className="bg-[color:var(--seed-lime)]">-Rp {discount.toLocaleString("id-ID")}</span>
-              </div>
-              <div className="mt-5 flex justify-between text-[32px] font-semibold">
-                <span>Total</span>
-                <span>Rp {total.toLocaleString("id-ID")}</span>
-              </div>
-              <p className="mt-2 text-[18px] text-[#5d7354]">Shipping + taxes calculated at checkout</p>
-              <Link href={items[0] ? `/products/${items[0].id}/payment` : "/products"} className="mt-7 flex h-20 items-center justify-center rounded-full bg-[color:var(--seed-green)] text-[24px] font-bold text-[color:var(--seed-cream)]">
+              <Link href={checkoutHref} className="mt-6 flex h-12 items-center justify-center rounded-full bg-[color:var(--brand-green)] text-[14px] font-semibold text-black">
                 Checkout
               </Link>
-            </div>
-          )}
-        </aside>
+            </aside>
+          </div>
+        )}
       </section>
     </main>
   );

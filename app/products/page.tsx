@@ -30,6 +30,7 @@ function addCartItem(product: Product) {
     : [...current, { ...product, quantity: 1 }];
   localStorage.setItem(CART_KEY, JSON.stringify(next));
   window.dispatchEvent(new Event("banbuk-cart-updated"));
+  window.dispatchEvent(new Event("banbuk-cart-open"));
 }
 
 const formatPrice = (value: number) => `Rp ${value.toLocaleString("id-ID")}`;
@@ -212,7 +213,7 @@ export default function ProductsPage() {
                 <p className="mb-4 text-[11px] font-semibold uppercase text-white/40">{group}</p>
                 <Link href="/products" className="block py-1.5 text-white/62">Store</Link>
                 <Link href="/dashboard" className="block py-1.5 text-white/62">Dashboard</Link>
-                <Link href="/cart" className="block py-1.5 text-white/62">Cart</Link>
+                <button type="button" onClick={() => window.dispatchEvent(new Event("banbuk-cart-open"))} className="block py-1.5 text-left text-white/62">Cart</button>
               </div>
             ))}
           </div>
