@@ -327,7 +327,81 @@ textarea:focus-visible {
   }
 
   .product-shadow {
-    filter: drop-shadow(0 20px 34px rgba(0, 0, 0, 0.18));
+    filter: drop-shadow(0 20px 34px rgba(0, 0, 0, 0.34));
+  }
+
+  .product-page {
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at 14% 4%, rgba(0, 212, 164, 0.18), transparent 23rem),
+      radial-gradient(circle at 82% 10%, rgba(55, 114, 207, 0.16), transparent 24rem),
+      linear-gradient(180deg, #050706 0%, #080b0a 42%, #0a0a0a 100%);
+  }
+
+  .product-nav {
+    height: 64px;
+    color: var(--on-dark);
+  }
+
+  .product-hero {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background:
+      linear-gradient(135deg, rgba(26, 61, 74, 0.72), rgba(45, 90, 79, 0.28) 44%, rgba(5, 7, 6, 0) 72%),
+      radial-gradient(circle at 88% 28%, rgba(0, 212, 164, 0.18), transparent 18rem);
+  }
+
+  .product-spotlight,
+  .product-card,
+  .product-toolbar {
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    background: rgba(12, 16, 14, 0.74);
+    box-shadow: none;
+  }
+
+  .product-spotlight {
+    background:
+      linear-gradient(135deg, rgba(0, 212, 164, 0.12), rgba(55, 114, 207, 0.08)),
+      rgba(12, 16, 14, 0.78);
+  }
+
+  .product-card {
+    color: var(--on-dark);
+  }
+
+  .product-media {
+    display: flex;
+    min-height: 0;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(circle at 50% 42%, rgba(0, 212, 164, 0.18), transparent 12rem),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015));
+  }
+
+  .product-input {
+    min-height: 42px;
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.045);
+    color: var(--on-dark);
+    padding: 10px 12px;
+    font-size: 14px;
+    outline: none;
+  }
+
+  .product-input:focus {
+    border-color: rgba(0, 212, 164, 0.8);
+  }
+
+  .product-input::placeholder {
+    color: rgba(255, 255, 255, 0.42);
+  }
+
+  .product-input option {
+    background: #0a0a0a;
+    color: #ffffff;
   }
 
   .glass-panel,
