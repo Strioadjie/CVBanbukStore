@@ -343,26 +343,12 @@ textarea:focus-visible {
     color: var(--on-dark);
   }
 
-  .product-hero {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    background:
-      linear-gradient(135deg, rgba(26, 61, 74, 0.72), rgba(45, 90, 79, 0.28) 44%, rgba(5, 7, 6, 0) 72%),
-      radial-gradient(circle at 88% 28%, rgba(0, 212, 164, 0.18), transparent 18rem);
-  }
-
-  .product-spotlight,
   .product-card,
   .product-toolbar {
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
     background: rgba(12, 16, 14, 0.74);
     box-shadow: none;
-  }
-
-  .product-spotlight {
-    background:
-      linear-gradient(135deg, rgba(0, 212, 164, 0.12), rgba(55, 114, 207, 0.08)),
-      rgba(12, 16, 14, 0.78);
   }
 
   .product-card {
@@ -402,6 +388,29 @@ textarea:focus-visible {
   .product-input option {
     background: #0a0a0a;
     color: #ffffff;
+  }
+
+  .product-action {
+    display: inline-flex;
+    min-height: 34px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .product-action-primary {
+    background: var(--brand-green);
+    color: #050706;
+  }
+
+  .product-action-secondary {
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    background: rgba(255, 255, 255, 0.035);
+    color: rgba(255, 255, 255, 0.86);
   }
 
   .glass-panel,
