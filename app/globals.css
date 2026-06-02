@@ -330,6 +330,10 @@ textarea:focus-visible {
     filter: drop-shadow(0 20px 34px rgba(0, 0, 0, 0.34));
   }
 
+  .dummy-product-image {
+    filter: drop-shadow(0 20px 34px rgba(0, 0, 0, 0.34)) brightness(1.32) saturate(1.12);
+  }
+
   .product-page {
     min-height: 100vh;
     background:

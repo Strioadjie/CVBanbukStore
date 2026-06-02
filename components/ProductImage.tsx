@@ -6,58 +6,40 @@ type ProductImageProps = {
   variant?: "jar" | "box" | "capsule";
 };
 
+const DUMMY_PRODUCT_IMAGES = [
+  { keywords: ["ransel", "backpack", "laptop"], src: "/products/dummy-ransel.webp" },
+  { keywords: ["dompet", "wallet"], src: "/products/dummy-dompet.webp" },
+  { keywords: ["sepatu", "shoe"], src: "/products/dummy-sepatu.webp" },
+  { keywords: ["pinggang", "belt"], src: "/products/dummy-belt.webp" },
+  { keywords: ["jaket", "jacket"], src: "/products/dummy-jaket.webp" },
+  { keywords: ["tas", "bag"], src: "/products/dummy-tas-kulit.webp" },
+];
+
+function resolveDummyProductImage(alt: string) {
+  const normalizedAlt = alt.toLowerCase();
+  return (
+    DUMMY_PRODUCT_IMAGES.find((item) => item.keywords.some((keyword) => normalizedAlt.includes(keyword)))?.src ||
+    "/products/dummy-general.webp"
+  );
+}
+
 export default function ProductImage({
   src,
   alt,
   className = "",
   loading = "lazy",
-  variant = "jar",
 }: ProductImageProps) {
-  if (src) {
-    return (
-      <img
-        src={src}
-        alt={alt}
-        loading={loading}
-        decoding="async"
-        draggable={false}
-        className={`h-full w-full object-contain product-shadow ${className}`}
-      />
-    );
-  }
-
-  const initials = alt
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase())
-    .join("");
+  const customImageSrc = src?.trim();
+  const imageSrc = customImageSrc || resolveDummyProductImage(alt);
 
   return (
-    <div className={`flex h-full w-full items-center justify-center ${className}`}>
-      {variant === "box" ? (
-        <div className="product-shadow relative h-[72%] w-[56%] rounded-[8px] bg-[#101817] p-5 text-[#f7f7f7]">
-          <div className="absolute inset-0 rounded-[8px] bg-[radial-gradient(circle_at_48%_42%,rgba(0,212,164,0.3),transparent_14%),linear-gradient(115deg,rgba(255,255,255,0.16),transparent_35%)]" />
-          <p className="relative text-[16px] font-semibold">Banbuk</p>
-          <div className="relative mt-20 h-3 w-3 rounded-full bg-[color:var(--brand-green)]" />
-          <p className="relative mt-10 text-[11px] font-bold uppercase">{initials || "BMJ"}</p>
-        </div>
-      ) : variant === "capsule" ? (
-        <div className="product-shadow flex items-center gap-3">
-          {[0, 1, 2].map((item) => (
-            <div key={item} className="h-28 w-9 rounded-full bg-[linear-gradient(180deg,#f7f7f7_0%,#f7f7f7_48%,#00d4a4_49%,#101817_100%)]" />
-          ))}
-        </div>
-      ) : (
-        <div className="product-shadow relative h-[74%] w-[58%] max-w-[280px] rounded-b-[18px] rounded-t-[10px] bg-[linear-gradient(145deg,#1a3d4a,#101817_62%,#050706)]">
-          <div className="absolute -top-[12%] left-[-2%] h-[24%] w-[104%] rounded-[50%] bg-[linear-gradient(180deg,#17211f,#050706)]" />
-          <div className="absolute inset-0 rounded-b-[18px] rounded-t-[10px] bg-[radial-gradient(circle_at_48%_43%,rgba(0,212,164,0.55),transparent_5%),radial-gradient(circle_at_55%_46%,rgba(255,255,255,0.16),transparent_26%)]" />
-          <p className="absolute left-1/2 top-[24%] -translate-x-1/2 text-[16px] font-semibold text-[#f7f7f7]">Banbuk</p>
-          <p className="absolute bottom-[18%] left-1/2 w-full -translate-x-1/2 px-4 text-center text-[11px] font-bold uppercase text-[#f7f7f7]">
-            {initials || "BMJ"} daily
-          </p>
-        </div>
-      )}
-    </div>
+    <img
+      src={imageSrc}
+      alt={alt}
+      loading={loading}
+      decoding="async"
+      draggable={false}
+      className={`h-full w-full object-contain ${customImageSrc ? "product-shadow" : "dummy-product-image"} ${className}`}
+    />
   );
 }

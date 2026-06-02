@@ -68,42 +68,114 @@ export default function ProductDetailPage() {
     window.setTimeout(() => setAdded(false), 2200);
   };
 
+  const formatPrice = (value: number) => `Rp ${value.toLocaleString("id-ID")}`;
+  const stockTone = product.stock <= 5 ? "text-amber-300" : "text-[color:var(--brand-green)]";
+  const detailRows = [
+    ["Material", product.material],
+    ["Ukuran", product.size],
+    ["Stok", `${product.stock} unit`],
+  ];
+  const highlights = [
+    ["Produk siap jual", "Informasi produk, stok, dan harga sudah terhubung dengan katalog."],
+    ["Checkout fleksibel", "Customer bisa lanjut ke cart, pembayaran manual, gateway, atau crypto."],
+    ["Follow-up sales", "Produk dapat diarahkan ke inquiry untuk percakapan lanjutan dengan tim sales."],
+  ];
+
   return (
-    <main className="min-h-screen bg-[color:var(--seed-cream)] text-[color:var(--seed-green)]">
+    <main className="product-page min-h-screen text-white">
       <AppNavbar />
       {added && (
-        <div className="fixed bottom-6 left-1/2 z-[90] -translate-x-1/2 rounded-full bg-[color:var(--seed-lime)] px-5 py-3 text-sm font-bold">
-          Added to cart.
+        <div className="fixed bottom-6 left-1/2 z-[90] -translate-x-1/2 rounded-full border border-[rgba(0,212,164,0.25)] bg-[color:var(--brand-green)] px-5 py-3 text-sm font-semibold text-black shadow-[0_18px_50px_rgba(0,212,164,0.22)]">
+          Produk masuk ke cart.
         </div>
       )}
 
-      <section className="grid gap-6 p-4 lg:grid-cols-[minmax(0,1.35fr)_420px]">
-        <div className="grid gap-3 md:grid-cols-2">
-          <div className="md:col-span-2 flex min-h-[520px] items-center justify-center rounded-[18px] bg-[#c8d5a7] p-10">
-            <ProductImage src={product.image} alt={product.name} loading="eager" />
+      <section className="content-wrap grid gap-5 pb-10 pt-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(340px,420px)] lg:items-start">
+        <div className="grid gap-3">
+          <div className="product-card overflow-hidden">
+            <div className="product-media flex aspect-[16/10] max-h-[460px] min-h-[260px] items-center justify-center p-8 sm:p-10">
+              <ProductImage src={product.image} alt={product.name} loading="eager" className="max-h-[330px]" />
+            </div>
           </div>
-          <div className="flex min-h-[220px] items-center justify-center rounded-[14px] bg-[#85956c] p-8">
-            <ProductImage src={product.image} alt={product.name} variant="capsule" />
+
+          <div className="grid gap-3 sm:grid-cols-3">
+            {[
+              ["Front", "jar"],
+              ["Variant", "capsule"],
+              ["Pack", "box"],
+            ].map(([label, variant]) => (
+              <div key={label} className="product-card product-media flex aspect-[4/3] items-center justify-center p-5">
+                <ProductImage
+                  src={product.image}
+                  alt={`${product.name} ${label}`}
+                  variant={variant as "jar" | "box" | "capsule"}
+                  className="max-h-[132px]"
+                />
+              </div>
+            ))}
           </div>
-          <div className="flex min-h-[220px] items-center justify-center rounded-[14px] bg-[#163f16] p-8">
-            <ProductImage src={product.image} alt={product.name} variant="box" />
+
+          <div className="product-card p-5 md:p-6">
+            <div className="grid gap-5 md:grid-cols-[0.85fr_1.15fr] md:items-start">
+              <div>
+                <p className="section-kicker">Product Detail</p>
+                <h2 className="mt-2 text-[24px] font-semibold leading-tight text-white md:text-[30px]">
+                  Ringkasan produk
+                </h2>
+              </div>
+              <p className="text-[14px] leading-6 text-white/60">
+                {product.description} Detail ini disiapkan untuk membantu customer menilai produk sebelum lanjut ke cart atau inquiry.
+              </p>
+            </div>
           </div>
         </div>
 
-        <aside className="sticky top-[88px] h-fit rounded-[18px] bg-[color:var(--seed-cream)] p-5 lg:p-8">
-          <span className="rounded-full border border-current px-3 py-1 text-[12px] font-semibold">DM-02™</span>
-          <h1 className="mt-4 text-[42px] font-semibold leading-[1.03] tracking-[-0.055em]">{product.name}</h1>
-          <p className="mt-4 text-[18px] leading-7">{product.description}</p>
-          <p className="mt-6 text-[24px] font-semibold">Rp {product.price.toLocaleString("id-ID")}</p>
-          <p className="mt-2 text-sm text-[color:var(--seed-muted)]">Stock {product.stock}. Size {product.size}. Material {product.material}.</p>
-          <button onClick={addToCart} className="seed-button mt-8 w-full">Add To Cart</button>
-          <button type="button" onClick={() => window.dispatchEvent(new Event("banbuk-cart-open"))} className="mt-3 flex h-12 w-full items-center justify-center rounded-full border border-[color:var(--seed-green)] font-bold">
+        <aside className="product-card sticky top-[88px] h-fit p-5 md:p-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="status-pill">Ready</span>
+            <span className="status-pill bg-white/[0.06] text-white/68">CV Banbuk Mandiri Jaya</span>
+          </div>
+
+          <h1 className="mt-5 text-[34px] font-semibold leading-[1.08] text-white md:text-[44px]">
+            {product.name}
+          </h1>
+          <p className="mt-4 text-[15px] leading-7 text-white/62">{product.description}</p>
+
+          <div className="mt-6 border-y border-white/10 py-5">
+            <p className="text-[12px] font-semibold uppercase text-white/38">Harga</p>
+            <p className="mt-1 text-[28px] font-semibold text-[color:var(--brand-green)]">
+              {formatPrice(product.price)}
+            </p>
+            <p className={`mt-2 text-[13px] font-medium ${stockTone}`}>
+              {product.stock <= 5 ? "Stok terbatas" : "Stok tersedia"} - {product.stock} unit
+            </p>
+          </div>
+
+          <div className="mt-5 grid gap-3">
+            {detailRows.map(([label, value]) => (
+              <div key={label} className="flex items-center justify-between gap-4 border-b border-white/8 pb-3 text-[14px] last:border-b-0 last:pb-0">
+                <span className="text-white/42">{label}</span>
+                <span className="text-right font-medium text-white/82">{value}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-7 grid gap-3">
+            <button onClick={addToCart} className="product-action product-action-primary min-h-[46px] w-full text-[14px]">
+              Add To Cart
+            </button>
+            <Link href={`/products/${product.id}/payment`} className="product-action product-action-secondary min-h-[46px] w-full text-[14px]">
+              Checkout
+            </Link>
+          </div>
+          <button type="button" onClick={() => window.dispatchEvent(new Event("banbuk-cart-open"))} className="mt-3 flex min-h-[44px] w-full items-center justify-center rounded-full border border-white/12 bg-white/[0.03] text-[14px] font-semibold text-white/78 hover:border-white/20 hover:text-white">
             View Cart
           </button>
-          <div className="mt-8 space-y-4 text-sm">
-            {["Naturally supports daily routines", "Designed around simple product education", "Ships with checkout-ready workflow"].map((item) => (
-              <div key={item} className="flex gap-3 border-t border-[rgba(17,63,18,0.16)] pt-4">
-                <span className="mt-1 h-2 w-2 rounded-full bg-[color:var(--seed-green)]" />
+
+          <div className="mt-7 space-y-3 text-[13px] leading-5 text-white/54">
+            {["Katalog real-time", "Pembayaran multi-metode", "Inquiry sales tersedia"].map((item) => (
+              <div key={item} className="flex items-center gap-3">
+                <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--brand-green)]" />
                 <span>{item}</span>
               </div>
             ))}
@@ -111,49 +183,44 @@ export default function ProductDetailPage() {
         </aside>
       </section>
 
-      <section className="relative mx-4 overflow-hidden rounded-[18px] bg-[linear-gradient(90deg,rgba(17,63,18,0.94),rgba(17,63,18,0.44)),radial-gradient(circle_at_80%_20%,rgba(216,255,138,0.28),transparent_22rem)] px-6 py-20 text-[color:var(--seed-cream)] md:px-12">
-        <p className="text-sm">Your microbiome needs essential nutrients to function.</p>
-        <h2 className="mt-3 max-w-4xl text-[clamp(34px,6vw,58px)] font-semibold leading-[1.04] tracking-[-0.055em]">
-          {product.name} is built to support your daily product workflow.
-        </h2>
-        <div className="mt-14 grid gap-4 md:grid-cols-4">
-          {["Helps fill product gaps", "Designed for repeat use", "Feeds the knowledge base", "Whole body support"].map((item) => (
-            <div key={item} className="rounded-xl bg-white/10 p-5">
-              <div className="mb-6 h-8 w-8 rounded-full border border-white/50" />
-              <h3 className="font-semibold">{item}</h3>
-              <p className="mt-2 text-sm text-white/70">Clear information architecture for better customer decisions.</p>
-            </div>
+      <section className="content-wrap pb-10">
+        <div className="grid gap-4 md:grid-cols-3">
+          {highlights.map(([title, copy]) => (
+            <article key={title} className="product-card p-5">
+              <div className="mb-5 flex h-9 w-9 items-center justify-center rounded-lg border border-[rgba(0,212,164,0.24)] bg-[rgba(0,212,164,0.08)] text-[color:var(--brand-green)]">
+                <span className="h-2 w-2 rounded-full bg-current" />
+              </div>
+              <h3 className="text-[17px] font-semibold text-white">{title}</h3>
+              <p className="mt-2 text-[14px] leading-6 text-white/56">{copy}</p>
+            </article>
           ))}
         </div>
       </section>
 
-      <section className="grid gap-5 px-4 py-16 lg:grid-cols-[0.95fr_1.2fr]">
-        <div className="rounded-[18px] bg-[#173f16] p-8 text-[color:var(--seed-cream)]">
-          <div className="mx-auto flex aspect-square max-w-[360px] items-center justify-center">
-            <ProductImage src={product.image} alt={product.name} />
-          </div>
-        </div>
-        <div className="rounded-[18px] bg-[#82916a] p-8 text-[color:var(--seed-cream)]">
-          <h2 className="max-w-lg text-[38px] font-semibold leading-[1.05] tracking-[-0.05em]">2-in-1 formulation optimized for product discovery</h2>
-          <p className="mt-4 max-w-xl text-white/78">Use detail pages to answer the questions customers have before they reach checkout.</p>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2">
-            {["Benefits", "Ingredients", "Testing", "Reviews"].map((item) => (
-              <div key={item} className="rounded-xl bg-white/12 p-5">{item}</div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <section className="content-wrap pb-16">
+        <div className="product-card overflow-hidden">
+          <div className="grid gap-0 lg:grid-cols-[0.9fr_1.1fr]">
+            <div className="product-media flex min-h-[260px] items-center justify-center border-b border-white/8 p-8 lg:border-b-0 lg:border-r">
+              <ProductImage src={product.image} alt={product.name} variant="box" className="max-h-[230px]" />
+            </div>
+            <div className="p-5 md:p-7">
+              <p className="section-kicker">Specification</p>
+              <h2 className="mt-2 max-w-xl text-[28px] font-semibold leading-tight text-white md:text-[36px]">
+                Informasi produk dibuat ringkas untuk scan cepat.
+              </h2>
+              <p className="mt-4 max-w-2xl text-[15px] leading-7 text-white/58">
+                Gunakan detail ini untuk membandingkan bahan, ukuran, stok, dan harga sebelum memasukkan produk ke cart.
+              </p>
 
-      <section className="bg-white px-4 py-16">
-        <div className="mx-auto max-w-6xl">
-          <h2 className="text-center text-[38px] font-semibold tracking-[-0.05em]">Benefits that build over time</h2>
-          <div className="mt-10 overflow-hidden rounded-[18px] border border-[rgba(17,63,18,0.15)]">
-            {["Supports customer clarity", "Makes product specs easy to scan", "Reduces friction before checkout", "Connects catalog to cart"].map((item, index) => (
-              <div key={item} className="grid grid-cols-[56px_1fr] border-b border-[rgba(17,63,18,0.12)] bg-[color:var(--seed-cream)] last:border-b-0">
-                <div className="flex items-center justify-center bg-[#d7e4c1] font-bold">{index + 1}</div>
-                <div className="p-5 font-semibold">{item}</div>
+              <div className="mt-7 overflow-hidden rounded-lg border border-white/10">
+                {detailRows.map(([label, value]) => (
+                  <div key={label} className="grid grid-cols-[120px_1fr] border-b border-white/8 last:border-b-0">
+                    <div className="bg-white/[0.035] px-4 py-3 text-[13px] font-medium text-white/46">{label}</div>
+                    <div className="px-4 py-3 text-[14px] font-semibold text-white/82">{value}</div>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </div>
       </section>
