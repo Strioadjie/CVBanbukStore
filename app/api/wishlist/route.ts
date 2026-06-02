@@ -47,6 +47,13 @@ export async function POST(req: Request) {
 
     const { productId } = await req.json();
 
+    if (!productId) {
+      return NextResponse.json(
+        { error: "Product ID required" },
+        { status: 400 }
+      );
+    }
+
     // Cek apakah sudah ada di wishlist
     const existing = await prisma.wishlist.findUnique({
       where: {
@@ -55,13 +62,11 @@ export async function POST(req: Request) {
           productId,
         },
       },
+      include: { product: true },
     });
 
     if (existing) {
-      return NextResponse.json(
-        { error: "Produk sudah ada di wishlist" },
-        { status: 400 }
-      );
+      return NextResponse.json(existing);
     }
 
     const wishlist = await prisma.wishlist.create({
@@ -104,12 +109,10 @@ export async function DELETE(req: Request) {
       );
     }
 
-    await prisma.wishlist.delete({
+    await prisma.wishlist.deleteMany({
       where: {
-        userId_productId: {
-          userId: session.user.id,
-          productId,
-        },
+        userId: session.user.id,
+        productId,
       },
     });
 

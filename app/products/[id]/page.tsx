@@ -3,6 +3,7 @@
 import AppNavbar from "@/components/AppNavbar";
 import LoadingScreen from "@/components/LoadingScreen";
 import ProductImage from "@/components/ProductImage";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -34,11 +35,14 @@ function addCartItem(product: Product) {
 }
 
 export default function ProductDetailPage() {
+  const { data: session } = useSession();
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
-  const [added, setAdded] = useState(false);
+  const [notice, setNotice] = useState("");
+  const [wishlisted, setWishlisted] = useState(false);
+  const [wishlistBusy, setWishlistBusy] = useState(false);
 
   useEffect(() => {
     const load = async () => {
@@ -56,16 +60,69 @@ export default function ProductDetailPage() {
     load();
   }, [params.id, router]);
 
+  useEffect(() => {
+    if (!session?.user?.id) {
+      setWishlisted(false);
+      return;
+    }
+
+    const loadWishlist = async () => {
+      try {
+        const res = await fetch("/api/wishlist");
+        if (!res.ok) return;
+        const data = await res.json();
+        setWishlisted(
+          Array.isArray(data) &&
+            data.some((item) => item.productId === params.id || item.product?.id === params.id)
+        );
+      } catch {
+        setWishlisted(false);
+      }
+    };
+
+    loadWishlist();
+  }, [params.id, session?.user?.id]);
+
   if (loading) {
     return <LoadingScreen label="Memuat detail produk" detail="Detail produk sedang disiapkan." />;
   }
 
   if (!product) return null;
 
+  const showNotice = (message: string) => {
+    setNotice(message);
+    window.setTimeout(() => setNotice(""), 2400);
+  };
+
   const addToCart = () => {
     addCartItem(product);
-    setAdded(true);
-    window.setTimeout(() => setAdded(false), 2200);
+    showNotice("Produk masuk ke cart.");
+  };
+
+  const toggleWishlist = async () => {
+    if (!session) {
+      showNotice("Masuk dulu untuk menyimpan wishlist.");
+      window.setTimeout(() => router.push("/login"), 700);
+      return;
+    }
+
+    setWishlistBusy(true);
+    try {
+      const res = await fetch(wishlisted ? `/api/wishlist?productId=${product.id}` : "/api/wishlist", {
+        method: wishlisted ? "DELETE" : "POST",
+        headers: wishlisted ? undefined : { "Content-Type": "application/json" },
+        body: wishlisted ? undefined : JSON.stringify({ productId: product.id }),
+      });
+
+      if (!res.ok) throw new Error("Wishlist request failed");
+
+      setWishlisted((current) => !current);
+      showNotice(wishlisted ? "Produk dihapus dari wishlist." : "Produk masuk wishlist.");
+    } catch {
+      showNotice("Wishlist gagal diperbarui. Coba lagi sebentar.");
+    } finally {
+      setWishlistBusy(false);
+    }
   };
 
   const formatPrice = (value: number) => `Rp ${value.toLocaleString("id-ID")}`;
@@ -84,9 +141,9 @@ export default function ProductDetailPage() {
   return (
     <main className="product-page min-h-screen text-white">
       <AppNavbar />
-      {added && (
+      {notice && (
         <div className="fixed bottom-6 left-1/2 z-[90] -translate-x-1/2 rounded-full border border-[rgba(0,212,164,0.25)] bg-[color:var(--brand-green)] px-5 py-3 text-sm font-semibold text-black shadow-[0_18px_50px_rgba(0,212,164,0.22)]">
-          Produk masuk ke cart.
+          {notice}
         </div>
       )}
 
@@ -163,6 +220,14 @@ export default function ProductDetailPage() {
           <div className="mt-7 grid gap-3">
             <button onClick={addToCart} className="product-action product-action-primary min-h-[46px] w-full text-[14px]">
               Add To Cart
+            </button>
+            <button
+              type="button"
+              onClick={toggleWishlist}
+              disabled={wishlistBusy}
+              className={`product-action min-h-[46px] w-full text-[14px] disabled:cursor-not-allowed disabled:opacity-60 ${wishlisted ? "product-action-primary" : "product-action-secondary"}`}
+            >
+              {wishlistBusy ? "Menyimpan..." : wishlisted ? "Saved In Wishlist" : "Save To Wishlist"}
             </button>
             <Link href={`/products/${product.id}/payment`} className="product-action product-action-secondary min-h-[46px] w-full text-[14px]">
               Checkout

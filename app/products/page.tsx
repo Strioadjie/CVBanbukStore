@@ -5,6 +5,7 @@ import LoadingScreen from "@/components/LoadingScreen";
 import ProductImage from "@/components/ProductImage";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 type Product = {
@@ -57,6 +58,7 @@ const formatPrice = (value: number) => `Rp ${value.toLocaleString("id-ID")}`;
 
 export default function ProductsPage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState("");
@@ -64,6 +66,8 @@ export default function ProductsPage() {
   const [material, setMaterial] = useState("all");
   const [sort, setSort] = useState("featured");
   const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [wishlistIds, setWishlistIds] = useState<string[]>([]);
+  const [wishlistBusyId, setWishlistBusyId] = useState<string | null>(null);
 
   useEffect(() => {
     setCompareIds(readCompareIds());
@@ -85,6 +89,32 @@ export default function ProductsPage() {
     };
     load();
   }, []);
+
+  useEffect(() => {
+    if (!session?.user?.id) {
+      setWishlistIds([]);
+      return;
+    }
+
+    const loadWishlist = async () => {
+      try {
+        const res = await fetch("/api/wishlist");
+        if (!res.ok) return;
+        const data = await res.json();
+        setWishlistIds(
+          Array.isArray(data)
+            ? data
+                .map((item) => item.productId ?? item.product?.id)
+                .filter((id): id is string => typeof id === "string")
+            : []
+        );
+      } catch {
+        setWishlistIds([]);
+      }
+    };
+
+    loadWishlist();
+  }, [session?.user?.id]);
 
   const materials = useMemo(
     () => Array.from(new Set(products.map((product) => product.material).filter(Boolean))),
@@ -143,6 +173,40 @@ export default function ProductsPage() {
 
     const next = [...currentIds, product.id];
     commitCompareIds(next, `${product.name} siap dibandingkan.`);
+  };
+
+  const handleToggleWishlist = async (product: Product) => {
+    if (!session) {
+      showNotice("Masuk dulu untuk menyimpan wishlist.");
+      window.setTimeout(() => router.push("/login"), 700);
+      return;
+    }
+
+    const selected = wishlistIds.includes(product.id);
+    setWishlistBusyId(product.id);
+
+    try {
+      const res = await fetch(selected ? `/api/wishlist?productId=${product.id}` : "/api/wishlist", {
+        method: selected ? "DELETE" : "POST",
+        headers: selected ? undefined : { "Content-Type": "application/json" },
+        body: selected ? undefined : JSON.stringify({ productId: product.id }),
+      });
+
+      if (!res.ok) throw new Error("Wishlist request failed");
+
+      setWishlistIds((currentIds) =>
+        selected
+          ? currentIds.filter((id) => id !== product.id)
+          : currentIds.includes(product.id)
+            ? currentIds
+            : [...currentIds, product.id]
+      );
+      showNotice(selected ? `${product.name} dihapus dari wishlist.` : `${product.name} masuk wishlist.`);
+    } catch {
+      showNotice("Wishlist gagal diperbarui. Coba lagi sebentar.");
+    } finally {
+      setWishlistBusyId(null);
+    }
   };
 
   if (loading) {
@@ -234,15 +298,21 @@ export default function ProductsPage() {
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
+                        onClick={() => handleToggleWishlist(product)}
+                        disabled={wishlistBusyId === product.id}
+                        aria-pressed={wishlistIds.includes(product.id)}
+                        className={`product-action ${wishlistIds.includes(product.id) ? "product-action-primary" : "product-action-secondary"} disabled:cursor-not-allowed disabled:opacity-60`}
+                      >
+                        {wishlistBusyId === product.id ? "..." : wishlistIds.includes(product.id) ? "Saved" : "Wishlist"}
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => handleToggleCompare(product)}
                         aria-pressed={compareIds.includes(product.id)}
                         className={`product-action ${compareIds.includes(product.id) ? "product-action-primary" : "product-action-secondary"}`}
                       >
                         Compare
                       </button>
-                      <Link href={`/products/${product.id}`} className="product-action product-action-secondary">
-                        Detail
-                      </Link>
                       <button onClick={() => handleAddCart(product)} className="product-action product-action-primary">
                         Cart
                       </button>

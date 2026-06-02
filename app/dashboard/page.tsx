@@ -344,6 +344,203 @@ export default function DashboardPage() {
   const secondaryAction = isAdmin ? "/inquiry" : isSales ? "/products" : "/wishlist";
   const secondaryActionLabel = isAdmin ? "Kelola Inquiry" : isSales ? "Lihat Produk" : "Buka Wishlist";
 
+  if (isCustomer) {
+    const customerMetrics = [
+      ["Inquiry", stats?.myInquiries ?? customerActivity.inquiries.length, "percakapan"],
+      ["Wishlist", stats?.myWishlists ?? customerActivity.wishlists.length, "produk disimpan"],
+      ["Pesanan", stats?.myTransactions ?? customerActivity.transactions.length, "transaksi"],
+    ];
+
+    return (
+      <main className="dashboard-page customer-account-page pb-12">
+        <AppNavbar />
+
+        <section className="content-wrap pt-8">
+          <div className="customer-account-top">
+            <div className="min-w-0">
+              <span className="section-kicker">Akun Customer</span>
+              <h1 className="mt-3 text-[34px] font-semibold leading-[1.02] text-white md:text-[52px]">
+                {session.user.name}
+              </h1>
+              <p className="mt-3 max-w-2xl text-[14px] leading-6 text-white/58">
+                Ringkasan pesanan, wishlist, dan inquiry aktif dalam tampilan yang lebih padat.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
+              <Link href="/products" className="app-button-primary">
+                Jelajahi Produk
+              </Link>
+              <Link href="/wishlist" className="app-button-secondary">
+                Wishlist Saya
+              </Link>
+            </div>
+          </div>
+
+          <div className="customer-account-metrics mt-7">
+            {customerMetrics.map(([label, value, helper]) => (
+              <div key={String(label)} className="customer-account-metric">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/38">{label}</p>
+                <div className="mt-2 flex items-end gap-3">
+                  <p className="text-[28px] font-semibold leading-none text-white">{value ?? 0}</p>
+                  <p className="pb-0.5 text-[13px] text-white/48">{helper}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="content-wrap mt-8 grid gap-8 xl:grid-cols-[0.84fr_1.16fr]">
+          <div className="customer-account-column">
+            <section className="customer-account-panel">
+              <div className="customer-account-panel-head">
+                <div>
+                  <p className="section-kicker">Profil</p>
+                  <h2 className="mt-2 text-[22px] font-semibold text-white">Detail akun</h2>
+                </div>
+                <span className="status-pill bg-white/10 text-white/70">Customer</span>
+              </div>
+
+              <div className="mt-5">
+                <div className="customer-account-row customer-account-row-compact">
+                  <span className="text-white/42">Nama</span>
+                  <span className="font-semibold text-white">{session.user.name}</span>
+                </div>
+                <div className="customer-account-row customer-account-row-compact">
+                  <span className="text-white/42">Email</span>
+                  <span className="break-all text-right font-semibold text-white">{session.user.email}</span>
+                </div>
+                <div className="customer-account-row customer-account-row-compact">
+                  <span className="text-white/42">Aktivitas utama</span>
+                  <span className="text-right font-semibold text-white">
+                    {latestTransaction?.product?.name ?? "Belum ada pesanan"}
+                  </span>
+                </div>
+              </div>
+            </section>
+
+            <section className="customer-account-panel">
+              <div className="customer-account-panel-head">
+                <div>
+                  <p className="section-kicker">Wishlist</p>
+                  <h2 className="mt-2 text-[22px] font-semibold text-white">Favorit terbaru</h2>
+                </div>
+                <Link href="/wishlist" className="customer-account-link">Lihat semua</Link>
+              </div>
+
+              <div className="mt-5">
+                {customerActivity.wishlists.length ? (
+                  customerActivity.wishlists.map((item) => (
+                    <div key={item.id} className="customer-account-row">
+                      <div className="min-w-0">
+                        <Link href={`/products/${item.productId}`} className="font-semibold text-white hover:text-[color:var(--brand-green)]">
+                          {item.product?.name ?? "Produk"}
+                        </Link>
+                        <p className="mt-1 line-clamp-2 text-[13px] leading-5 text-white/48">{item.product?.description}</p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="text-[14px] font-semibold text-[color:var(--brand-green)]">
+                          Rp {item.product?.price?.toLocaleString("id-ID")}
+                        </p>
+                        <Link href={`/products/${item.productId}/payment`} className="mt-2 inline-flex text-[13px] font-semibold text-white/72 hover:text-white">
+                          Checkout
+                        </Link>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="customer-account-empty">
+                    Wishlist masih kosong. Simpan produk dari katalog untuk menampilkannya di sini.
+                  </div>
+                )}
+              </div>
+            </section>
+          </div>
+
+          <div className="customer-account-column">
+            <section className="customer-account-panel">
+              <div className="customer-account-panel-head">
+                <div>
+                  <p className="section-kicker">Pesanan</p>
+                  <h2 className="mt-2 text-[22px] font-semibold text-white">Transaksi terbaru</h2>
+                </div>
+                <span className="status-pill bg-[color:var(--brand-green)]/10 text-[color:var(--brand-green)]">
+                  {customerActivity.transactions.length} tercatat
+                </span>
+              </div>
+
+              <div className="mt-5">
+                {customerActivity.transactions.length ? (
+                  customerActivity.transactions.map((transaction) => (
+                    <div key={transaction.id} className="customer-account-row">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-white">{transaction.product?.name ?? "Produk"}</p>
+                        <p className="mt-1 text-[13px] leading-5 text-white/48">
+                          Dibayar pada {formatDate(transaction.createdAt)}
+                        </p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <div className="flex flex-wrap justify-end gap-2">
+                          <span className="status-pill bg-white/10 text-white/64">
+                            {paymentLabelMap[transaction.paymentType] ?? transaction.paymentType}
+                          </span>
+                          <span className="status-pill bg-emerald-500/15 text-emerald-300">
+                            {transaction.status}
+                          </span>
+                        </div>
+                        <p className="mt-3 text-[15px] font-semibold text-[color:var(--brand-green)]">
+                          Rp {transaction.amount.toLocaleString("id-ID")}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="customer-account-empty">
+                    Belum ada pesanan. Mulai dari katalog saat produk sudah siap dibeli.
+                  </div>
+                )}
+              </div>
+            </section>
+
+            <section className="customer-account-panel">
+              <div className="customer-account-panel-head">
+                <div>
+                  <p className="section-kicker">Inquiry</p>
+                  <h2 className="mt-2 text-[22px] font-semibold text-white">Percakapan terbaru</h2>
+                </div>
+                <Link href="/inquiry" className="customer-account-link">Riwayat</Link>
+              </div>
+
+              <div className="mt-5">
+                {customerActivity.inquiries.length ? (
+                  customerActivity.inquiries.map((inquiry) => (
+                    <div key={inquiry.id} className="customer-account-row">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-white">{inquiry.product?.name ?? "Produk"}</p>
+                        <p className="mt-1 text-[13px] leading-5 text-white/48">
+                          Dikirim pada {formatDate(inquiry.createdAt)}
+                        </p>
+                        <p className="mt-3 line-clamp-2 text-[14px] leading-6 text-white/64">
+                          {inquiry.message ? inquiry.message : "Belum ada pesan tambahan pada inquiry ini."}
+                        </p>
+                      </div>
+                      <span className={`status-pill shrink-0 ${inquiryToneMap[inquiry.status] ?? "bg-white/10 text-white/70"}`}>
+                        {inquiry.status}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="customer-account-empty">
+                    Belum ada inquiry. Kirim pertanyaan dari detail produk untuk mulai diskusi.
+                  </div>
+                )}
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="dashboard-page page-shell pb-10">
       <AppNavbar />
