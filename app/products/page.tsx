@@ -21,6 +21,26 @@ type Product = {
 type CartItem = Product & { quantity: number };
 
 const CART_KEY = "banbuk-cart";
+const COMPARE_KEY = "compare-products";
+const MAX_COMPARE_ITEMS = 2;
+
+function normalizeCompareIds(ids: string[]) {
+  return Array.from(new Set(ids.filter((id) => id.length > 0))).slice(0, MAX_COMPARE_ITEMS);
+}
+
+function readCompareIds() {
+  try {
+    const storedCompare = localStorage.getItem(COMPARE_KEY);
+    const parsed: unknown = storedCompare ? JSON.parse(storedCompare) : [];
+    return Array.isArray(parsed) ? normalizeCompareIds(parsed.filter((id): id is string => typeof id === "string")) : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeCompareIds(ids: string[]) {
+  localStorage.setItem(COMPARE_KEY, JSON.stringify(normalizeCompareIds(ids)));
+}
 
 function addCartItem(product: Product) {
   const current = JSON.parse(localStorage.getItem(CART_KEY) || "[]") as CartItem[];
@@ -43,13 +63,22 @@ export default function ProductsPage() {
   const [query, setQuery] = useState("");
   const [material, setMaterial] = useState("all");
   const [sort, setSort] = useState("featured");
+  const [compareIds, setCompareIds] = useState<string[]>([]);
 
   useEffect(() => {
+    setCompareIds(readCompareIds());
+
     const load = async () => {
       try {
         const res = await fetch("/api/products");
         const data = await res.json();
-        setProducts(Array.isArray(data) ? data : []);
+        const productList = Array.isArray(data) ? data : [];
+        setProducts(productList);
+        setCompareIds((currentIds) => {
+          const validIds = currentIds.filter((id) => productList.some((product) => product.id === id));
+          if (validIds.length !== currentIds.length) writeCompareIds(validIds);
+          return validIds;
+        });
       } finally {
         setLoading(false);
       }
@@ -83,8 +112,37 @@ export default function ProductsPage() {
 
   const handleAddCart = (product: Product) => {
     addCartItem(product);
-    setNotice(`${product.name} masuk ke cart.`);
+    showNotice(`${product.name} masuk ke cart.`);
+  };
+
+  const showNotice = (message: string) => {
+    setNotice(message);
     window.setTimeout(() => setNotice(""), 2600);
+  };
+
+  const commitCompareIds = (next: string[], message: string) => {
+    setCompareIds(next);
+    writeCompareIds(next);
+    showNotice(message);
+  };
+
+  const handleToggleCompare = (product: Product) => {
+    const currentIds = readCompareIds();
+    const selected = currentIds.includes(product.id);
+
+    if (selected) {
+      const next = currentIds.filter((id) => id !== product.id);
+      commitCompareIds(next, `${product.name} dihapus dari compare.`);
+      return;
+    }
+
+    if (currentIds.length >= MAX_COMPARE_ITEMS) {
+      showNotice("Maksimal dua produk. Buka Compare untuk mengganti pilihan.");
+      return;
+    }
+
+    const next = [...currentIds, product.id];
+    commitCompareIds(next, `${product.name} siap dibandingkan.`);
   };
 
   if (loading) {
@@ -102,7 +160,7 @@ export default function ProductsPage() {
       )}
 
       <section className="content-wrap pb-6 pt-8">
-        <div className="product-toolbar grid gap-3 p-3 md:grid-cols-[minmax(0,1fr)_220px_190px]">
+        <div className="product-toolbar grid gap-3 p-3 md:grid-cols-[minmax(0,1fr)_200px_170px_150px]">
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -123,6 +181,9 @@ export default function ProductsPage() {
             <option value="price-high">Harga tinggi</option>
             <option value="stock">Stok terbanyak</option>
           </select>
+          <Link href="/products/compare" className="product-action product-action-primary min-h-[42px] w-full">
+            Compare {compareIds.length}/{MAX_COMPARE_ITEMS}
+          </Link>
         </div>
       </section>
 
@@ -171,6 +232,14 @@ export default function ProductsPage() {
                   <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-4">
                     <p className="text-[16px] font-semibold text-[color:var(--brand-green)]">{formatPrice(product.price)}</p>
                     <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleToggleCompare(product)}
+                        aria-pressed={compareIds.includes(product.id)}
+                        className={`product-action ${compareIds.includes(product.id) ? "product-action-primary" : "product-action-secondary"}`}
+                      >
+                        Compare
+                      </button>
                       <Link href={`/products/${product.id}`} className="product-action product-action-secondary">
                         Detail
                       </Link>
