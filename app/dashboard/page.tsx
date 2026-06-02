@@ -51,7 +51,7 @@ const paymentLabelMap: Record<string, string> = {
 const inquiryToneMap: Record<string, string> = {
   PENDING: "bg-amber-500/15 text-amber-300",
   SELESAI: "bg-emerald-500/15 text-emerald-300",
-  PROCESS: "bg-sky-500/15 text-sky-300",
+  DIPROSES: "bg-sky-500/15 text-sky-300",
 };
 
 export default function DashboardPage() {
@@ -339,135 +339,77 @@ export default function DashboardPage() {
   const isSales = session.user.role === "SALES";
   const isCustomer = session.user.role === "CUSTOMER";
   const latestTransaction = customerActivity.transactions[0];
+  const primaryAction = isAdmin ? "/products/add" : isSales ? "/inquiry" : "/products";
+  const primaryActionLabel = isAdmin ? "Tambah Produk" : isSales ? "Buka Inquiry" : "Jelajahi Produk";
+  const secondaryAction = isAdmin ? "/inquiry" : isSales ? "/products" : "/wishlist";
+  const secondaryActionLabel = isAdmin ? "Kelola Inquiry" : isSales ? "Lihat Produk" : "Buka Wishlist";
 
   return (
-    <main className="dashboard-page page-shell pb-16">
+    <main className="dashboard-page page-shell pb-10">
       <AppNavbar />
 
-      <section className="content-wrap pt-8">
-        <div className={isCustomer || isSales ? "dashboard-lite-surface px-5 py-6 sm:px-6 sm:py-7" : "glass-panel editorial-shell grain-overlay px-6 py-8 sm:px-8 sm:py-10"}>
-          {isCustomer ? (
-            <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
-              <div>
-                <span className="section-kicker">Akun</span>
-                <h1 className="text-4xl font-semibold leading-[0.96] text-[color:var(--foreground)] sm:text-5xl">
-                  {currentRole.title}
-                </h1>
-                <p className="mt-3 max-w-2xl text-sm leading-7 text-[color:var(--foreground-soft)] sm:text-base">
-                  {currentRole.subtitle} Selamat datang, {session.user.name}.
-                </p>
-
-                <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                  <Link href="/products" className="app-button-primary w-full sm:w-auto">
-                    Jelajahi Produk
-                  </Link>
-                  <Link href="/wishlist" className="app-button-secondary w-full sm:w-auto">
-                    Buka Wishlist
-                  </Link>
-                </div>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="dashboard-lite-card px-4 py-4 text-sm text-slate-400">
-                  <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Email akun</p>
-                  <p className="mt-2 text-sm font-semibold text-slate-100 break-all">{session.user.email}</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-400">
-                    Gunakan akun ini untuk melihat wishlist, inquiry, dan pembayaran Anda.
-                  </p>
-                </div>
-                <div className="dashboard-lite-card px-4 py-4 text-sm text-slate-400">
-                  <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Aktivitas terbaru</p>
-                  <p className="mt-2 text-sm font-semibold text-slate-100">
-                    {latestTransaction ? latestTransaction.product?.name ?? "Pembayaran terbaru" : "Belum ada pesanan"}
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-slate-400">
-                    {latestTransaction
-                      ? `Pembayaran ${paymentLabelMap[latestTransaction.paymentType] ?? latestTransaction.paymentType} tercatat pada ${formatDate(latestTransaction.createdAt)}.`
-                      : "Mulai dari katalog produk untuk menyimpan wishlist atau melanjutkan checkout."}
-                  </p>
-                </div>
-              </div>
+      <section className="content-wrap pt-5">
+        <div className="dashboard-hero">
+          <div className="max-w-3xl">
+            <span className="section-kicker">{isAdmin ? "Command Center" : isSales ? "Sales Desk" : "Akun"}</span>
+            <h1 className="mt-2 text-[clamp(30px,4vw,46px)] font-semibold leading-[1.05] text-white">
+              {currentRole.title}
+            </h1>
+            <p className="mt-3 max-w-2xl text-[14px] leading-6 text-white/60">
+              {currentRole.subtitle} Selamat datang, {session.user.name}.
+            </p>
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+              <Link href={primaryAction} className="app-button-primary w-full sm:w-auto">
+                {primaryActionLabel}
+              </Link>
+              <Link href={secondaryAction} className="app-button-secondary w-full sm:w-auto">
+                {secondaryActionLabel}
+              </Link>
             </div>
-          ) : isSales ? (
-            <div className="grid gap-5 lg:grid-cols-[1.08fr_0.92fr] lg:items-end">
-              <div>
-                <span className="section-kicker">Sales Desk</span>
-                <h1 className="text-4xl font-semibold leading-[0.96] text-[color:var(--foreground)] sm:text-5xl">
-                  Dashboard Sales
-                </h1>
-                <p className="mt-3 max-w-2xl text-sm leading-7 text-[color:var(--foreground-soft)] sm:text-base">
-                  Fokus pada inquiry yang aktif, follow-up tercepat, dan assignment terbaru. Selamat datang, {session.user.name}.
-                </p>
+          </div>
 
-                <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                  <Link href="/inquiry" className="app-button-primary w-full sm:w-auto">
-                    Buka Assignment
-                  </Link>
-                  <Link href="/products" className="app-button-secondary w-full sm:w-auto">
-                    Lihat Produk
-                  </Link>
-                </div>
-              </div>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="dashboard-lite-card px-4 py-4 text-sm text-slate-400">
-                  <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Prioritas sekarang</p>
-                  <p className="mt-2 text-sm font-semibold text-slate-100">
-                    {salesPriorityInquiry?.product?.name ?? "Belum ada assignment aktif"}
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-slate-400">
-                    {salesPriorityInquiry
-                      ? `${salesPriorityInquiry.user?.name ?? "Customer"} menunggu follow-up sejak ${formatDate(salesPriorityInquiry.createdAt)}.`
-                      : "Semua assignment sudah rapi. Anda bisa cek inquiry terbaru untuk menjaga respons tetap cepat."}
-                  </p>
-                </div>
-                <div className="dashboard-lite-card px-4 py-4 text-sm text-slate-400">
-                  <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Role aktif</p>
-                  <p className="mt-2 text-2xl font-semibold text-slate-50">SALES</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-400">
-                    Gunakan dashboard ini untuk memprioritaskan inquiry yang perlu respon lebih dulu.
-                  </p>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <>
-              <span className="section-kicker">Overview</span>
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                <div>
-                  <h1 className="section-title">{currentRole.title}</h1>
-                  <p className="section-subtitle">
-                    {currentRole.subtitle} Selamat datang, {session.user.name}.
-                  </p>
-                </div>
-                <div className="glass-card px-5 py-4 text-sm text-slate-400">
-                  <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Role aktif</p>
-                  <p className="mt-2 text-xl font-semibold text-slate-100">{session.user.role}</p>
-                </div>
-              </div>
-            </>
-          )}
+          <div className="dashboard-hero__side">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/40">Aktivitas utama</p>
+            <p className="mt-2 text-base font-semibold text-white">
+              {isCustomer
+                ? latestTransaction?.product?.name ?? "Belum ada pesanan"
+                : isSales
+                  ? salesPriorityInquiry?.product?.name ?? "Tidak ada inquiry pending"
+                  : `${stats?.pendingInquiries ?? 0} inquiry pending`}
+            </p>
+            <p className="mt-2 text-[13px] leading-6 text-white/55">
+              {isCustomer
+                ? latestTransaction
+                  ? `Pembayaran ${paymentLabelMap[latestTransaction.paymentType] ?? latestTransaction.paymentType} tercatat pada ${formatDate(latestTransaction.createdAt)}.`
+                  : "Mulai dari katalog untuk menyimpan produk atau checkout."
+                : isSales
+                  ? salesPriorityInquiry
+                    ? `${salesPriorityInquiry.user?.name ?? "Customer"} menunggu follow-up sejak ${formatDate(salesPriorityInquiry.createdAt)}.`
+                    : "Semua assignment terlihat rapi saat ini."
+                  : `${stats?.lowStockProducts ?? 0} produk perlu dicek stoknya.`}
+            </p>
+          </div>
         </div>
       </section>
 
-      <section className={`content-wrap mt-8 grid gap-4 ${isCustomer || isSales ? "md:grid-cols-3" : "md:grid-cols-2 xl:grid-cols-4"}`}>
-        {quickStats.map(([label, value, helper]) => (
-          <InteractiveCard
-            key={String(label)}
-            disabled={isCustomer || isSales}
-            className={isCustomer || isSales ? "dashboard-lite-card px-4 py-4" : "metric-card"}
-          >
-            <p className={isCustomer || isSales ? "text-[11px] uppercase tracking-[0.2em] text-slate-500" : "metric-label"}>{label}</p>
-            <p className={isCustomer || isSales ? "mt-3 text-2xl font-semibold text-slate-50" : "metric-value"}>{value ?? 0}</p>
-            <p className="mt-2 text-sm leading-6 text-slate-400">{helper}</p>
-          </InteractiveCard>
-        ))}
+      <section className="content-wrap mt-4">
+        <div className="dashboard-stat-strip">
+          {quickStats.map(([label, value, helper]) => (
+            <div key={String(label)} className="dashboard-stat-item">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">{label}</p>
+              <div className="mt-2 flex items-end gap-3">
+                <p className="text-2xl font-semibold text-white">{value ?? 0}</p>
+                <p className="pb-0.5 text-[13px] text-white/50">{helper}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
 
       {isSales && (
         <>
-          <section className="content-wrap mt-8 grid gap-5 xl:grid-cols-[0.92fr_1.08fr]">
-            <div className="dashboard-lite-surface p-5 sm:p-6">
+          <section className="content-wrap mt-5 grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
+            <div className="dashboard-lite-surface p-4 sm:p-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Focus</p>
@@ -506,7 +448,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="dashboard-lite-surface p-5 sm:p-6">
+            <div className="dashboard-lite-surface p-4 sm:p-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Workflow</p>
@@ -542,8 +484,8 @@ export default function DashboardPage() {
             </div>
           </section>
 
-          <section className="content-wrap mt-8">
-            <div className="dashboard-lite-surface p-5 sm:p-6">
+          <section className="content-wrap mt-5">
+            <div className="dashboard-lite-surface p-4 sm:p-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Assignments</p>
@@ -587,8 +529,8 @@ export default function DashboardPage() {
 
       {isCustomer && (
         <>
-          <section className="content-wrap mt-8 grid gap-5 xl:grid-cols-[0.88fr_1.12fr]">
-            <div className="dashboard-lite-surface p-5 sm:p-6">
+          <section className="content-wrap mt-5 grid gap-4 xl:grid-cols-[0.88fr_1.12fr]">
+            <div className="dashboard-lite-surface p-4 sm:p-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Shortcut</p>
@@ -627,7 +569,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="dashboard-lite-surface p-5 sm:p-6">
+            <div className="dashboard-lite-surface p-4 sm:p-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Orders</p>
@@ -669,7 +611,7 @@ export default function DashboardPage() {
                     </InteractiveCard>
                   ))
                 ) : (
-                  <div className="rounded-[24px] border border-white/8 bg-[#141416]/55 px-5 py-8 text-center text-slate-300">
+                  <div className="rounded-[24px] border border-white/10 bg-[#141416]/60 px-4 py-6 text-center text-slate-300">
                     <p>Belum ada pesanan yang tercatat.</p>
                     <Link href="/products" className="mt-4 inline-flex font-semibold text-slate-200 hover:text-white">
                       Mulai belanja
@@ -680,8 +622,8 @@ export default function DashboardPage() {
             </div>
           </section>
 
-          <section className="content-wrap mt-8 grid gap-5 xl:grid-cols-2">
-            <div className="dashboard-lite-surface p-5 sm:p-6">
+          <section className="content-wrap mt-5 grid gap-4 xl:grid-cols-2">
+            <div className="dashboard-lite-surface p-4 sm:p-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Wishlist</p>
@@ -716,7 +658,7 @@ export default function DashboardPage() {
                     </InteractiveCard>
                   ))
                 ) : (
-                  <div className="rounded-[24px] border border-white/8 bg-[#141416]/55 px-5 py-8 text-center text-slate-300">
+                  <div className="rounded-[24px] border border-white/10 bg-[#141416]/60 px-4 py-6 text-center text-slate-300">
                     <p>Wishlist Anda masih kosong.</p>
                     <Link href="/products" className="mt-4 inline-flex font-semibold text-slate-200 hover:text-white">
                       Temukan produk
@@ -726,7 +668,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="dashboard-lite-surface p-5 sm:p-6">
+            <div className="dashboard-lite-surface p-4 sm:p-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Inquiry</p>
@@ -756,7 +698,7 @@ export default function DashboardPage() {
                     </InteractiveCard>
                   ))
                 ) : (
-                  <div className="rounded-[24px] border border-white/8 bg-[#141416]/55 px-5 py-8 text-center text-slate-300">
+                  <div className="rounded-[24px] border border-white/10 bg-[#141416]/60 px-4 py-6 text-center text-slate-300">
                     <p>Belum ada inquiry yang tersimpan.</p>
                     <Link href="/products" className="mt-4 inline-flex font-semibold text-slate-200 hover:text-white">
                       Jelajahi produk
@@ -770,8 +712,8 @@ export default function DashboardPage() {
       )}
 
       {isAdmin && stats && (
-        <section className="content-wrap mt-8 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-          <div className="glass-panel p-6 sm:p-8">
+        <section className="content-wrap mt-5 grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
+          <div className="glass-panel p-5 sm:p-6">
             <div className="flex items-center justify-between gap-4">
                <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Notifications</p>
@@ -802,7 +744,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="glass-panel p-6 sm:p-8">
+          <div className="glass-panel p-5 sm:p-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Export</p>
@@ -823,8 +765,8 @@ export default function DashboardPage() {
       )}
 
       {isAdmin && stats && (
-        <section className="content-wrap mt-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-          <div className="glass-panel p-6 sm:p-8">
+        <section className="content-wrap mt-5 grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="glass-panel p-5 sm:p-6">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Insight</p>
@@ -849,7 +791,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="glass-panel p-6 sm:p-8">
+          <div className="glass-panel p-5 sm:p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Revenue</p>
             <h2 className="mt-2 text-2xl font-medium tracking-tight text-slate-50">Ringkasan transaksi</h2>
             <p className="mt-6 text-4xl sm:text-5xl font-semibold text-slate-50 tracking-tight text-[color:var(--primary)]">
@@ -858,7 +800,7 @@ export default function DashboardPage() {
             <p className="mt-3 text-sm leading-relaxed text-slate-400">
               Total {stats.totalTransactions} transaksi berhasil tersimpan di sistem.
             </p>
-            <div className="mt-8 rounded-[24px] bg-[#141416] border border-white/5 shadow-inner px-5 py-5 text-white">
+            <div className="mt-5 rounded-[24px] bg-[#141416] border border-white/5 shadow-inner px-4 py-4 text-white">
               <p className="text-xs uppercase tracking-[0.22em] text-[color:var(--primary)]/70 font-semibold">Aksi berikutnya</p>
               <p className="mt-2 text-sm leading-relaxed text-slate-300">
                 Fokuskan pengecekan pada stok rendah dan inquiry pending agar tim sales bisa bergerak lebih cepat.
@@ -869,8 +811,8 @@ export default function DashboardPage() {
       )}
 
       {isAdmin && stats && (
-        <section className="content-wrap mt-8">
-          <div className="glass-panel p-6 sm:p-8">
+        <section className="content-wrap mt-5">
+          <div className="glass-panel p-5 sm:p-6">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Sales chart</p>
@@ -892,7 +834,7 @@ export default function DashboardPage() {
                     onClick={() => setChartPeriod(value as "daily" | "weekly" | "monthly" | "yearly")}
                     className={`rounded-full px-4 py-2 text-[13px] font-medium transition-colors ${
                       chartPeriod === value
-                        ? "bg-[color:var(--primary)] text-[#101012] shadow-md shadow-[#dcb37b]/20"
+                        ? "bg-[color:var(--primary)] text-[#101012]"
                         : "bg-white/5 border border-white/5 text-slate-300 hover:bg-white/10"
                     }`}
                   >
@@ -902,14 +844,14 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="mt-8 h-[360px] rounded-[24px] border border-white/5 bg-[#141416]/50 p-4 sm:p-6 shadow-inner">
+            <div className="mt-5 h-[300px] rounded-[24px] border border-white/5 bg-[#141416]/50 p-4 sm:p-5 shadow-inner">
               {salesChartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={salesChartData}>
                     <defs>
                       <linearGradient id="salesRevenue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#dcb37b" stopOpacity={0.9} />
-                        <stop offset="100%" stopColor="#dcb37b" stopOpacity={0.05} />
+                        <stop offset="0%" stopColor="#00d4a4" stopOpacity={0.9} />
+                        <stop offset="100%" stopColor="#00d4a4" stopOpacity={0.05} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid stroke="rgba(148,163,184,0.12)" vertical={false} />
@@ -923,7 +865,7 @@ export default function DashboardPage() {
                     <Tooltip
                       contentStyle={{
                         background: "rgba(2, 6, 23, 0.94)",
-                        border: "1px solid rgba(45, 212, 191, 0.2)",
+                        border: "1px solid rgba(0, 212, 164, 0.22)",
                         borderRadius: "18px",
                         color: "#e2e8f0",
                       }}
@@ -933,7 +875,7 @@ export default function DashboardPage() {
                       <Area
                       type="monotone"
                       dataKey="revenue"
-                      stroke="#dcb37b"
+                      stroke="#00d4a4"
                       strokeWidth={3}
                       fill="url(#salesRevenue)"
                     />
@@ -977,8 +919,8 @@ export default function DashboardPage() {
       )}
 
       {isAdmin && stats && (
-        <section className="content-wrap mt-8">
-          <div className="glass-panel p-6 sm:p-8">
+        <section className="content-wrap mt-5">
+          <div className="glass-panel p-5 sm:p-6">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Stock movement</p>
@@ -997,8 +939,8 @@ export default function DashboardPage() {
                     key={value}
                     onClick={() => setStockPeriod(value as "weekly" | "monthly")}
                     className={`rounded-full px-4 py-2 text-[13px] font-medium transition-colors ${
-                      stockPeriod === value 
-                        ? "bg-[color:var(--primary)] text-[#101012] shadow-md shadow-[#dcb37b]/20" 
+                      stockPeriod === value
+                        ? "bg-[color:var(--primary)] text-[#101012]"
                         : "bg-white/5 border border-white/5 text-slate-300 hover:bg-white/10"
                     }`}
                   >
@@ -1008,7 +950,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="mt-8 h-[340px] rounded-[24px] border border-white/5 bg-[#141416]/50 p-4 sm:p-6 shadow-inner">
+            <div className="mt-5 h-[300px] rounded-[24px] border border-white/5 bg-[#141416]/50 p-4 sm:p-5 shadow-inner">
               {stockMovementData.length > 0 ? (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={stockMovementData}>
@@ -1018,13 +960,13 @@ export default function DashboardPage() {
                     <Tooltip
                       contentStyle={{
                         background: "rgba(2, 6, 23, 0.94)",
-                        border: "1px solid rgba(220, 179, 123, 0.2)",
+                        border: "1px solid rgba(0, 212, 164, 0.22)",
                         borderRadius: "18px",
                         color: "#e2e8f0",
                       }}
                     />
-                    <Bar dataKey="incoming" fill="#dcb37b" radius={[6, 6, 0, 0]} />
-                    <Bar dataKey="outgoing" fill="#5c4323" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="incoming" fill="#00d4a4" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="outgoing" fill="#3772cf" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (

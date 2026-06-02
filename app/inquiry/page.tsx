@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -181,22 +181,32 @@ export default function InquiryPage() {
   const getStatusColor = (currentStatus: string) => {
     switch (currentStatus) {
       case "PENDING":
-        return "bg-white/5 border border-white/10 text-slate-300";
+        return "border border-amber-400/20 bg-amber-500/10 text-amber-300";
       case "DIPROSES":
-        return "bg-[color:var(--primary)]/10 border border-[color:var(--primary)]/20 text-[color:var(--primary)]";
+        return "border border-sky-400/20 bg-sky-500/10 text-sky-300";
       case "SELESAI":
-        return "bg-emerald-500/10 border border-emerald-500/20 text-emerald-300";
+        return "border border-emerald-400/20 bg-emerald-500/10 text-emerald-300";
       default:
         return "bg-white/5 border border-white/10 text-slate-300";
     }
   };
+
+  const inquirySummary = useMemo(
+    () => ({
+      total: inquiries.length,
+      pending: inquiries.filter((inquiry) => inquiry.status === "PENDING").length,
+      diproses: inquiries.filter((inquiry) => inquiry.status === "DIPROSES").length,
+      selesai: inquiries.filter((inquiry) => inquiry.status === "SELESAI").length,
+    }),
+    [inquiries]
+  );
 
   if (loading) {
     return <LoadingScreen label="Memuat inquiry" detail="Percakapan dan status tindak lanjut sedang disiapkan." />;
   }
 
   return (
-    <main className="page-shell pb-16">
+    <main className="product-page min-h-screen pb-14 text-white">
       <AppNavbar />
 
       {inquiryNotice && (
@@ -257,65 +267,123 @@ export default function InquiryPage() {
         </div>
       )}
 
-      <section className="content-wrap pt-8">
-        <div className="glass-panel px-6 py-6 sm:px-8 border border-white/5 bg-[#141416]/50">
-          <span className="section-kicker">Inquiry workflow</span>
-          <h1 className="mt-2 text-2xl font-medium tracking-tight text-slate-50">Inquiry management</h1>
-          <p className="mt-2 text-sm leading-relaxed text-slate-400">
-            Semua inquiry ditampilkan lebih ringkas agar admin mudah assign, sales cepat follow-up, dan customer cukup memantau statusnya.
-          </p>
+      <section className="content-wrap pb-5 pt-8">
+        <div className="product-card grid gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-end">
+          <div>
+            <span className="section-kicker">Inquiry workflow</span>
+            <h1 className="mt-2 text-[32px] font-semibold leading-[1.06] text-white md:text-[44px]">
+              {session?.user.role === "CUSTOMER" ? "Riwayat inquiry" : "Inquiry management"}
+            </h1>
+            <p className="mt-3 max-w-2xl text-[14px] leading-6 text-white/60">
+              {session?.user.role === "ADMIN"
+                ? "Assign inquiry ke sales dan pantau progres follow-up dalam tampilan yang lebih ringkas."
+                : session?.user.role === "SALES"
+                  ? "Prioritaskan inquiry yang perlu ditangani, update status, lalu lanjutkan follow-up customer."
+                  : "Pantau progres inquiry produk Anda tanpa perlu membuka banyak halaman."}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 border-t border-white/10 pt-4 sm:grid-cols-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
+            {[
+              ["Total", inquirySummary.total, "text-white"],
+              ["Pending", inquirySummary.pending, "text-amber-300"],
+              ["Diproses", inquirySummary.diproses, "text-sky-300"],
+              ["Selesai", inquirySummary.selesai, "text-emerald-300"],
+            ].map(([label, value, tone]) => (
+              <div key={String(label)} className="rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">{label}</p>
+                <p className={`mt-1 text-xl font-semibold ${tone}`}>{value}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      <section className="content-wrap mt-8 space-y-5">
+      <section className="content-wrap space-y-4">
         {session?.user.role === "CUSTOMER" && (
-          <div className="glass-panel px-6 py-5 sm:px-8 border border-[color:var(--primary)]/10 bg-[#141416]/50">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="product-toolbar p-4 sm:p-5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-[10px] font-bold tracking-widest uppercase text-[color:var(--primary)]">Customer inquiry</p>
-                <h2 className="mt-1 text-xl font-medium text-slate-100">Riwayat inquiry Anda</h2>
-                <p className="mt-2 text-[13px] leading-relaxed text-slate-400">
-                  Pantau progres inquiry Anda dengan mudah langsung dari halaman ini.
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--brand-green)]">Customer inquiry</p>
+                <h2 className="mt-1 text-[18px] font-semibold text-white">Butuh produk lain?</h2>
+                <p className="mt-1 text-[13px] leading-5 text-white/50">
+                  Buka katalog dan kirim inquiry baru dari halaman detail produk.
                 </p>
               </div>
-              <Link href="/products" className="app-button-secondary py-2 text-xs">
-                Lihat Katalog Produk
+              <Link href="/products" className="product-action product-action-primary w-full sm:w-auto">
+                Lihat katalog
               </Link>
             </div>
           </div>
         )}
 
         {inquiries.map((inquiry) => (
-          <InteractiveCard key={inquiry.id} className="glass-panel p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-5 border border-white/5 bg-[#141416]/40 hover:bg-[#141416]/60 transition-colors">
-            
-            <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6 flex-1 min-w-0">
-              <div className="flex flex-col items-start gap-1.5 w-32 shrink-0">
-                <span className={`text-[9px] font-bold tracking-wider px-2.5 py-1 rounded-full uppercase ${getStatusColor(inquiry.status)}`}>
+          <InteractiveCard
+            key={inquiry.id}
+            className="product-card grid gap-4 p-4 transition-colors hover:border-white/15 hover:bg-white/[0.045] lg:grid-cols-[132px_minmax(0,1fr)_240px] lg:items-center"
+          >
+            <div className="flex items-center justify-between gap-3 lg:block">
+              <span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${getStatusColor(inquiry.status)}`}>
                   {inquiry.status}
-                </span>
-                <p className="text-[11px] text-slate-500 whitespace-nowrap">{new Date(inquiry.createdAt).toLocaleDateString("id-ID", { day: "numeric", month: "short", hour: "2-digit", minute:"2-digit" })}</p>
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <h2 className="text-[17px] font-medium tracking-tight text-slate-100 truncate">{inquiry.product?.name}</h2>
-                <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px]">
-                  <p className="text-slate-300"><span className="text-slate-500">Cust:</span> <span className="font-medium text-slate-200">{inquiry.user?.name}</span></p>
-                  <p className="text-slate-300"><span className="text-slate-500">Sales:</span> {inquiry.sales?.name || <span className="text-rose-400/80 italic">Unassigned</span>}</p>
-                </div>
-                {inquiry.message && <p className="mt-2 text-[12px] text-slate-500 italic line-clamp-1 border-l-2 border-white/10 pl-2">"{inquiry.message}"</p>}
-              </div>
+              </span>
+              <p className="text-[11px] text-white/40 lg:mt-2">
+                {new Date(inquiry.createdAt).toLocaleString("id-ID", {
+                  day: "2-digit",
+                  month: "short",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </p>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0 lg:w-48 justify-end">
-              {session?.user.role === "ADMIN" && !inquiry.assignedTo && (
+            <div className="min-w-0">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <Link href={`/products/${inquiry.productId}`} className="group inline-flex max-w-full">
+                    <h2 className="truncate text-[17px] font-semibold leading-tight text-white group-hover:text-[color:var(--brand-green)]">
+                      {inquiry.product?.name ?? "Produk"}
+                    </h2>
+                  </Link>
+                  <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-white/50">
+                    {session?.user.role !== "CUSTOMER" && (
+                      <span>
+                        Customer <span className="font-medium text-white/75">{inquiry.user?.name ?? "-"}</span>
+                      </span>
+                    )}
+                    <span>
+                      Sales{" "}
+                      {inquiry.sales?.name ? (
+                        <span className="font-medium text-white/75">{inquiry.sales.name}</span>
+                      ) : (
+                        <span className="font-medium text-rose-300">Unassigned</span>
+                      )}
+                    </span>
+                  </div>
+                </div>
+
+                {busyInquiryId === inquiry.id && (
+                  <span className="shrink-0 rounded-full border border-[color:var(--brand-green)]/25 bg-[color:var(--brand-green)]/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--brand-green)]">
+                    Saving
+                  </span>
+                )}
+              </div>
+
+              <p className="mt-2 line-clamp-2 border-l border-white/10 pl-3 text-[13px] leading-5 text-white/50">
+                {inquiry.message ? inquiry.message : "Belum ada pesan tambahan pada inquiry ini."}
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-2 lg:items-end">
+              {session?.user.role === "ADMIN" && (
                 <select
                   disabled={busyInquiryId === inquiry.id}
+                  value={inquiry.assignedTo ?? ""}
                   onChange={(e) => assignSales(inquiry.id, e.target.value)}
-                  className="app-input py-1.5 px-3 text-[11px] bg-white/5 border border-white/10 rounded-lg w-full text-slate-300 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="product-input min-h-[36px] py-2 text-[12px] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  <option value="">+ Assign Sales</option>
+                  <option value="">Assign sales</option>
                   {salesUsers.map((sales) => (
-                    <option key={sales.id} value={sales.id} className="bg-slate-900">
+                    <option key={sales.id} value={sales.id}>
                       {sales.name}
                     </option>
                   ))}
@@ -323,28 +391,46 @@ export default function InquiryPage() {
               )}
 
               {session?.user.role === "SALES" && inquiry.assignedTo === session.user.id && (
-                <div className="flex items-center gap-2 w-full">
+                <div className="flex w-full items-center gap-2">
                   <select
                     disabled={busyInquiryId === inquiry.id}
                     value={inquiry.status}
                     onChange={(e) => updateStatus(inquiry.id, e.target.value)}
-                    className="app-input py-1.5 px-2 text-[11px] bg-white/5 border border-white/10 rounded-lg flex-1 text-slate-300 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="product-input min-h-[36px] flex-1 py-2 text-[12px] disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    <option value="PENDING" className="bg-slate-900">Pending</option>
-                    <option value="DIPROSES" className="bg-slate-900">Diproses</option>
-                    <option value="SELESAI" className="bg-slate-900">Selesai</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="DIPROSES">Diproses</option>
+                    <option value="SELESAI">Selesai</option>
                   </select>
-                  <a href={getWhatsAppLink(inquiry)} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center h-8 w-8 rounded-lg bg-[color:var(--primary)] text-[#101012] hover:opacity-90">
+                  <a href={getWhatsAppLink(inquiry)} target="_blank" rel="noopener noreferrer" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[color:var(--brand-green)] text-[#050706] hover:opacity-90" aria-label="Hubungi customer lewat WhatsApp">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                   </a>
                 </div>
+              )}
+
+              {(session?.user.role === "CUSTOMER" || (session?.user.role === "SALES" && inquiry.assignedTo !== session.user.id)) && (
+                <Link href={`/products/${inquiry.productId}`} className="product-action product-action-secondary w-full lg:w-auto">
+                  Detail produk
+                </Link>
               )}
             </div>
           </InteractiveCard>
         ))}
 
         {inquiries.length === 0 && (
-          <div className="empty-state text-slate-400">Belum ada inquiry yang masuk.</div>
+          <div className="product-card p-8 text-center">
+            <h2 className="text-[22px] font-semibold text-white">Belum ada inquiry</h2>
+            <p className="mt-2 text-[14px] text-white/60">
+              {session?.user.role === "CUSTOMER"
+                ? "Inquiry yang Anda kirim dari detail produk akan muncul di sini."
+                : "Inquiry baru akan muncul setelah customer mengirim pesan dari detail produk."}
+            </p>
+            {session?.user.role === "CUSTOMER" && (
+              <Link href="/products" className="product-action product-action-primary mt-5">
+                Lihat produk
+              </Link>
+            )}
+          </div>
         )}
       </section>
     </main>
