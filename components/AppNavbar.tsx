@@ -88,6 +88,7 @@ export default function AppNavbar() {
   const navClassName = isLanding
     ? `mint-nav landing-nav ${landingToneClass[landingTone]}`
     : "mint-nav border-b border-white/10 bg-[rgba(5,7,6,0.78)] backdrop-blur-xl";
+  const showCart = !isLanding;
 
   return (
     <header className={headerClassName}>
@@ -123,9 +124,11 @@ export default function AppNavbar() {
                 {isLanding ? "Start for free" : "Create account"}
               </Link>
             )}
-            <button type="button" onClick={openCart} className="mint-pill mint-pill-green">
-              Cart
-            </button>
+            {showCart && (
+              <button type="button" onClick={openCart} className="mint-pill mint-pill-green">
+                Cart
+              </button>
+            )}
             <button type="button" className="text-[14px] font-medium text-white md:hidden" onClick={() => setOpen((value) => !value)} aria-label="Toggle menu">
               Menu
             </button>
@@ -141,7 +144,7 @@ export default function AppNavbar() {
           ))}
         </div>
       )}
-      <CartDrawer />
+      {showCart && <CartDrawer />}
     </header>
   );
 }

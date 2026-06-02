@@ -111,15 +111,15 @@ export default function HomeExperience() {
               Explore store
             </Link>
           </div>
-          <div className="mt-12 rounded-2xl border border-white/10 bg-[linear-gradient(135deg,#0d3e43,#f0a642)] p-8 md:p-12">
+          <div className="landing-story-card mt-12 rounded-2xl border border-white/10 p-8 md:p-12">
             <p className="text-sm font-semibold text-white/70">Customer story</p>
             <h3 className="mt-2 max-w-lg text-[28px] font-semibold tracking-normal">See how Banbuk accelerates product operations with intelligent commerce.</h3>
             <div className="mt-16 grid gap-8 sm:grid-cols-2">
-              <div>
+              <div className="landing-story-stat">
                 <p className="text-[34px] font-semibold tracking-normal">2M+</p>
                 <p className="text-sm text-white/70">Monthly catalog views</p>
               </div>
-              <div>
+              <div className="landing-story-stat">
                 <p className="text-[34px] font-semibold tracking-normal">3+</p>
                 <p className="text-sm text-white/70">Checkout paths unified</p>
               </div>
