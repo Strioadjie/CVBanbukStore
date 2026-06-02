@@ -7,18 +7,18 @@ const logos = ["ANTHROPIC", "coinbase", "Microsoft", "perplexity", "HubSpot", "N
 export default function HomeExperience() {
   return (
     <div className="mint-page">
-      <section className="content-wrap pb-20 pt-16 text-center md:pb-28 md:pt-24">
+      <section className="content-wrap landing-hero text-center">
         <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[13px] text-white/75">
           <span className="rounded bg-[color:var(--brand-green)] px-1.5 py-0.5 text-[10px] font-bold text-black">NEW</span>
           Workflow-first product knowledge management
         </div>
-        <h1 className="mx-auto mt-8 max-w-4xl text-[clamp(44px,8vw,72px)] font-semibold leading-[1.05] tracking-[-0.055em] text-white">
+        <h1 className="mx-auto mt-8 max-w-4xl text-[clamp(42px,8vw,72px)] font-semibold leading-[1.05] tracking-normal text-white">
           The Intelligent Knowledge Platform
         </h1>
         <p className="mx-auto mt-5 max-w-2xl text-[18px] leading-7 text-white/68">
           Helping teams create and maintain a world-class product catalog built for both humans and AI.
         </p>
-        <div className="mt-8 flex justify-center gap-3">
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link href="/register" className="mint-pill mint-pill-green">
             Start now
           </Link>
@@ -27,9 +27,9 @@ export default function HomeExperience() {
           </Link>
         </div>
 
-        <div className="mint-card-dark mx-auto mt-14 max-w-5xl overflow-hidden text-left">
+        <div className="mint-card-dark landing-preview mx-auto mt-14 max-w-5xl overflow-hidden text-left">
           <div className="grid border-b border-white/10 text-[13px] text-white/54 md:grid-cols-[220px_1fr_200px]">
-            <div className="border-r border-white/10 p-5">
+            <div className="border-white/10 p-5 md:border-r">
               <div className="mb-5 flex items-center gap-2 text-white">
                 <span className="h-3 w-3 rounded-full bg-[color:var(--brand-green)]" />
                 BanbukStore
@@ -41,13 +41,13 @@ export default function HomeExperience() {
               ))}
             </div>
             <div className="p-6">
-              <div className="mb-5 flex gap-5 border-b border-white/10 pb-4 text-[13px]">
+              <div className="mb-5 flex gap-5 overflow-x-auto border-b border-white/10 pb-4 text-[13px]">
                 <span className="text-[color:var(--brand-green)]">Guides</span>
                 <span>API Reference</span>
                 <span>Changelog</span>
               </div>
               <p className="text-[13px] uppercase tracking-[0.5px] text-[color:var(--brand-green)]">Getting started</p>
-              <h2 className="mt-2 text-[28px] font-semibold tracking-[-0.04em] text-white">Quickstart Guide</h2>
+              <h2 className="mt-2 text-[28px] font-semibold tracking-normal text-white">Quickstart Guide</h2>
               <p className="mt-2 text-[14px] text-white/52">Start building intelligent documentation in under five minutes.</p>
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
                 {["Quickstart", "Installation", "Web editor", "Components"].map((item) => (
@@ -76,7 +76,7 @@ export default function HomeExperience() {
       </section>
 
       <section className="content-wrap py-24 text-center">
-        <h2 className="mx-auto max-w-2xl text-[clamp(36px,6vw,56px)] font-semibold leading-[1.1] tracking-[-0.05em] text-white">
+        <h2 className="mx-auto max-w-2xl text-[clamp(36px,6vw,56px)] font-semibold leading-[1.1] tracking-normal text-white">
           Built for the intelligence age
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-white/58">
@@ -89,7 +89,7 @@ export default function HomeExperience() {
           ].map(([title, copy]) => (
             <div key={title} className="mint-card-dark p-8 text-left">
               <p className="section-kicker">Agent</p>
-              <h3 className="mt-2 text-[24px] font-semibold tracking-[-0.03em] text-white">{title}</h3>
+              <h3 className="mt-2 text-[24px] font-semibold tracking-normal text-white">{title}</h3>
               <p className="mt-3 text-white/56">{copy}</p>
               <div className="mt-10 h-36 rounded-xl border border-white/10 bg-[rgba(0,212,164,0.08)]" />
             </div>
@@ -97,12 +97,12 @@ export default function HomeExperience() {
         </div>
       </section>
 
-      <section className="bg-[#151816] py-24 text-white">
+      <section data-nav-surface="solid" className="landing-solid-section bg-[#151816] py-24 text-white">
         <div className="content-wrap">
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div>
               <p className="section-kicker">Enterprise workflows</p>
-              <h2 className="mt-3 max-w-xl text-[42px] font-semibold leading-[1.1] tracking-[-0.04em]">
+              <h2 className="mt-3 max-w-xl text-[42px] font-semibold leading-[1.1] tracking-normal">
                 Bring intelligence to enterprise knowledge
               </h2>
               <p className="mt-4 max-w-xl text-white/58">Modernize without the rebuild with enterprise-grade controls and security.</p>
@@ -113,14 +113,14 @@ export default function HomeExperience() {
           </div>
           <div className="mt-12 rounded-2xl border border-white/10 bg-[linear-gradient(135deg,#0d3e43,#f0a642)] p-8 md:p-12">
             <p className="text-sm font-semibold text-white/70">Customer story</p>
-            <h3 className="mt-2 max-w-lg text-[28px] font-semibold tracking-[-0.03em]">See how Banbuk accelerates product operations with intelligent commerce.</h3>
+            <h3 className="mt-2 max-w-lg text-[28px] font-semibold tracking-normal">See how Banbuk accelerates product operations with intelligent commerce.</h3>
             <div className="mt-16 grid gap-8 sm:grid-cols-2">
               <div>
-                <p className="text-[34px] font-semibold tracking-[-0.04em]">2M+</p>
+                <p className="text-[34px] font-semibold tracking-normal">2M+</p>
                 <p className="text-sm text-white/70">Monthly catalog views</p>
               </div>
               <div>
-                <p className="text-[34px] font-semibold tracking-[-0.04em]">3+</p>
+                <p className="text-[34px] font-semibold tracking-normal">3+</p>
                 <p className="text-sm text-white/70">Checkout paths unified</p>
               </div>
             </div>
@@ -128,18 +128,18 @@ export default function HomeExperience() {
         </div>
       </section>
 
-      <section className="content-wrap py-24 text-center">
-        <h2 className="text-[42px] font-semibold leading-[1.1] tracking-[-0.04em] text-white">
+      <section data-nav-surface="solid" className="content-wrap py-24 text-center">
+        <h2 className="text-[42px] font-semibold leading-[1.1] tracking-normal text-white">
           Make product knowledge your winning advantage
         </h2>
         <p className="mt-3 text-white/56">Join the teams building cleaner product journeys.</p>
-        <div className="mt-8 flex justify-center gap-3">
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link href="/register" className="mint-pill mint-pill-light">Get started for free</Link>
           <Link href="/products" className="mint-pill mint-pill-outline">Get a demo</Link>
         </div>
       </section>
 
-      <footer className="border-t border-white/10 py-16 text-white/54">
+      <footer data-nav-surface="solid" className="border-t border-white/10 py-16 text-white/54">
         <div className="content-wrap grid gap-8 md:grid-cols-[1.2fr_2fr]">
           <div>
             <Link href="/" className="flex items-center gap-2 font-semibold text-white">

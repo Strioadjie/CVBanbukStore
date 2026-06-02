@@ -6,6 +6,7 @@ const config: Config = {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  safelist: ["landing-nav-top", "landing-nav-scrolled", "landing-nav-solid"],
   theme: {
     extend: {},
   },
