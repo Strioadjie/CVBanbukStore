@@ -162,12 +162,12 @@ export default function ProductsPage() {
 
     if (selected) {
       const next = currentIds.filter((id) => id !== product.id);
-      commitCompareIds(next, `${product.name} dihapus dari compare.`);
+      commitCompareIds(next, `${product.name} dihapus dari perbandingan.`);
       return;
     }
 
     if (currentIds.length >= MAX_COMPARE_ITEMS) {
-      showNotice("Maksimal dua produk. Buka Compare untuk mengganti pilihan.");
+      showNotice("Maksimal dua produk. Buka halaman bandingkan untuk mengganti pilihan.");
       return;
     }
 
@@ -246,7 +246,7 @@ export default function ProductsPage() {
             <option value="stock">Stok terbanyak</option>
           </select>
           <Link href="/products/compare" className="product-action product-action-primary min-h-[42px] w-full">
-            Compare {compareIds.length}/{MAX_COMPARE_ITEMS}
+            Bandingkan {compareIds.length}/{MAX_COMPARE_ITEMS}
           </Link>
         </div>
       </section>
@@ -254,7 +254,7 @@ export default function ProductsPage() {
       <section className="content-wrap pb-20">
         <div className="mb-5 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
           <div>
-            <p className="section-kicker">Storefront</p>
+            <p className="section-kicker">Katalog</p>
             <h1 className="mt-2 text-[32px] font-semibold leading-tight md:text-[40px]">Produk tersedia</h1>
           </div>
           <p className="text-[14px] text-white/48">{visibleProducts.length} dari {products.length} produk</p>
@@ -266,7 +266,7 @@ export default function ProductsPage() {
               <article key={product.id} className="product-card grid min-h-[340px] grid-rows-[150px_1fr] overflow-hidden">
                 <Link href={`/products/${product.id}`} className="product-media relative">
                   <span className="absolute left-3 top-3 z-10 rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[11px] font-medium text-white/70">
-                    {product.stock <= 5 ? "Low stock" : index < 3 ? "Featured" : "Ready"}
+                    {product.stock <= 5 ? "Stok terbatas" : index < 3 ? "Unggulan" : "Ready"}
                   </span>
                   <ProductImage
                     src={product.image}
@@ -303,7 +303,7 @@ export default function ProductsPage() {
                         aria-pressed={wishlistIds.includes(product.id)}
                         className={`product-action ${wishlistIds.includes(product.id) ? "product-action-primary" : "product-action-secondary"} disabled:cursor-not-allowed disabled:opacity-60`}
                       >
-                        {wishlistBusyId === product.id ? "..." : wishlistIds.includes(product.id) ? "Saved" : "Wishlist"}
+                        {wishlistBusyId === product.id ? "..." : wishlistIds.includes(product.id) ? "Tersimpan" : "Wishlist"}
                       </button>
                       <button
                         type="button"
@@ -311,16 +311,16 @@ export default function ProductsPage() {
                         aria-pressed={compareIds.includes(product.id)}
                         className={`product-action ${compareIds.includes(product.id) ? "product-action-primary" : "product-action-secondary"}`}
                       >
-                        Compare
+                        Bandingkan
                       </button>
                       <button onClick={() => handleAddCart(product)} className="product-action product-action-primary">
-                        Cart
+                        Keranjang
                       </button>
                     </div>
                   </div>
                   {session?.user.role === "ADMIN" && (
                     <Link href={`/products/${product.id}/edit`} className="mt-4 text-[13px] font-medium text-white/56 underline underline-offset-4">
-                      Edit product
+                      Edit produk
                     </Link>
                   )}
                 </div>
@@ -340,19 +340,19 @@ export default function ProductsPage() {
           <div>
             <Link href="/" className="flex items-center gap-2 text-[20px] font-semibold">
               <span className="h-4 w-4 rounded-full bg-[color:var(--brand-green)]" />
-              BanbukStore
+              CV Banbuk Store
             </Link>
             <h2 className="mt-6 max-w-xl text-[30px] font-semibold leading-tight">
-              Product operations, checkout, and account workflows in one storefront.
+              Katalog, checkout, wishlist, dan inquiry dalam satu etalase CV Banbuk.
             </h2>
           </div>
           <div className="grid grid-cols-3 gap-6 text-[14px]">
-            {["Products", "Account", "Support"].map((group) => (
+            {["Produk", "Akun", "Bantuan"].map((group) => (
               <div key={group}>
                 <p className="mb-4 text-[11px] font-semibold uppercase text-white/40">{group}</p>
-                <Link href="/products" className="block py-1.5 text-white/62">Store</Link>
+                <Link href="/products" className="block py-1.5 text-white/62">Katalog</Link>
                 <Link href="/dashboard" className="block py-1.5 text-white/62">Dashboard</Link>
-                <button type="button" onClick={() => window.dispatchEvent(new Event("banbuk-cart-open"))} className="block py-1.5 text-left text-white/62">Cart</button>
+                <button type="button" onClick={() => window.dispatchEvent(new Event("banbuk-cart-open"))} className="block py-1.5 text-left text-white/62">Keranjang</button>
               </div>
             ))}
           </div>

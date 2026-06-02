@@ -270,9 +270,9 @@ export default function InquiryPage() {
       <section className="content-wrap pb-5 pt-8">
         <div className="product-card grid gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-end">
           <div>
-            <span className="section-kicker">Inquiry workflow</span>
+            <span className="section-kicker">Alur inquiry</span>
             <h1 className="mt-2 text-[32px] font-semibold leading-[1.06] text-white md:text-[44px]">
-              {session?.user.role === "CUSTOMER" ? "Riwayat inquiry" : "Inquiry management"}
+              {session?.user.role === "CUSTOMER" ? "Riwayat inquiry" : "Manajemen inquiry"}
             </h1>
             <p className="mt-3 max-w-2xl text-[14px] leading-6 text-white/60">
               {session?.user.role === "ADMIN"
@@ -304,7 +304,7 @@ export default function InquiryPage() {
           <div className="product-toolbar p-4 sm:p-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--brand-green)]">Customer inquiry</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--brand-green)]">Inquiry customer</p>
                 <h2 className="mt-1 text-[18px] font-semibold text-white">Butuh produk lain?</h2>
                 <p className="mt-1 text-[13px] leading-5 text-white/50">
                   Buka katalog dan kirim inquiry baru dari halaman detail produk.

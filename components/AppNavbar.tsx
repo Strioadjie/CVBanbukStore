@@ -72,15 +72,15 @@ export default function AppNavbar() {
   };
 
   const links = [
-    { href: "/products", label: "Store" },
-    { href: "/products/compare", label: "Compare" },
+    { href: "/products", label: "Katalog" },
+    { href: "/products/compare", label: "Bandingkan" },
     { href: session ? "/wishlist" : "/login", label: "Wishlist" },
     { href: session ? "/inquiry" : "/login", label: "Inquiry" },
     { href: session ? "/dashboard" : "/login", label: "Dashboard" },
   ];
 
-  const isActive = (href: string, label: string) => {
-    if (label === "Store") return pathname === "/products" || (pathname.startsWith("/products/") && !pathname.startsWith("/products/compare"));
+  const isActive = (href: string) => {
+    if (href === "/products") return pathname === "/products" || (pathname.startsWith("/products/") && !pathname.startsWith("/products/compare"));
     return pathname === href;
   };
 
@@ -96,14 +96,14 @@ export default function AppNavbar() {
         <div className="content-wrap flex h-full items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-[17px] font-semibold text-white">
             <span className="h-5 w-5 rounded-full bg-[color:var(--brand-green)]" />
-            BanbukStore
+            CV Banbuk Store
           </Link>
           <div className="hidden items-center gap-7 text-[14px] font-medium text-white/68 md:flex">
             {links.map((link) => (
               <Link
                 key={link.label}
                 href={link.href}
-                className={isActive(link.href, link.label) ? "text-white" : "hover:text-white"}
+                className={isActive(link.href) ? "text-white" : "hover:text-white"}
               >
                 {link.label}
               </Link>
@@ -112,21 +112,21 @@ export default function AppNavbar() {
           <div className="flex items-center gap-3">
             {session ? (
               <button onClick={handleLogout} className="mint-pill mint-pill-outline hidden md:inline-flex">
-                Logout
+                Keluar
               </button>
             ) : (
               <Link href="/login" className="hidden text-white/72 md:inline">
-                Sign in
+                Masuk
               </Link>
             )}
             {!session && (
               <Link href="/register" className="mint-pill mint-pill-light hidden sm:inline-flex">
-                {isLanding ? "Start for free" : "Create account"}
+                {isLanding ? "Buat akun" : "Daftar"}
               </Link>
             )}
             {showCart && (
               <button type="button" onClick={openCart} className="mint-pill mint-pill-green">
-                Cart
+                Keranjang
               </button>
             )}
             <button type="button" className="text-[14px] font-medium text-white md:hidden" onClick={() => setOpen((value) => !value)} aria-label="Toggle menu">

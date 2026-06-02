@@ -113,7 +113,7 @@ export default function CompareProductsPage() {
     const selected = currentIds.includes(product.id);
 
     if (selected) {
-      updateCompareIds(currentIds.filter((id) => id !== product.id), `${product.name} dihapus dari compare.`);
+      updateCompareIds(currentIds.filter((id) => id !== product.id), `${product.name} dihapus dari perbandingan.`);
       return;
     }
 
@@ -122,10 +122,10 @@ export default function CompareProductsPage() {
       return;
     }
 
-    updateCompareIds([...currentIds, product.id], `${product.name} ditambahkan ke compare.`);
+    updateCompareIds([...currentIds, product.id], `${product.name} ditambahkan ke perbandingan.`);
   };
 
-  const clearCompare = () => updateCompareIds([], "Pilihan compare dikosongkan.");
+  const clearCompare = () => updateCompareIds([], "Pilihan perbandingan dikosongkan.");
 
   if (loading) {
     return <LoadingScreen label="Memuat perbandingan produk" detail="Data produk sedang disejajarkan untuk dibandingkan." />;
@@ -143,7 +143,7 @@ export default function CompareProductsPage() {
 
       <section className="content-wrap grid gap-6 pb-8 pt-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-end">
         <div>
-          <p className="section-kicker">Compare</p>
+          <p className="section-kicker">Bandingkan</p>
           <h1 className="mt-2 max-w-4xl text-[38px] font-semibold leading-[1.04] text-white md:text-[56px]">
             Perbandingan produk
           </h1>
@@ -214,7 +214,7 @@ export default function CompareProductsPage() {
         <section className="content-wrap pb-8">
           <div className="mb-4 flex items-end justify-between gap-4">
             <div>
-              <p className="section-kicker">Matrix</p>
+              <p className="section-kicker">Tabel</p>
               <h2 className="mt-2 text-[28px] font-semibold leading-tight text-white">Detail yang dibandingkan</h2>
             </div>
           </div>
@@ -289,7 +289,7 @@ export default function CompareProductsPage() {
         {visibleProducts.length === 0 && (
           <div className="product-card mt-4 p-8 text-center">
             <h3 className="text-[22px] font-semibold text-white">Produk tidak ditemukan</h3>
-            <p className="mt-2 text-[14px] text-white/56">Coba kata kunci lain untuk memilih produk compare.</p>
+            <p className="mt-2 text-[14px] text-white/56">Coba kata kunci lain untuk memilih produk yang ingin dibandingkan.</p>
           </div>
         )}
       </section>

@@ -39,7 +39,7 @@ export default function LoginPage() {
           </span>
         </Link>
 
-        <h1 className="text-[32px] font-semibold leading-[1.12] tracking-[-0.04em]">Sign in to BanbukStore</h1>
+        <h1 className="text-[32px] font-semibold leading-[1.12] tracking-[-0.04em]">Masuk ke CV Banbuk Store</h1>
         <p className="mt-2 text-[15px] text-white/62">
           Baru di sini?{" "}
           <Link href="/register" className="font-semibold text-[color:var(--brand-green)]">
@@ -65,7 +65,7 @@ export default function LoginPage() {
         </form>
 
         <p className="mt-8 text-sm leading-6 text-white/42">
-          Masuk untuk mengelola pesanan, wishlist, inquiry, dan checkout BanbukStore.
+          Masuk untuk mengelola pesanan, wishlist, inquiry, dan checkout CV Banbuk Store.
         </p>
       </section>
     </main>

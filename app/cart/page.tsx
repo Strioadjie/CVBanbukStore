@@ -48,22 +48,22 @@ export default function CartPage() {
         <div className="flex flex-col justify-between gap-4 border-b border-white/10 pb-8 md:flex-row md:items-end">
           <div>
             <p className="section-kicker">Checkout</p>
-            <h1 className="mt-2 text-[40px] font-semibold leading-tight md:text-[56px]">Cart</h1>
+            <h1 className="mt-2 text-[40px] font-semibold leading-tight md:text-[56px]">Keranjang</h1>
             <p className="mt-3 max-w-2xl text-[15px] leading-6 text-white/56">
               Review item, atur kuantitas, lalu lanjutkan pembayaran tanpa keluar dari alur katalog Banbuk.
             </p>
           </div>
           <Link href="/products" className="mint-pill mint-pill-outline w-fit">
-            Continue shopping
+            Lanjut belanja
           </Link>
         </div>
 
         {items.length === 0 ? (
           <div className="product-card mt-8 p-10 text-center">
-            <h2 className="text-[24px] font-semibold">Cart masih kosong.</h2>
+            <h2 className="text-[24px] font-semibold">Keranjang masih kosong.</h2>
             <p className="mt-2 text-[14px] text-white/54">Tambahkan produk dari katalog untuk mulai checkout.</p>
             <Link href="/products" className="mint-pill mint-pill-green mt-6">
-              Shop products
+              Lihat produk
             </Link>
           </div>
         ) : (
@@ -85,7 +85,7 @@ export default function CartPage() {
                         onClick={() => save(items.filter((entry) => entry.id !== item.id))}
                         className="w-fit text-[13px] font-medium text-white/44"
                       >
-                        Remove
+                        Hapus
                       </button>
                     </div>
 

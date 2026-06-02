@@ -64,7 +64,7 @@ export default function WishlistPage() {
       <section className="content-wrap pb-5 pt-8">
         <div className="product-card grid gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-end">
           <div>
-            <span className="section-kicker">Favorites</span>
+            <span className="section-kicker">Produk tersimpan</span>
             <h1 className="mt-2 text-[34px] font-semibold leading-[1.05] md:text-[46px]">Wishlist produk</h1>
             <p className="mt-3 max-w-2xl text-[14px] leading-6 text-white/60">
               Simpan produk favorit Anda di satu tempat, lalu lanjutkan checkout saat sudah siap.

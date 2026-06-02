@@ -157,9 +157,9 @@ export default function ProductDetailPage() {
 
           <div className="grid gap-3 sm:grid-cols-3">
             {[
-              ["Front", "jar"],
-              ["Variant", "capsule"],
-              ["Pack", "box"],
+              ["Tampak depan", "jar"],
+              ["Varian", "capsule"],
+              ["Kemasan", "box"],
             ].map(([label, variant]) => (
               <div key={label} className="product-card product-media flex aspect-[4/3] items-center justify-center p-5">
                 <ProductImage
@@ -175,13 +175,13 @@ export default function ProductDetailPage() {
           <div className="product-card p-5 md:p-6">
             <div className="grid gap-5 md:grid-cols-[0.85fr_1.15fr] md:items-start">
               <div>
-                <p className="section-kicker">Product Detail</p>
+                <p className="section-kicker">Detail produk</p>
                 <h2 className="mt-2 text-[24px] font-semibold leading-tight text-white md:text-[30px]">
                   Ringkasan produk
                 </h2>
               </div>
               <p className="text-[14px] leading-6 text-white/60">
-                {product.description} Detail ini disiapkan untuk membantu customer menilai produk sebelum lanjut ke cart atau inquiry.
+                {product.description} Detail ini disiapkan untuk membantu pembeli menilai produk sebelum lanjut ke keranjang atau inquiry.
               </p>
             </div>
           </div>
@@ -189,7 +189,7 @@ export default function ProductDetailPage() {
 
         <aside className="product-card sticky top-[88px] h-fit p-5 md:p-6">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="status-pill">Ready</span>
+            <span className="status-pill">Ready stock</span>
             <span className="status-pill bg-white/[0.06] text-white/68">CV Banbuk Mandiri Jaya</span>
           </div>
 
@@ -219,7 +219,7 @@ export default function ProductDetailPage() {
 
           <div className="mt-7 grid gap-3">
             <button onClick={addToCart} className="product-action product-action-primary min-h-[46px] w-full text-[14px]">
-              Add To Cart
+              Tambah ke keranjang
             </button>
             <button
               type="button"
@@ -227,14 +227,14 @@ export default function ProductDetailPage() {
               disabled={wishlistBusy}
               className={`product-action min-h-[46px] w-full text-[14px] disabled:cursor-not-allowed disabled:opacity-60 ${wishlisted ? "product-action-primary" : "product-action-secondary"}`}
             >
-              {wishlistBusy ? "Menyimpan..." : wishlisted ? "Saved In Wishlist" : "Save To Wishlist"}
+              {wishlistBusy ? "Menyimpan..." : wishlisted ? "Tersimpan di wishlist" : "Simpan ke wishlist"}
             </button>
             <Link href={`/products/${product.id}/payment`} className="product-action product-action-secondary min-h-[46px] w-full text-[14px]">
               Checkout
             </Link>
           </div>
           <button type="button" onClick={() => window.dispatchEvent(new Event("banbuk-cart-open"))} className="mt-3 flex min-h-[44px] w-full items-center justify-center rounded-full border border-white/12 bg-white/[0.03] text-[14px] font-semibold text-white/78 hover:border-white/20 hover:text-white">
-            View Cart
+            Lihat keranjang
           </button>
 
           <div className="mt-7 space-y-3 text-[13px] leading-5 text-white/54">

@@ -63,15 +63,15 @@ export default function CartDrawer() {
 
   return (
     <div className={`cart-drawer ${open ? "cart-drawer-open" : ""}`} aria-hidden={!open}>
-      <button className="cart-drawer-backdrop" type="button" aria-label="Tutup cart" onClick={() => setOpen(false)} />
-      <aside className="cart-drawer-panel" aria-label="Cart checkout">
+      <button className="cart-drawer-backdrop" type="button" aria-label="Tutup keranjang" onClick={() => setOpen(false)} />
+      <aside className="cart-drawer-panel" aria-label="Keranjang checkout">
         <div className="flex items-start justify-between gap-5">
           <div>
             <p className="section-kicker">Checkout</p>
-            <h2 className="mt-2 text-[32px] font-semibold leading-tight text-white">Cart</h2>
+            <h2 className="mt-2 text-[32px] font-semibold leading-tight text-white">Keranjang</h2>
             <p className="mt-2 text-[14px] leading-6 text-white/54">{items.length} item siap diproses.</p>
           </div>
-          <button className="cart-drawer-close" type="button" aria-label="Tutup cart" onClick={() => setOpen(false)}>
+          <button className="cart-drawer-close" type="button" aria-label="Tutup keranjang" onClick={() => setOpen(false)}>
             x
           </button>
         </div>
@@ -97,7 +97,7 @@ export default function CartDrawer() {
                     onClick={() => save(items.filter((entry) => entry.id !== item.id))}
                     className="text-[12px] font-medium text-white/42"
                   >
-                    Remove
+                    Hapus
                   </button>
                 </div>
                 <div className="mt-4 flex items-center justify-between gap-3">
@@ -126,7 +126,7 @@ export default function CartDrawer() {
 
           {items.length === 0 && (
             <div className="rounded-xl border border-white/10 bg-white/[0.03] px-5 py-14 text-center">
-              <h3 className="text-[20px] font-semibold text-white">Cart masih kosong.</h3>
+              <h3 className="text-[20px] font-semibold text-white">Keranjang masih kosong.</h3>
               <p className="mt-2 text-[14px] text-white/50">Tambahkan produk dari katalog untuk mulai checkout.</p>
             </div>
           )}

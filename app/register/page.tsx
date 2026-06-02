@@ -48,7 +48,7 @@ export default function RegisterPage() {
           </span>
         </Link>
 
-        <h1 className="text-[32px] font-semibold leading-[1.12] tracking-[-0.04em]">Create BanbukStore account</h1>
+        <h1 className="text-[32px] font-semibold leading-[1.12] tracking-[-0.04em]">Buat akun CV Banbuk Store</h1>
         <p className="mt-2 text-[15px] text-white/62">
           Sudah punya akun?{" "}
           <Link href="/login" className="font-semibold text-[color:var(--brand-green)]">
@@ -61,7 +61,7 @@ export default function RegisterPage() {
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
           <label className="block">
             <span className="mb-2 block text-sm font-semibold">Nama</span>
-            <input className="app-input" value={formData.name} onChange={(event) => setFormData({ ...formData, name: event.target.value })} placeholder="Full name" required />
+            <input className="app-input" value={formData.name} onChange={(event) => setFormData({ ...formData, name: event.target.value })} placeholder="Nama lengkap" required />
           </label>
           <label className="block">
             <span className="mb-2 block text-sm font-semibold">Email</span>
@@ -69,7 +69,7 @@ export default function RegisterPage() {
           </label>
           <div className="grid gap-4 sm:grid-cols-2">
             <input className="app-input" type="password" value={formData.password} onChange={(event) => setFormData({ ...formData, password: event.target.value })} placeholder="Password" required />
-            <input className="app-input" type="password" value={formData.confirmPassword} onChange={(event) => setFormData({ ...formData, confirmPassword: event.target.value })} placeholder="Confirm" required />
+            <input className="app-input" type="password" value={formData.confirmPassword} onChange={(event) => setFormData({ ...formData, confirmPassword: event.target.value })} placeholder="Konfirmasi" required />
           </div>
           <button className="h-12 w-full rounded-xl bg-white text-sm font-semibold text-black disabled:opacity-45" disabled={loading}>
             {loading ? "Membuat akun..." : "Buat akun"}
