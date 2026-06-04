@@ -305,14 +305,14 @@ export default function Web3Payment({ productId, productName, price, onSuccess }
 
   if (!isConfigured) {
     return (
-      <div className="glass-panel border border-white/6 bg-[#141416]/50 p-5 sm:p-6">
-        <h3 className="text-xl font-semibold text-slate-50">Pembayaran crypto belum siap</h3>
-        <p className="mt-2 text-sm leading-6 text-slate-300">
+      <div className="rounded-[10px] border border-white/[0.09] bg-[rgba(8,12,11,0.74)] p-4 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] md:p-5">
+        <h3 className="text-[18px] font-semibold text-white">Pembayaran crypto belum siap</h3>
+        <p className="mt-2 text-[13px] leading-5 text-white/58">
           Smart contract belum di-deploy. Isi contract address di file `.env`, lalu restart aplikasi untuk mengaktifkan checkout ETH.
         </p>
-        <div className="mt-4 rounded-[22px] border border-white/8 bg-slate-900/70 p-4 text-sm text-white">
+        <div className="mt-3 rounded-[8px] border border-white/[0.08] bg-white/[0.035] px-3 py-2.5 text-[13px] text-white">
           <p className="font-semibold">Langkah singkat</p>
-          <p className="mt-2 leading-6 text-white/75">
+          <p className="mt-1.5 leading-5 text-white/58">
             Compile contract, deploy ke jaringan Ethereum yang dipakai aplikasi, salin address hasil deploy ke `NEXT_PUBLIC_CONTRACT_ADDRESS`, lalu hubungkan MetaMask ke jaringan yang sesuai.
           </p>
         </div>
@@ -321,38 +321,38 @@ export default function Web3Payment({ productId, productName, price, onSuccess }
   }
 
   return (
-    <div className="glass-panel border border-white/6 bg-[#141416]/50 p-5 sm:p-6">
+    <div className="rounded-[10px] border border-white/[0.09] bg-[rgba(8,12,11,0.74)] p-4 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] md:p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h3 className="text-xl font-semibold text-slate-50">Pembayaran crypto</h3>
-          <p className="mt-2 text-sm leading-6 text-slate-300">
+          <h3 className="text-[18px] font-semibold text-white">Pembayaran crypto</h3>
+          <p className="mt-2 text-[13px] leading-5 text-white/58">
             Gunakan wallet Ethereum untuk menyelesaikan pembayaran blockchain secara langsung.
           </p>
         </div>
-        <span className="status-pill bg-indigo-500/15 text-indigo-300">{displayNetworkLabel}</span>
+        <span className="status-pill bg-indigo-500/15 text-indigo-200">{displayNetworkLabel}</span>
       </div>
 
-      <div className="mt-5 rounded-[22px] border border-white/8 bg-slate-950/45 p-4">
+      <div className="mt-4 rounded-[8px] border border-white/[0.08] bg-white/[0.035] px-3 py-2.5">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Produk</p>
-            <p className="mt-1.5 text-base font-semibold text-slate-50">{productName}</p>
+            <p className="text-[10px] font-semibold uppercase text-white/38">Produk</p>
+            <p className="mt-1 text-[13px] font-semibold text-white">{productName}</p>
           </div>
           <div className="text-right">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Nilai transfer</p>
-            <p className="mt-1.5 text-base font-semibold text-indigo-300">{fixedEthAmount} {configuredCurrencySymbol}</p>
-            <p className="text-sm text-slate-500">Sekitar Rp {price.toLocaleString()}</p>
+            <p className="text-[10px] font-semibold uppercase text-white/38">Nilai transfer</p>
+            <p className="mt-1 text-[13px] font-semibold text-indigo-200">{fixedEthAmount} {configuredCurrencySymbol}</p>
+            <p className="text-[12px] text-white/42">Sekitar Rp {price.toLocaleString("id-ID")}</p>
           </div>
         </div>
       </div>
 
       {isConnected && (
-        <div className="mt-4 rounded-[22px] border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-slate-200">
+        <div className="mt-3 rounded-[8px] border border-emerald-500/20 bg-emerald-500/10 px-3 py-2.5 text-[13px] text-white/72">
           <div className="flex items-center justify-between gap-4">
             <p className="font-semibold text-emerald-300">Wallet terhubung</p>
-            <span className="status-pill bg-slate-950/70 text-emerald-300">Aktif</span>
+            <span className="status-pill bg-black/35 text-emerald-300">Aktif</span>
           </div>
-          <div className="mt-3 space-y-2">
+          <div className="mt-2 space-y-1.5">
             <p>Address: {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}</p>
             <p>Balance: {parseFloat(balance).toFixed(4)} {configuredCurrencySymbol}</p>
             <p>Network: {network}</p>
@@ -361,13 +361,13 @@ export default function Web3Payment({ productId, productName, price, onSuccess }
       )}
 
       {txStatus && (
-        <div className="mt-4 rounded-[22px] border border-sky-500/20 bg-sky-500/10 px-4 py-4 text-sm text-sky-200">
+        <div className="mt-3 rounded-[8px] border border-sky-500/20 bg-sky-500/10 px-3 py-2.5 text-[13px] text-sky-200">
           {txStatus}
         </div>
       )}
 
       {error && (
-        <div className="mt-4 rounded-[22px] border border-red-500/20 bg-red-500/10 px-4 py-4 text-sm text-red-200">
+        <div className="mt-3 rounded-[8px] border border-red-500/20 bg-red-500/10 px-3 py-2.5 text-[13px] text-red-200">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p>{error}</p>
             {isConnected && network !== "" && (
@@ -385,11 +385,11 @@ export default function Web3Payment({ productId, productName, price, onSuccess }
       )}
 
       {!isConnected ? (
-        <button onClick={connectWallet} disabled={loading} className="app-button-primary mt-5 w-full sm:w-auto">
+        <button onClick={connectWallet} disabled={loading} className="app-button-primary mt-4 w-full sm:w-auto">
           {loading ? "Menghubungkan wallet..." : "Connect MetaMask"}
         </button>
       ) : (
-        <button onClick={handlePayment} disabled={loading || !!error} className="app-button-primary mt-5 w-full disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto">
+        <button onClick={handlePayment} disabled={loading || !!error} className="app-button-primary mt-4 w-full disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto">
           {loading ? "Memproses pembayaran..." : "Bayar dengan ETH"}
         </button>
       )}

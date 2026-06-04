@@ -121,9 +121,9 @@ export default function MidtransPayment({ productId, productName, price, onStatu
 
   if (!isConfigured) {
     return (
-      <div className="glass-panel border border-white/6 bg-[#141416]/50 p-5 sm:p-6">
-        <h3 className="text-xl font-semibold text-slate-50">Midtrans belum dikonfigurasi</h3>
-        <p className="mt-2 text-sm leading-6 text-slate-300">
+      <div className="rounded-[10px] border border-white/[0.09] bg-[rgba(8,12,11,0.74)] p-4 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] md:p-5">
+        <h3 className="text-[18px] font-semibold text-white">Midtrans belum dikonfigurasi</h3>
+        <p className="mt-2 text-[13px] leading-5 text-white/58">
           Isi `MIDTRANS_SERVER_KEY` dan `NEXT_PUBLIC_MIDTRANS_CLIENT_KEY` pada `.env`, lalu restart aplikasi untuk mengaktifkan metode ini.
         </p>
       </div>
@@ -131,47 +131,47 @@ export default function MidtransPayment({ productId, productName, price, onStatu
   }
 
   return (
-    <div className="glass-panel border border-white/6 bg-[#141416]/50 p-5 sm:p-6">
+    <div className="rounded-[10px] border border-white/[0.09] bg-[rgba(8,12,11,0.74)] p-4 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] md:p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h3 className="text-xl font-semibold text-slate-50">Gateway payment</h3>
-          <p className="mt-2 text-sm leading-6 text-slate-300">
+          <h3 className="text-[18px] font-semibold text-white">Gateway payment</h3>
+          <p className="mt-2 text-[13px] leading-5 text-white/58">
             Lanjutkan pembayaran dengan alur yang sudah familiar dan metode yang umum digunakan.
           </p>
         </div>
-        <span className="status-pill bg-emerald-500/15 text-emerald-300">Midtrans</span>
+        <span className="status-pill bg-[rgba(0,212,164,0.12)] text-[color:var(--brand-green)]">Midtrans</span>
       </div>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-[minmax(0,1fr)_180px]">
-        <div className="rounded-[22px] border border-white/8 bg-slate-950/45 p-4">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Produk</p>
-          <p className="mt-1.5 text-base font-semibold text-slate-50">{productName}</p>
+      <div className="mt-4 grid gap-2.5 sm:grid-cols-[minmax(0,1fr)_168px]">
+        <div className="rounded-[8px] border border-white/[0.08] bg-white/[0.035] px-3 py-2.5">
+          <p className="text-[10px] font-semibold uppercase text-white/38">Produk</p>
+          <p className="mt-1 truncate text-[13px] font-semibold text-white">{productName}</p>
         </div>
-        <div className="rounded-[22px] border border-[color:var(--primary)]/15 bg-[color:var(--primary)]/6 p-4">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Harga</p>
-          <p className="mt-1.5 text-lg font-semibold text-[color:var(--primary)]">
+        <div className="rounded-[8px] border border-[rgba(0,212,164,0.18)] bg-[rgba(0,212,164,0.055)] px-3 py-2.5">
+          <p className="text-[10px] font-semibold uppercase text-white/38">Harga</p>
+          <p className="mt-1 text-[14px] font-semibold text-[color:var(--brand-green)]">
             Rp {price.toLocaleString("id-ID")}
           </p>
         </div>
       </div>
 
-      <div className="mt-4 rounded-[22px] border border-white/8 bg-slate-950/35 px-4 py-4 text-sm leading-6 text-slate-300">
+      <div className="mt-3 rounded-[8px] border border-white/[0.08] bg-white/[0.035] px-3 py-2.5 text-[13px] leading-5 text-white/58">
         Metode yang umumnya tersedia: transfer bank, kartu, e-wallet, QRIS, dan channel retail sesuai konfigurasi Midtrans Anda.
       </div>
 
       {!isProduction && (
-        <div className="mt-4 rounded-[22px] border border-amber-500/20 bg-amber-500/10 px-4 py-4 text-sm leading-6 text-amber-100">
+        <div className="mt-3 rounded-[8px] border border-amber-500/20 bg-amber-500/10 px-3 py-2.5 text-[13px] leading-5 text-amber-100">
           Anda sedang memakai Midtrans sandbox. Beberapa channel bisa sesekali tidak stabil saat testing, tetapi daftar metode pembayaran tidak dibatasi oleh aplikasi.
         </div>
       )}
 
       {error && (
-        <div className="mt-4 rounded-[22px] border border-red-500/20 bg-red-500/10 px-4 py-4 text-sm text-red-200">
+        <div className="mt-3 rounded-[8px] border border-red-500/20 bg-red-500/10 px-3 py-2.5 text-[13px] text-red-200">
           {error}
         </div>
       )}
 
-      <button onClick={handlePayment} disabled={loading} className="app-button-primary mt-5 w-full disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto">
+      <button onClick={handlePayment} disabled={loading} className="app-button-primary mt-4 w-full disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto">
         {loading ? "Membuka popup pembayaran..." : "Bayar"}
       </button>
     </div>

@@ -9,7 +9,6 @@ import AppNavbar from "@/components/AppNavbar";
 import Web3Payment from "@/components/Web3Payment";
 import MidtransPayment from "@/components/MidtransPayment";
 import ProductImage from "@/components/ProductImage";
-import InteractiveCard from "@/components/InteractiveCard";
 import LoadingScreen from "@/components/LoadingScreen";
 
 gsap.registerPlugin(useGSAP);
@@ -34,6 +33,8 @@ const PAYMENT_METHODS = [
     detail: "Pilihan paling sederhana jika transaksi ingin dicatat manual oleh tim.",
   },
 ] as const;
+
+const formatPrice = (value: number) => `Rp ${value.toLocaleString("id-ID")}`;
 
 export default function PaymentPage() {
   type PaymentNotice = {
@@ -302,14 +303,14 @@ export default function PaymentPage() {
   }
 
   return (
-    <main className="page-shell pb-16">
+    <main className="product-page customer-flow-page min-h-screen pb-12 text-white">
       <AppNavbar />
 
       {paymentNotice && (
         <div className="pointer-events-none fixed inset-x-4 bottom-4 z-[130] flex justify-center sm:inset-x-auto sm:right-6 sm:w-auto sm:justify-end">
           <div
             ref={noticeRef}
-            className={`pointer-events-auto w-full max-w-[420px] rounded-[28px] border px-5 py-5 shadow-[0_30px_80px_rgba(0,0,0,0.35)] ${
+            className={`pointer-events-auto w-full max-w-[400px] rounded-[10px] border px-4 py-4 shadow-[0_22px_70px_rgba(0,0,0,0.34)] ${
               paymentNotice.tone === "success"
                 ? "border-emerald-400/20 bg-[linear-gradient(135deg,rgba(16,40,28,0.96),rgba(11,18,15,0.98))]"
                 : paymentNotice.tone === "info"
@@ -319,7 +320,7 @@ export default function PaymentPage() {
           >
             <div className="flex items-start gap-4">
               <div
-                className={`mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${
+                className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] ${
                   paymentNotice.tone === "success"
                     ? "bg-emerald-400/15 text-emerald-300"
                     : paymentNotice.tone === "info"
@@ -380,92 +381,90 @@ export default function PaymentPage() {
         </div>
       )}
 
-      <section className="content-wrap pt-8">
-        <div className="mx-auto max-w-6xl">
-          <div className="glass-panel px-6 py-7 sm:px-8 sm:py-8">
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-              <div className="max-w-2xl">
-                <span className="section-kicker">Checkout</span>
-                <h1 className="section-title">Pembayaran produk</h1>
-                <p className="section-subtitle">
-                  Pilih metode pembayaran yang paling sesuai untuk menyelesaikan pesanan dengan tampilan yang lebih ringkas dan fokus.
-                </p>
-              </div>
+      <section className="content-wrap pt-5">
+        <div className="rounded-[10px] border border-white/[0.09] bg-[rgba(8,12,11,0.74)] px-4 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] md:px-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <span className="section-kicker">Checkout</span>
+              <h1 className="mt-2 text-[28px] font-semibold leading-[1.05] text-white md:text-[36px]">Pembayaran produk</h1>
+              <p className="mt-2 max-w-2xl text-[14px] leading-6 text-white/58">
+                Pilih metode pembayaran yang paling sesuai untuk menyelesaikan pesanan dengan tampilan yang lebih ringkas dan fokus.
+              </p>
+            </div>
 
-              <div className="grid grid-cols-2 gap-3 sm:w-fit">
-                <div className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3">
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-slate-500">Produk</p>
-                  <p className="mt-1.5 text-sm font-semibold text-slate-100 line-clamp-1">{product.name}</p>
-                </div>
-                <div className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3">
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-slate-500">Total</p>
-                  <p className="mt-1.5 text-sm font-semibold text-[color:var(--primary)]">
-                    Rp {product.price.toLocaleString()}
-                  </p>
-                </div>
+            <div className="grid grid-cols-2 gap-3 sm:w-fit">
+              <div className="rounded-[8px] border border-white/[0.09] bg-white/[0.035] px-3 py-2.5">
+                <p className="text-[10px] font-semibold uppercase text-white/40">Produk</p>
+                <p className="mt-1 max-w-[170px] truncate text-[13px] font-semibold text-white">{product.name}</p>
+              </div>
+              <div className="rounded-[8px] border border-[rgba(0,212,164,0.2)] bg-[rgba(0,212,164,0.06)] px-3 py-2.5">
+                <p className="text-[10px] font-semibold uppercase text-white/40">Total</p>
+                <p className="mt-1 text-[13px] font-semibold text-[color:var(--brand-green)]">
+                  {formatPrice(product.price)}
+                </p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="content-wrap mt-8">
-        <div className="mx-auto grid max-w-6xl gap-5 lg:grid-cols-[340px_minmax(0,1fr)]">
-          <InteractiveCard disabled className="glass-panel overflow-hidden border border-white/6 bg-[#141416]/50">
-            <div className="relative h-44 overflow-hidden">
-              <ProductImage src={product.image} alt={product.name} />
+      <section className="content-wrap mt-4">
+        <div className="grid gap-4 lg:grid-cols-[300px_minmax(0,1fr)]">
+          <article className="overflow-hidden rounded-[10px] border border-white/[0.09] bg-[rgba(8,12,11,0.74)] shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] lg:sticky lg:top-20 lg:h-fit">
+            <div className="relative h-[150px] overflow-hidden">
+              <ProductImage src={product.image} alt={product.name} className="block !h-full !w-full !object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
             </div>
 
-            <div className="space-y-4 p-5">
+            <div className="space-y-3 p-4">
               <div>
-                <span className="status-pill bg-white/10 text-slate-200">Ringkasan pesanan</span>
-                <h2 className="mt-3 text-2xl font-semibold text-slate-50">{product.name}</h2>
-                <p className="mt-2 text-sm leading-6 text-slate-400 line-clamp-3">
+                <span className="status-pill bg-white/[0.06] text-white/70">Ringkasan pesanan</span>
+                <h2 className="mt-3 text-[18px] font-semibold leading-tight text-white">{product.name}</h2>
+                <p className="mt-2 line-clamp-2 text-[13px] leading-5 text-white/52">
                   {product.description}
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="rounded-2xl border border-white/8 bg-slate-950/45 px-4 py-3">
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Bahan</p>
-                  <p className="mt-1.5 font-semibold text-slate-100">{product.material}</p>
+              <div className="grid grid-cols-2 gap-2.5 text-[13px]">
+                <div className="rounded-[8px] border border-white/[0.08] bg-white/[0.035] px-3 py-2.5">
+                  <p className="text-[10px] font-semibold uppercase text-white/38">Bahan</p>
+                  <p className="mt-1 truncate font-semibold text-white/86">{product.material}</p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-slate-950/45 px-4 py-3">
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Ukuran</p>
-                  <p className="mt-1.5 font-semibold text-slate-100">{product.size}</p>
+                <div className="rounded-[8px] border border-white/[0.08] bg-white/[0.035] px-3 py-2.5">
+                  <p className="text-[10px] font-semibold uppercase text-white/38">Ukuran</p>
+                  <p className="mt-1 truncate font-semibold text-white/86">{product.size}</p>
                 </div>
-                <div className="rounded-2xl border border-white/8 bg-slate-950/45 px-4 py-3">
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Stok</p>
-                  <p className="mt-1.5 font-semibold text-slate-100">{product.stock}</p>
+                <div className="rounded-[8px] border border-white/[0.08] bg-white/[0.035] px-3 py-2.5">
+                  <p className="text-[10px] font-semibold uppercase text-white/38">Stok</p>
+                  <p className="mt-1 font-semibold text-white/86">{product.stock}</p>
                 </div>
-                <div className="rounded-2xl border border-[color:var(--primary)]/14 bg-[color:var(--primary)]/6 px-4 py-3">
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Total</p>
-                  <p className="mt-1.5 font-semibold text-[color:var(--primary)]">
-                    Rp {product.price.toLocaleString()}
+                <div className="rounded-[8px] border border-[rgba(0,212,164,0.18)] bg-[rgba(0,212,164,0.055)] px-3 py-2.5">
+                  <p className="text-[10px] font-semibold uppercase text-white/38">Total</p>
+                  <p className="mt-1 font-semibold text-[color:var(--brand-green)]">
+                    {formatPrice(product.price)}
                   </p>
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-white/[0.03] px-4 py-3 text-sm leading-6 text-slate-400">
+              <div className="rounded-[8px] border border-white/[0.08] bg-white/[0.035] px-3 py-2.5 text-[13px] leading-5 text-white/52">
                 Pesanan akan diproses setelah pembayaran selesai atau tercatat pada sistem.
               </div>
             </div>
-          </InteractiveCard>
+          </article>
 
-          <div className="space-y-5">
-            <div className="glass-panel border border-white/6 bg-[#141416]/50 p-5 sm:p-6">
+          <div className="space-y-4">
+            <div className="rounded-[10px] border border-white/[0.09] bg-[rgba(8,12,11,0.74)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] md:p-5">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-slate-500">Metode</p>
-                  <h2 className="mt-2 text-2xl font-semibold text-slate-50">Pilih metode pembayaran</h2>
+                  <p className="section-kicker">Metode</p>
+                  <h2 className="mt-1 text-[18px] font-semibold leading-tight text-white md:text-[20px]">Pilih metode pembayaran</h2>
                 </div>
-                <p className="max-w-sm text-sm leading-6 text-slate-400">
+                <p className="max-w-sm text-[13px] leading-5 text-white/52">
                   Pilih metode yang paling nyaman untuk menyelesaikan pesanan ini.
                 </p>
               </div>
 
-              <div ref={selectorRef} className="mt-5 grid gap-3">
+              <div ref={selectorRef} className="mt-4 grid gap-2.5">
                 {PAYMENT_METHODS.map(({ type, title, helper, detail }) => (
                   <button
                     key={type}
@@ -473,26 +472,26 @@ export default function PaymentPage() {
                     type="button"
                     aria-pressed={paymentType === type}
                     onClick={() => setPaymentType(type)}
-                    className={`rounded-[24px] border px-4 py-4 text-left transition-all duration-200 ${
+                    className={`rounded-[10px] border px-3.5 py-3 text-left transition-all duration-200 md:px-4 ${
                       paymentType === type
-                        ? "border-[color:var(--primary)]/30 bg-[linear-gradient(135deg,rgba(220,179,123,0.16),rgba(220,179,123,0.05))] shadow-[0_18px_50px_rgba(220,179,123,0.12)]"
-                        : "border-white/8 bg-slate-950/35 hover:border-white/14 hover:bg-white/[0.045]"
+                        ? "border-[rgba(0,212,164,0.34)] bg-[rgba(0,212,164,0.075)] shadow-[0_16px_44px_rgba(0,212,164,0.08)]"
+                        : "border-white/[0.08] bg-white/[0.035] hover:border-white/[0.14] hover:bg-white/[0.055]"
                     }`}
                   >
-                    <div className="flex items-start gap-4">
+                    <div className="flex items-start gap-3">
                       <div
-                        className={`mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border transition-colors ${
+                        className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[8px] border transition-colors ${
                           paymentType === type
-                            ? "border-[color:var(--primary)]/35 bg-[color:var(--primary)]/14 text-[color:var(--primary)]"
-                            : "border-white/8 bg-white/[0.04] text-slate-500"
+                            ? "border-[rgba(0,212,164,0.34)] bg-[rgba(0,212,164,0.12)] text-[color:var(--brand-green)]"
+                            : "border-white/[0.08] bg-white/[0.04] text-white/36"
                         }`}
                       >
                         <span
                           data-check-badge
                           className={`flex h-5 w-5 items-center justify-center rounded-full ${
                             paymentType === type
-                              ? "bg-[color:var(--primary)] text-[#141416]"
-                              : "border border-white/12 bg-transparent text-transparent"
+                              ? "bg-[color:var(--brand-green)] text-[#050706]"
+                              : "border border-white/[0.14] bg-transparent text-transparent"
                           }`}
                         >
                           <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -502,11 +501,11 @@ export default function PaymentPage() {
                       </div>
 
                       <div className="min-w-0 flex-1">
-                        <p className="text-base font-semibold text-slate-50">{title}</p>
-                        <p className="mt-1.5 text-sm leading-6 text-slate-300">{helper}</p>
+                        <p className="text-[14px] font-semibold text-white">{title}</p>
+                        <p className="mt-1 text-[13px] leading-5 text-white/58">{helper}</p>
 
                         {paymentType === type && (
-                          <p data-selected-copy className="mt-3 text-xs leading-5 text-[color:var(--primary)]">
+                          <p data-selected-copy className="mt-2 text-[12px] leading-5 text-[color:var(--brand-green)]">
                             {detail}
                           </p>
                         )}
@@ -515,8 +514,8 @@ export default function PaymentPage() {
                       <span
                         className={`status-pill ${
                           paymentType === type
-                            ? "bg-[color:var(--primary)] text-[#141416]"
-                            : "bg-slate-800 text-slate-300"
+                            ? "bg-[color:var(--brand-green)] text-[#050706]"
+                            : "bg-white/[0.07] text-white/62"
                         }`}
                       >
                         {paymentType === type ? "Dipilih" : "Pilih"}
@@ -528,16 +527,16 @@ export default function PaymentPage() {
             </div>
 
             <div ref={detailPanelRef} className="space-y-4">
-              <div className="glass-panel border border-[color:var(--primary)]/12 bg-[linear-gradient(135deg,rgba(220,179,123,0.08),rgba(20,20,22,0.72))] p-5 sm:p-6">
+              <div className="rounded-[10px] border border-[rgba(0,212,164,0.16)] bg-[rgba(0,212,164,0.055)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <p className="text-[10px] uppercase tracking-[0.22em] text-slate-500">Metode dipilih</p>
-                    <h3 className="mt-2 text-xl font-semibold text-slate-50">{activeMethod.title}</h3>
-                    <p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">
+                    <p className="text-[10px] font-semibold uppercase text-white/38">Metode dipilih</p>
+                    <h3 className="mt-1 text-[17px] font-semibold text-white">{activeMethod.title}</h3>
+                    <p className="mt-1 max-w-xl text-[13px] leading-5 text-white/58">
                       {activeMethod.detail}
                     </p>
                   </div>
-                  <span className="status-pill bg-[color:var(--primary)] text-[#141416]">Dipilih</span>
+                  <span className="status-pill bg-[color:var(--brand-green)] text-[#050706]">Dipilih</span>
                 </div>
               </div>
 
@@ -549,18 +548,18 @@ export default function PaymentPage() {
                   onStatusChange={showPaymentNotice}
                 />
               ) : paymentType === "REGULAR" ? (
-                <div className="glass-panel border border-white/6 bg-[#141416]/50 p-5 sm:p-6">
+                <div className="rounded-[10px] border border-white/[0.09] bg-[rgba(8,12,11,0.74)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] md:p-5">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <h3 className="text-xl font-semibold text-slate-50">Pembayaran manual</h3>
-                      <p className="mt-2 max-w-xl text-sm leading-6 text-slate-300">
+                      <h3 className="text-[18px] font-semibold text-white">Pembayaran manual</h3>
+                      <p className="mt-2 max-w-xl text-[13px] leading-5 text-white/58">
                         Gunakan metode ini jika pembayaran ingin dicatat langsung ke sistem untuk proses internal.
                       </p>
                     </div>
-                    <span className="status-pill bg-white/10 text-slate-300">Manual</span>
+                    <span className="status-pill bg-white/[0.07] text-white/70">Manual</span>
                   </div>
 
-                  <div className="mt-5 rounded-[22px] border border-white/8 bg-slate-950/35 px-4 py-4 text-sm leading-6 text-slate-400">
+                  <div className="mt-4 rounded-[8px] border border-white/[0.08] bg-white/[0.035] px-3 py-2.5 text-[13px] leading-5 text-white/52">
                     Pastikan jumlah pembayaran sesuai total pesanan sebelum melanjutkan pencatatan.
                   </div>
 

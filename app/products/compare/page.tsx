@@ -219,32 +219,41 @@ export default function CompareProductsPage() {
 
       {selectedProducts.length === MAX_COMPARE_ITEMS && (
         <section className="content-wrap pb-5">
-          <div className="compare-matrix">
-            <div className="compare-matrix-head">
+          <div className="overflow-hidden rounded-[10px] border border-white/[0.09] bg-[rgba(8,12,11,0.74)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.035)]">
+            <div className="flex flex-col gap-3 border-b border-white/[0.08] px-4 py-4 sm:flex-row sm:items-end sm:justify-between md:px-5">
               <div>
                 <p className="section-kicker">Rincian</p>
-                <h2>Detail perbandingan</h2>
+                <h2 className="mt-1 text-[18px] font-semibold leading-tight text-white md:text-[20px]">Detail perbandingan</h2>
               </div>
-              <p>Siap dibandingkan</p>
+              <span className="w-fit rounded-full border border-[rgba(0,212,164,0.26)] bg-[rgba(0,212,164,0.08)] px-3 py-1 text-[12px] font-semibold text-[color:var(--brand-green)]">
+                Siap dibandingkan
+              </span>
             </div>
 
-            <div className="compare-matrix-table">
-              <div className="compare-matrix-row compare-matrix-row-head">
-                <div>Kriteria</div>
-                {[0, 1].map((slot) => (
-                  <div key={slot}>{selectedProducts[slot]?.name ?? `Produk ${slot + 1}`}</div>
-                ))}
-              </div>
-              {comparisonRows.map(([label, values]) => (
-                <div key={label} className="compare-matrix-row">
-                  <div>{label}</div>
+            <div className="overflow-x-auto">
+              <div className="min-w-[680px] divide-y divide-white/[0.07] md:min-w-0">
+                <div className="grid grid-cols-[132px_repeat(2,minmax(0,1fr))] bg-white/[0.035] text-[12px] font-semibold uppercase text-white/54 md:grid-cols-[156px_repeat(2,minmax(0,1fr))]">
+                  <div className="px-4 py-3 md:px-5">Kriteria</div>
                   {[0, 1].map((slot) => (
-                    <div key={`${label}-${slot}`} className={!values[slot] ? "is-empty" : ""}>
-                      {values[slot] ?? "Belum dipilih"}
+                    <div key={slot} className="min-w-0 border-l border-white/[0.07] px-4 py-3 md:px-5">
+                      <span className="block truncate text-white/82">{selectedProducts[slot]?.name ?? `Produk ${slot + 1}`}</span>
                     </div>
                   ))}
                 </div>
-              ))}
+                {comparisonRows.map(([label, values]) => (
+                  <div key={label} className="grid grid-cols-[132px_repeat(2,minmax(0,1fr))] text-[13px] md:grid-cols-[156px_repeat(2,minmax(0,1fr))]">
+                    <div className="bg-white/[0.018] px-4 py-3 font-semibold text-white/62 md:px-5">{label}</div>
+                    {[0, 1].map((slot) => (
+                      <div
+                        key={`${label}-${slot}`}
+                        className={`border-l border-white/[0.07] px-4 py-3 leading-5 md:px-5 ${values[slot] ? "text-white/78" : "text-white/34"}`}
+                      >
+                        {values[slot] ?? "Belum dipilih"}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
