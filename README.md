@@ -29,6 +29,13 @@ Platform e-commerce modern untuk **CV Banbuk Mandiri Jaya** dengan dukungan pemb
 - ✅ WhatsApp Integration
 - ✅ Smart Contract di network yang bisa dikonfigurasi
 
+### 🎨 UI & Experience
+- ✅ Katalog produk dengan kartu 4 kolom di desktop dan layout mobile responsif
+- ✅ Halaman compare produk dengan gambar penuh, pilihan compact, dan tabel rincian
+- ✅ Halaman inquiry role-based untuk customer, sales, dan admin
+- ✅ Checkout payment yang ringkas untuk Midtrans, ETH, dan manual payment
+- ✅ Branding CV Banbuk Store dengan navbar dan logo konsisten
+
 ---
 
 ## 🚀 Quick Start
@@ -173,6 +180,12 @@ Dashboard berbeda untuk setiap role (Admin, Sales, Customer)
 ### Product Catalog
 Katalog produk dengan filter dan search
 
+### Product Compare
+Bandingkan dua produk dengan kartu compact dan rincian spesifikasi
+
+### Inquiry
+Riwayat inquiry customer, assignment admin, dan status follow-up sales
+
 ### Crypto Payment
 Pembayaran dengan MetaMask dan Ethereum
 
@@ -191,6 +204,13 @@ Pembayaran dengan MetaMask dan Ethereum
 2. Set `.env` ke network target yang dipakai aplikasi
 3. Switch MetaMask ke network yang sama
 4. Connect wallet & bayar
+
+### UI Regression Checklist
+1. Cek katalog desktop menampilkan 4 produk per baris
+2. Cek compare product image tetap penuh dan tidak kepotong aneh
+3. Cek inquiry tidak melebar kosong dan tombol detail terlihat seperti button
+4. Cek payment ETH menampilkan tombol bayar yang jelas di panel gelap
+5. Cek tampilan mobile untuk katalog, compare, inquiry, dan checkout
 
 ---
 

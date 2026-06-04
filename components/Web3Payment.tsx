@@ -34,6 +34,9 @@ const KNOWN_CHAINS: Record<string, SupportedChainConfig> = {
   },
 };
 
+const web3ActionButtonClass =
+  "mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-[8px] border border-[rgba(0,212,164,0.55)] bg-[color:var(--brand-green)] px-4 py-2.5 text-[13px] font-semibold text-[#04100d] shadow-[0_14px_34px_rgba(0,212,164,0.24)] transition-[background-color,border-color,box-shadow,transform,opacity] hover:-translate-y-0.5 hover:border-[rgba(0,212,164,0.82)] hover:bg-[#32e6bd] hover:shadow-[0_18px_42px_rgba(0,212,164,0.3)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[color:var(--brand-green)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 sm:w-auto";
+
 function getConfiguredChain(): SupportedChainConfig {
   const chainIdFromEnv = process.env.NEXT_PUBLIC_CHAIN_ID;
   const chainNameFromEnv = process.env.NEXT_PUBLIC_CHAIN_NAME;
@@ -341,7 +344,7 @@ export default function Web3Payment({ productId, productName, price, onSuccess }
           <div className="text-right">
             <p className="text-[10px] font-semibold uppercase text-white/38">Nilai transfer</p>
             <p className="mt-1 text-[13px] font-semibold text-indigo-200">{fixedEthAmount} {configuredCurrencySymbol}</p>
-            <p className="text-[12px] text-white/42">Sekitar Rp {price.toLocaleString("id-ID")}</p>
+            <p className="text-[12px] text-white/40">Sekitar Rp {price.toLocaleString("id-ID")}</p>
           </div>
         </div>
       </div>
@@ -385,11 +388,11 @@ export default function Web3Payment({ productId, productName, price, onSuccess }
       )}
 
       {!isConnected ? (
-        <button onClick={connectWallet} disabled={loading} className="app-button-primary mt-4 w-full sm:w-auto">
+        <button onClick={connectWallet} disabled={loading} className={web3ActionButtonClass}>
           {loading ? "Menghubungkan wallet..." : "Connect MetaMask"}
         </button>
       ) : (
-        <button onClick={handlePayment} disabled={loading || !!error} className="app-button-primary mt-4 w-full disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto">
+        <button onClick={handlePayment} disabled={loading || !!error} className={web3ActionButtonClass}>
           {loading ? "Memproses pembayaran..." : "Bayar dengan ETH"}
         </button>
       )}
