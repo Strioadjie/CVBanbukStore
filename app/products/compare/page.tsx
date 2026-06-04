@@ -173,28 +173,33 @@ export default function CompareProductsPage() {
       </section>
 
       <section className="content-wrap pb-4">
-        <div className="compare-selection-grid !gap-3">
+        <div className="grid gap-3 lg:grid-cols-2">
           {[0, 1].map((slot) => {
             const product = selectedProducts[slot];
 
             return (
-              <article key={slot} className={`compare-slot-card !min-h-[118px] ${product ? "is-filled" : ""}`}>
-                <div className="compare-slot-media !p-0">
+              <article
+                key={slot}
+                className={`grid h-[126px] grid-cols-[96px_minmax(0,1fr)] overflow-hidden rounded-[10px] border bg-[rgba(8,12,11,0.72)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] sm:grid-cols-[112px_minmax(0,1fr)] ${
+                  product ? "border-[rgba(0,212,164,0.38)] bg-[rgba(8,16,13,0.82)]" : "border-white/[0.09]"
+                }`}
+              >
+                <div className="flex h-[126px] min-w-0 items-center justify-center overflow-hidden bg-white/[0.035]">
                   {product ? (
-                    <ProductImage src={product.image} alt={product.name} className="!h-full !w-full !object-cover" />
+                    <ProductImage src={product.image} alt={product.name} className="block !h-full !w-full !object-cover" />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center text-[12px] font-semibold text-white/34">
                       Slot {slot + 1}
                     </div>
                   )}
                 </div>
-                <div className="flex min-w-0 flex-col justify-center p-4 md:p-5">
+                <div className="flex min-w-0 flex-col justify-center p-3.5 md:p-4">
                   {product ? (
                     <>
                       <p className="text-[11px] font-semibold uppercase text-white/38">Produk {slot + 1}</p>
                       <h2 className="mt-1 truncate text-[17px] font-semibold leading-tight text-white">{product.name}</h2>
                       <p className="mt-1 text-[14px] font-semibold text-[color:var(--brand-green)]">{formatPrice(product.price)}</p>
-                      <button type="button" onClick={() => toggleCompare(product)} className="product-action product-action-secondary mt-3 w-fit">
+                      <button type="button" onClick={() => toggleCompare(product)} className="product-action product-action-secondary mt-2 w-fit">
                         Hapus
                       </button>
                     </>
@@ -256,26 +261,31 @@ export default function CompareProductsPage() {
           <p className="px-2 text-right text-[13px] text-white/46">{visibleProducts.length} produk</p>
         </div>
 
-        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {visibleProducts.map((product) => {
             const selected = compareIds.includes(product.id);
             const locked = !selected && compareIds.length >= MAX_COMPARE_ITEMS;
 
             return (
-              <article key={product.id} className={`compare-product-card !min-h-[132px] ${selected ? "is-selected" : ""}`}>
-                <div className="compare-product-media !p-0">
-                  <ProductImage src={product.image} alt={product.name} className="!h-full !w-full !object-cover" />
+              <article
+                key={product.id}
+                className={`grid min-h-[248px] overflow-hidden rounded-[10px] border bg-[rgba(8,12,11,0.72)] text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.035)] ${
+                  selected ? "border-[rgba(0,212,164,0.38)] bg-[rgba(8,16,13,0.82)]" : "border-white/[0.09]"
+                }`}
+              >
+                <div className="h-[132px] min-w-0 overflow-hidden bg-white/[0.035]">
+                  <ProductImage src={product.image} alt={product.name} className="block !h-full !w-full !object-cover" />
                 </div>
-                <div className="flex min-w-0 flex-col p-4">
+                <div className="flex min-w-0 flex-col p-3.5">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <h3 className="truncate text-[16px] font-semibold leading-snug text-white">{product.name}</h3>
+                      <h3 className="truncate text-[14px] font-semibold leading-snug text-white">{product.name}</h3>
                       <p className="mt-1 text-[13px] font-semibold text-[color:var(--brand-green)]">{formatPrice(product.price)}</p>
                     </div>
                     <span className="rounded-md bg-white/[0.06] px-2 py-1 text-[11px] text-white/56">{product.stock}</span>
                   </div>
-                  <p className="mt-2 line-clamp-2 text-[13px] leading-5 text-white/52">{product.description}</p>
-                  <div className="mt-auto flex flex-wrap items-center gap-2 pt-3">
+                  <p className="mt-2 line-clamp-2 min-h-[40px] text-[12px] leading-5 text-white/52">{product.description}</p>
+                  <div className="mt-auto flex flex-wrap items-center gap-2 pt-2.5">
                     <button
                       type="button"
                       onClick={() => toggleCompare(product)}
