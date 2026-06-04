@@ -262,10 +262,10 @@ export default function ProductsPage() {
         </div>
 
         {visibleProducts.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-4">
             {visibleProducts.map((product, index) => (
-              <article key={product.id} className="product-card grid min-h-[340px] grid-rows-[150px_1fr] overflow-hidden">
-                <Link href={`/products/${product.id}`} className="product-media relative">
+              <article key={product.id} className="product-card grid min-h-[438px] grid-rows-[168px_1fr] overflow-hidden transition-colors hover:border-white/14">
+                <Link href={`/products/${product.id}`} className="product-media relative overflow-hidden border-b border-white/8">
                   <span className="absolute left-3 top-3 z-10 rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-[11px] font-medium text-white/70">
                     {product.stock <= 5 ? "Stok terbatas" : index < 3 ? "Unggulan" : "Ready"}
                   </span>
@@ -273,36 +273,36 @@ export default function ProductsPage() {
                     src={product.image}
                     alt={product.name}
                     variant={index % 3 === 2 ? "box" : "jar"}
-                    className="max-h-[118px]"
+                    className="max-h-[132px]"
                   />
                 </Link>
-                <div className="flex flex-col p-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <Link href={`/products/${product.id}`}>
-                      <h2 className="text-[18px] font-semibold leading-snug">{product.name}</h2>
+                <div className="flex min-w-0 flex-col p-4">
+                  <div className="flex min-w-0 items-start justify-between gap-3">
+                    <Link href={`/products/${product.id}`} className="min-w-0">
+                      <h2 className="line-clamp-2 min-h-[48px] text-[20px] font-semibold leading-tight text-white">{product.name}</h2>
                     </Link>
-                    <span className="rounded-md bg-white/[0.06] px-2 py-1 text-[11px] text-white/58">{product.stock}</span>
+                    <span className="shrink-0 rounded-md bg-white/[0.06] px-2 py-1 text-[11px] text-white/58">{product.stock}</span>
                   </div>
-                  <p className="mt-2 line-clamp-2 min-h-[40px] text-[13px] leading-5 text-white/58">{product.description}</p>
-                  <div className="mt-3 grid grid-cols-2 gap-2 text-[12px] text-white/52">
-                    <div className="rounded-lg border border-white/10 bg-white/[0.03] p-2.5">
+                  <p className="mt-2 line-clamp-2 min-h-[42px] text-[13px] leading-5 text-white/58">{product.description}</p>
+                  <div className="mt-3 grid grid-cols-[repeat(2,minmax(0,1fr))] gap-2 text-[12px] text-white/52">
+                    <div className="min-w-0 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5">
                       <p className="text-white/36">Bahan</p>
-                      <p className="mt-1 font-medium text-white/76">{product.material}</p>
+                      <p className="mt-1 line-clamp-2 break-words font-semibold leading-snug text-white/82">{product.material}</p>
                     </div>
-                    <div className="rounded-lg border border-white/10 bg-white/[0.03] p-2.5">
+                    <div className="min-w-0 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5">
                       <p className="text-white/36">Ukuran</p>
-                      <p className="mt-1 font-medium text-white/76">{product.size}</p>
+                      <p className="mt-1 line-clamp-2 break-words font-semibold leading-snug text-white/82">{product.size}</p>
                     </div>
                   </div>
-                  <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-4">
-                    <p className="text-[16px] font-semibold text-[color:var(--brand-green)]">{formatPrice(product.price)}</p>
-                    <div className="flex items-center gap-2">
+                  <div className="mt-auto min-w-0 pt-4">
+                    <p className="text-[18px] font-semibold text-[color:var(--brand-green)]">{formatPrice(product.price)}</p>
+                    <div className="mt-3 grid w-full grid-cols-3 gap-2">
                       <button
                         type="button"
                         onClick={() => handleToggleWishlist(product)}
                         disabled={wishlistBusyId === product.id}
                         aria-pressed={wishlistIds.includes(product.id)}
-                        className={`product-action ${wishlistIds.includes(product.id) ? "product-action-primary" : "product-action-secondary"} disabled:cursor-not-allowed disabled:opacity-60`}
+                        className={`product-action min-w-0 px-2.5 text-[12px] ${wishlistIds.includes(product.id) ? "product-action-primary" : "product-action-secondary"} disabled:cursor-not-allowed disabled:opacity-60`}
                       >
                         {wishlistBusyId === product.id ? "..." : wishlistIds.includes(product.id) ? "Tersimpan" : "Wishlist"}
                       </button>
@@ -310,11 +310,11 @@ export default function ProductsPage() {
                         type="button"
                         onClick={() => handleToggleCompare(product)}
                         aria-pressed={compareIds.includes(product.id)}
-                        className={`product-action ${compareIds.includes(product.id) ? "product-action-primary" : "product-action-secondary"}`}
+                        className={`product-action min-w-0 px-2.5 text-[12px] ${compareIds.includes(product.id) ? "product-action-primary" : "product-action-secondary"}`}
                       >
                         Bandingkan
                       </button>
-                      <button onClick={() => handleAddCart(product)} className="product-action product-action-primary">
+                      <button onClick={() => handleAddCart(product)} className="product-action product-action-primary min-w-0 px-2.5 text-[12px]">
                         Keranjang
                       </button>
                     </div>
