@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import AppNavbar from "@/components/AppNavbar";
-import InteractiveCard from "@/components/InteractiveCard";
 import LoadingScreen from "@/components/LoadingScreen";
 import { jsPDF } from "jspdf";
 import {
@@ -544,639 +543,468 @@ export default function DashboardPage() {
     );
   }
 
+  const activeSummaryTitle = isSales
+    ? salesPriorityInquiry?.product?.name ?? "Tidak ada inquiry pending"
+    : `${stats?.pendingInquiries ?? 0} inquiry pending`;
+  const activeSummaryDetail = isSales
+    ? salesPriorityInquiry
+      ? `${salesPriorityInquiry.user?.name ?? "Customer"} menunggu follow-up sejak ${formatDate(salesPriorityInquiry.createdAt)}.`
+      : "Semua assignment terlihat rapi saat ini."
+    : `${stats?.lowStockProducts ?? 0} produk perlu dicek stoknya.`;
+
   return (
-    <main className="dashboard-page page-shell pb-10">
+    <main className="dashboard-page customer-account-page pb-12">
       <AppNavbar />
 
-      <section className="content-wrap pt-5">
-        <div className="dashboard-hero">
-          <div className="max-w-3xl">
-            <span className="section-kicker">{isAdmin ? "Command Center" : isSales ? "Sales Desk" : "Akun"}</span>
-            <h1 className="mt-2 text-[clamp(30px,4vw,46px)] font-semibold leading-[1.05] text-white">
-              {currentRole.title}
-            </h1>
-            <p className="mt-3 max-w-2xl text-[14px] leading-6 text-white/60">
-              {currentRole.subtitle} Selamat datang, {session.user.name}.
-            </p>
-            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-              <Link href={primaryAction} className="app-button-primary w-full sm:w-auto">
+      <section className="content-wrap pt-6">
+        <div className="customer-account-summary">
+          <div className="customer-account-top">
+            <div className="min-w-0">
+              <span className="section-kicker">{isAdmin ? "Command center" : "Sales desk"}</span>
+              <h1 className="mt-2 text-[30px] font-semibold leading-[1.04] text-white md:text-[38px]">
+                {currentRole.title}
+              </h1>
+              <p className="mt-2 max-w-xl text-[14px] leading-6 text-white/62">
+                {currentRole.subtitle} Selamat datang, {session.user.name}.
+              </p>
+            </div>
+            <div className="customer-account-actions">
+              <Link href={primaryAction} className="app-button-primary">
                 {primaryActionLabel}
               </Link>
-              <Link href={secondaryAction} className="app-button-secondary w-full sm:w-auto">
+              <Link href={secondaryAction} className="app-button-secondary">
                 {secondaryActionLabel}
               </Link>
             </div>
           </div>
 
-          <div className="dashboard-hero__side">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/40">Aktivitas utama</p>
-            <p className="mt-2 text-base font-semibold text-white">
-              {isCustomer
-                ? latestTransaction?.product?.name ?? "Belum ada pesanan"
-                : isSales
-                  ? salesPriorityInquiry?.product?.name ?? "Tidak ada inquiry pending"
-                  : `${stats?.pendingInquiries ?? 0} inquiry pending`}
-            </p>
-            <p className="mt-2 text-[13px] leading-6 text-white/55">
-              {isCustomer
-                ? latestTransaction
-                  ? `Pembayaran ${paymentLabelMap[latestTransaction.paymentType] ?? latestTransaction.paymentType} tercatat pada ${formatDate(latestTransaction.createdAt)}.`
-                  : "Mulai dari katalog untuk menyimpan produk atau checkout."
-                : isSales
-                  ? salesPriorityInquiry
-                    ? `${salesPriorityInquiry.user?.name ?? "Customer"} menunggu follow-up sejak ${formatDate(salesPriorityInquiry.createdAt)}.`
-                    : "Semua assignment terlihat rapi saat ini."
-                  : `${stats?.lowStockProducts ?? 0} produk perlu dicek stoknya.`}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="content-wrap mt-4">
-        <div className="dashboard-stat-strip">
-          {quickStats.map(([label, value, helper]) => (
-            <div key={String(label)} className="dashboard-stat-item">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">{label}</p>
-              <div className="mt-2 flex items-end gap-3">
-                <p className="text-2xl font-semibold text-white">{value ?? 0}</p>
-                <p className="pb-0.5 text-[13px] text-white/50">{helper}</p>
+          <div className="customer-account-metrics">
+            {quickStats.map(([label, value, helper]) => (
+              <div key={String(label)} className="customer-account-metric">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/42">{label}</p>
+                <div className="mt-1.5 flex items-end gap-3">
+                  <p className="text-[25px] font-semibold leading-none text-white">{value ?? 0}</p>
+                  <p className="pb-0.5 text-[12px] text-white/54">{helper}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
       {isSales && (
-        <>
-          <section className="content-wrap mt-5 grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
-            <div className="dashboard-lite-surface p-4 sm:p-5">
-              <div className="flex items-center justify-between gap-4">
+        <section className="content-wrap mt-5 grid gap-5 xl:grid-cols-[390px_minmax(0,1fr)]">
+          <div className="customer-account-column">
+            <section className="customer-account-panel">
+              <div className="customer-account-panel-head">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Focus</p>
-                  <h2 className="mt-2 text-xl font-medium tracking-tight text-slate-50">Prioritas follow-up</h2>
+                  <p className="section-kicker">Profil</p>
+                  <h2 className="mt-2 text-[20px] font-semibold text-white">Ringkasan kerja</h2>
                 </div>
-                <Link href="/inquiry" className="text-sm font-semibold text-slate-200 hover:text-white">
-                  Buka inquiry
-                </Link>
+                <span className="status-pill bg-white/10 text-white/70">Sales</span>
               </div>
 
-              <div className="mt-5 grid gap-3">
+              <div className="mt-5">
+                <div className="customer-account-row customer-account-row-compact">
+                  <span className="text-white/42">Nama</span>
+                  <span className="font-semibold text-white">{session.user.name}</span>
+                </div>
+                <div className="customer-account-row customer-account-row-compact">
+                  <span className="text-white/42">Aktivitas utama</span>
+                  <span className="text-right font-semibold text-white">{activeSummaryTitle}</span>
+                </div>
+                <div className="customer-account-row customer-account-row-compact">
+                  <span className="text-white/42">Catatan</span>
+                  <span className="max-w-[210px] text-right text-[13px] font-semibold leading-5 text-white/70">{activeSummaryDetail}</span>
+                </div>
+              </div>
+            </section>
+
+            <section className="customer-account-panel">
+              <div className="customer-account-panel-head">
+                <div>
+                  <p className="section-kicker">Focus</p>
+                  <h2 className="mt-2 text-[20px] font-semibold text-white">Prioritas follow-up</h2>
+                </div>
+                <Link href="/inquiry" className="customer-account-link">Buka inquiry</Link>
+              </div>
+
+              <div className="mt-5">
                 {salesPendingQueue.length ? (
                   salesPendingQueue.slice(0, 3).map((inquiry) => (
-                    <InteractiveCard key={inquiry.id} disabled className="dashboard-lite-card p-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <p className="text-sm font-semibold text-slate-50">{inquiry.product?.name ?? "Produk"}</p>
-                          <p className="mt-1.5 text-sm leading-6 text-slate-400">
-                            {inquiry.user?.name ?? "Customer"} • {formatDate(inquiry.createdAt)}
-                          </p>
-                        </div>
-                        <span className={`status-pill ${inquiryToneMap[inquiry.status] ?? "bg-white/10 text-slate-300"}`}>
-                          {inquiry.status}
-                        </span>
+                    <div key={inquiry.id} className="customer-account-row customer-account-inquiry-row">
+                      <div className="min-w-0">
+                        <p className="customer-account-row-title">{inquiry.product?.name ?? "Produk"}</p>
+                        <p className="mt-1 text-[13px] leading-5 text-white/48">
+                          {inquiry.user?.name ?? "Customer"} - {formatDate(inquiry.createdAt)}
+                        </p>
+                        <p className="mt-3 line-clamp-2 text-[14px] leading-6 text-white/64">
+                          {inquiry.message ? inquiry.message : "Belum ada pesan tambahan pada inquiry ini."}
+                        </p>
                       </div>
-                      <p className="mt-3 text-sm leading-6 text-slate-300">
-                        {inquiry.message ? inquiry.message : "Belum ada pesan tambahan pada inquiry ini."}
-                      </p>
-                    </InteractiveCard>
+                      <span className={`status-pill shrink-0 ${inquiryToneMap[inquiry.status] ?? "bg-white/10 text-white/70"}`}>
+                        {formatStatusLabel(inquiry.status)}
+                      </span>
+                    </div>
                   ))
                 ) : (
-                  <div className="dashboard-lite-card px-5 py-8 text-center text-slate-300">
-                    Tidak ada inquiry pending saat ini. Anda bisa lanjut mengecek assignment terbaru.
+                  <div className="customer-account-empty">
+                    Tidak ada inquiry pending saat ini. Cek assignment terbaru untuk memastikan tidak ada follow-up yang tertinggal.
                   </div>
                 )}
               </div>
-            </div>
+            </section>
+          </div>
 
-            <div className="dashboard-lite-surface p-4 sm:p-5">
-              <div className="flex items-center justify-between gap-4">
+          <div className="customer-account-column">
+            <section className="customer-account-panel">
+              <div className="customer-account-panel-head">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Workflow</p>
-                  <h2 className="mt-2 text-xl font-medium tracking-tight text-slate-50">Ritme kerja hari ini</h2>
+                  <p className="section-kicker">Workflow</p>
+                  <h2 className="mt-2 text-[20px] font-semibold text-white">Ritme kerja hari ini</h2>
                 </div>
-                <span className="status-pill bg-white/10 text-slate-300">Sales</span>
+                <span className="status-pill bg-white/10 text-white/70">Ringkas</span>
               </div>
 
               <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                <div className="dashboard-lite-card p-4">
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">Pending aktif</p>
-                  <p className="mt-3 text-2xl font-semibold text-amber-300">{stats?.pendingInquiries ?? 0}</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-400">Butuh follow-up lebih dulu agar tidak menumpuk.</p>
-                </div>
-                <div className="dashboard-lite-card p-4">
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">Selesai</p>
-                  <p className="mt-3 text-2xl font-semibold text-emerald-300">{stats?.completedInquiries ?? 0}</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-400">Inquiry yang sudah ditutup dengan rapi.</p>
-                </div>
-                <div className="dashboard-lite-card p-4">
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500">Total assignment</p>
-                  <p className="mt-3 text-2xl font-semibold text-slate-50">{stats?.assignedInquiries ?? 0}</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-400">Semua inquiry yang sedang Anda pegang.</p>
-                </div>
+                {[
+                  ["Pending aktif", stats?.pendingInquiries ?? 0, "Butuh follow-up lebih dulu.", "text-amber-300"],
+                  ["Selesai", stats?.completedInquiries ?? 0, "Inquiry yang sudah ditutup.", "text-emerald-300"],
+                  ["Total assignment", stats?.assignedInquiries ?? 0, "Semua inquiry yang Anda pegang.", "text-white"],
+                ].map(([label, value, helper, tone]) => (
+                  <div key={String(label)} className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-3">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/36">{label}</p>
+                    <p className={`mt-2 text-[24px] font-semibold leading-none ${tone}`}>{value}</p>
+                    <p className="mt-2 text-[12px] leading-5 text-white/48">{helper}</p>
+                  </div>
+                ))}
               </div>
 
-              <div className="dashboard-lite-card mt-4 p-4">
-                <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Rekomendasi singkat</p>
-                <p className="mt-3 text-sm leading-7 text-slate-300">
-                  Mulai dari inquiry pending paling lama, lalu lanjut ke assignment terbaru agar waktu respon tetap terasa cepat di sisi customer.
+              <div className="mt-5 border-t border-white/8 pt-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/36">Rekomendasi singkat</p>
+                <p className="mt-2 text-[14px] leading-6 text-white/62">
+                  Mulai dari inquiry pending paling lama, lalu lanjut ke assignment terbaru agar waktu respon tetap cepat di sisi customer.
                 </p>
               </div>
+            </section>
+
+            <section className="customer-account-panel">
+              <div className="customer-account-panel-head">
+                <div>
+                  <p className="section-kicker">Assignments</p>
+                  <h2 className="mt-2 text-[20px] font-semibold text-white">Assignment terbaru</h2>
+                </div>
+                <Link href="/inquiry" className="customer-account-link">Lihat semua</Link>
+              </div>
+
+              <div className="mt-5">
+                {salesRecentAssignments.length ? (
+                  salesRecentAssignments.map((inquiry) => (
+                    <div key={inquiry.id} className="customer-account-row customer-account-inquiry-row">
+                      <div className="min-w-0">
+                        <p className="customer-account-row-title">{inquiry.product?.name ?? "Produk"}</p>
+                        <p className="mt-1 text-[13px] leading-5 text-white/48">
+                          {inquiry.user?.name ?? "Customer"} - {formatDate(inquiry.createdAt)}
+                        </p>
+                        <p className="mt-3 line-clamp-2 text-[14px] leading-6 text-white/64">
+                          {inquiry.message ? inquiry.message : "Belum ada pesan tambahan pada assignment ini."}
+                        </p>
+                      </div>
+                      <span className={`status-pill shrink-0 ${inquiryToneMap[inquiry.status] ?? "bg-white/10 text-white/70"}`}>
+                        {formatStatusLabel(inquiry.status)}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="customer-account-empty">Belum ada assignment yang masuk untuk akun sales ini.</div>
+                )}
+              </div>
+            </section>
+          </div>
+        </section>
+      )}
+
+      {isAdmin && stats && (
+        <>
+          <section className="content-wrap mt-5 grid gap-5 xl:grid-cols-[390px_minmax(0,1fr)]">
+            <div className="customer-account-column">
+              <section className="customer-account-panel">
+                <div className="customer-account-panel-head">
+                  <div>
+                    <p className="section-kicker">Operasional</p>
+                    <h2 className="mt-2 text-[20px] font-semibold text-white">Status katalog</h2>
+                  </div>
+                  <span className="status-pill bg-white/10 text-white/70">Admin</span>
+                </div>
+
+                <div className="mt-5">
+                  {[
+                    ["Produk", stats.totalProducts, "item katalog"],
+                    ["Inquiry", stats.totalInquiries, "percakapan masuk"],
+                    ["Pending", stats.pendingInquiries, "butuh tindak lanjut"],
+                    ["Stok rendah", stats.lowStockProducts, "produk perlu dicek"],
+                  ].map(([label, value, helper]) => (
+                    <div key={String(label)} className="customer-account-row customer-account-row-compact">
+                      <span className="text-white/42">{label}</span>
+                      <span className="text-right font-semibold text-white">{value ?? 0} <span className="font-normal text-white/42">{helper}</span></span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section className="customer-account-panel">
+                <div className="customer-account-panel-head">
+                  <div>
+                    <p className="section-kicker">Alerts</p>
+                    <h2 className="mt-2 text-[20px] font-semibold text-white">Notifikasi</h2>
+                  </div>
+                  <span className="status-pill bg-[color:var(--brand-green)]/10 text-[color:var(--brand-green)]">Aktif</span>
+                </div>
+
+                <div className="mt-5">
+                  <div className="customer-account-row">
+                    <div>
+                      <p className="customer-account-row-title">Inquiry baru menunggu tindak lanjut</p>
+                      <p className="mt-1 text-[13px] leading-5 text-white/48">{stats.pendingInquiries} inquiry masih pending.</p>
+                    </div>
+                  </div>
+                  <div className="customer-account-row">
+                    <div>
+                      <p className="customer-account-row-title">Stok hampir habis</p>
+                      <p className="mt-1 text-[13px] leading-5 text-white/48">{stats.lowStockProducts} produk memiliki stok 5 atau kurang.</p>
+                    </div>
+                  </div>
+                  {lowStockNotifications.map((product: any) => (
+                    <div key={product.id} className="customer-account-row customer-account-product-row">
+                      <div className="min-w-0">
+                        <p className="customer-account-row-title">{product.name}</p>
+                        <p className="mt-1 text-[13px] leading-5 text-white/48">Pertimbangkan restock produk ini.</p>
+                      </div>
+                      <span className="status-pill shrink-0 bg-amber-500/15 text-amber-300">{product.stock} stok</span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </div>
+
+            <div className="customer-account-column">
+              <section className="customer-account-panel">
+                <div className="customer-account-panel-head">
+                  <div>
+                    <p className="section-kicker">Revenue</p>
+                    <h2 className="mt-2 text-[20px] font-semibold text-white">Ringkasan transaksi</h2>
+                  </div>
+                  <span className="status-pill bg-white/10 text-white/70">{stats.totalTransactions} transaksi</span>
+                </div>
+
+                <div className="mt-5 grid gap-4 md:grid-cols-[minmax(0,1fr)_220px] md:items-end">
+                  <div>
+                    <p className="text-[30px] font-semibold leading-none text-[color:var(--brand-green)] md:text-[34px]">
+                      Rp {stats.totalRevenue?.toLocaleString("id-ID") ?? "0"}
+                    </p>
+                    <p className="mt-3 text-[14px] leading-6 text-white/58">
+                      Total revenue dari transaksi yang berhasil tersimpan di sistem.
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-3">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/36">Aksi berikutnya</p>
+                    <p className="mt-2 text-[13px] leading-5 text-white/58">Prioritaskan stok rendah dan inquiry pending.</p>
+                  </div>
+                </div>
+              </section>
+
+              <section className="customer-account-panel">
+                <div className="customer-account-panel-head">
+                  <div>
+                    <p className="section-kicker">Insight</p>
+                    <h2 className="mt-2 text-[20px] font-semibold text-white">Produk terpopuler</h2>
+                  </div>
+                  <span className="status-pill bg-[color:var(--brand-green)]/10 text-[color:var(--brand-green)]">Top inquiry</span>
+                </div>
+
+                <div className="mt-5">
+                  {stats.popularProducts?.length ? (
+                    stats.popularProducts.map((item: any, index: number) => (
+                      <div key={index} className="customer-account-row customer-account-product-row">
+                        <div className="min-w-0">
+                          <p className="customer-account-row-title">{item.product?.name}</p>
+                          <p className="mt-1 text-[13px] leading-5 text-white/48">Sering masuk ke alur inquiry customer.</p>
+                        </div>
+                        <span className="status-pill shrink-0 bg-white/10 text-white/70">{item.inquiryCount} inquiry</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="customer-account-empty">Belum ada data produk populer.</div>
+                  )}
+                </div>
+              </section>
+
+              <section className="customer-account-panel">
+                <div className="customer-account-panel-head">
+                  <div>
+                    <p className="section-kicker">Export</p>
+                    <h2 className="mt-2 text-[20px] font-semibold text-white">Unduh laporan</h2>
+                  </div>
+                </div>
+                <p className="mt-4 text-[14px] leading-6 text-white/58">
+                  Export data produk, inquiry, dan ringkasan dashboard untuk kebutuhan laporan.
+                </p>
+                <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                  <button onClick={exportProductsCsv} className="app-button-secondary w-full">Produk CSV</button>
+                  <button onClick={exportInquiryCsv} className="app-button-secondary w-full">Inquiry CSV</button>
+                  <button onClick={exportSummaryPdf} className="app-button-primary w-full">Summary PDF</button>
+                </div>
+              </section>
             </div>
           </section>
 
           <section className="content-wrap mt-5">
-            <div className="dashboard-lite-surface p-4 sm:p-5">
-              <div className="flex items-center justify-between gap-4">
+            <section className="customer-account-panel">
+              <div className="customer-account-panel-head">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Assignments</p>
-                  <h2 className="mt-2 text-xl font-medium tracking-tight text-slate-50">Assignment terbaru</h2>
+                  <p className="section-kicker">Sales chart</p>
+                  <h2 className="mt-2 text-[20px] font-semibold text-white">Grafik penjualan admin</h2>
                 </div>
-                <Link href="/inquiry" className="text-sm font-semibold text-slate-200 hover:text-white">
-                  Lihat semua
-                </Link>
-              </div>
-
-              <div className="mt-5 grid gap-3 lg:grid-cols-2">
-                {salesRecentAssignments.length ? (
-                  salesRecentAssignments.map((inquiry) => (
-                    <InteractiveCard key={inquiry.id} disabled className="dashboard-lite-card p-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <p className="text-sm font-semibold text-slate-50">{inquiry.product?.name ?? "Produk"}</p>
-                          <p className="mt-1.5 text-sm leading-6 text-slate-400">
-                            {inquiry.user?.name ?? "Customer"} • {formatDate(inquiry.createdAt)}
-                          </p>
-                        </div>
-                        <span className={`status-pill ${inquiryToneMap[inquiry.status] ?? "bg-white/10 text-slate-300"}`}>
-                          {inquiry.status}
-                        </span>
-                      </div>
-                      <p className="mt-3 text-sm leading-6 text-slate-300">
-                        {inquiry.message ? inquiry.message : "Belum ada pesan tambahan pada assignment ini."}
-                      </p>
-                    </InteractiveCard>
-                  ))
-                ) : (
-                  <div className="dashboard-lite-card px-5 py-8 text-center text-slate-300 lg:col-span-2">
-                    Belum ada assignment yang masuk untuk akun sales ini.
-                  </div>
-                )}
-              </div>
-            </div>
-          </section>
-        </>
-      )}
-
-      {isCustomer && (
-        <>
-          <section className="content-wrap mt-5 grid gap-4 xl:grid-cols-[0.88fr_1.12fr]">
-            <div className="dashboard-lite-surface p-4 sm:p-5">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Shortcut</p>
-                  <h2 className="mt-2 text-xl font-medium tracking-tight text-slate-50">Akses cepat</h2>
-                </div>
-                <span className="status-pill bg-white/10 text-slate-300">Customer</span>
-              </div>
-
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <Link href="/products" className="dashboard-lite-card p-4 transition-colors hover:border-[color:var(--primary)]/20 hover:bg-white/[0.05]">
-                  <p className="text-sm font-semibold text-slate-50">Lihat katalog</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-400">Temukan produk baru dan lanjutkan ke pembayaran saat sudah siap.</p>
-                </Link>
-                <Link href="/wishlist" className="dashboard-lite-card p-4 transition-colors hover:border-[color:var(--primary)]/20 hover:bg-white/[0.05]">
-                  <p className="text-sm font-semibold text-slate-50">Wishlist saya</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-400">Buka daftar favorit untuk meninjau item yang ingin dibeli lebih dulu.</p>
-                </Link>
-              </div>
-
-              <div className="dashboard-lite-card mt-4 p-4">
-                <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Profil singkat</p>
-                <div className="mt-3 space-y-3 text-sm text-slate-300">
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="text-slate-500">Nama</span>
-                    <span className="font-medium text-slate-100">{session.user.name}</span>
-                  </div>
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="text-slate-500">Email</span>
-                    <span className="font-medium text-slate-100 break-all text-right">{session.user.email}</span>
-                  </div>
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="text-slate-500">Role</span>
-                    <span className="font-medium text-slate-100">Customer</span>
-                  </div>
+                <div className="flex flex-wrap justify-end gap-2">
+                  {[
+                    ["daily", "Hari"],
+                    ["weekly", "Minggu"],
+                    ["monthly", "Bulan"],
+                    ["yearly", "Tahun"],
+                  ].map(([value, label]) => (
+                    <button
+                      key={value}
+                      onClick={() => setChartPeriod(value as "daily" | "weekly" | "monthly" | "yearly")}
+                      className={`rounded-full px-3 py-1.5 text-[12px] font-semibold transition-colors ${
+                        chartPeriod === value
+                          ? "bg-[color:var(--brand-green)] text-[#06100d]"
+                          : "border border-white/10 bg-white/[0.03] text-white/62 hover:text-white"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
               </div>
-            </div>
 
-            <div className="dashboard-lite-surface p-4 sm:p-5">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Orders</p>
-                  <h2 className="mt-2 text-xl font-medium tracking-tight text-slate-50">Pesanan terbaru</h2>
-                </div>
-                <span className="status-pill bg-[color:var(--primary)]/10 text-[color:var(--primary)]">
-                  {customerActivity.transactions.length} tercatat
-                </span>
-              </div>
-
-              <div className="mt-5 grid gap-3">
-                {customerActivity.transactions.length ? (
-                  customerActivity.transactions.map((transaction) => (
-                    <InteractiveCard key={transaction.id} disabled className="dashboard-lite-card p-4">
-                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                        <div>
-                          <p className="text-sm font-semibold text-slate-50">{transaction.product?.name ?? "Produk"}</p>
-                          <p className="mt-1.5 text-sm leading-6 text-slate-400">
-                            Dibayar pada {formatDate(transaction.createdAt)}
-                          </p>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className="status-pill bg-white/10 text-slate-300">
-                            {paymentLabelMap[transaction.paymentType] ?? transaction.paymentType}
-                          </span>
-                          <span className="status-pill bg-emerald-500/15 text-emerald-300">
-                            {transaction.status}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="mt-3 flex items-center justify-between gap-4">
-                        <p className="text-base font-semibold text-[color:var(--primary)]">
-                          Rp {transaction.amount.toLocaleString("id-ID")}
-                        </p>
-                        <Link href={`/products/${transaction.productId}/payment`} className="text-sm font-semibold text-slate-200 hover:text-white">
-                          Bayar lagi
-                        </Link>
-                      </div>
-                    </InteractiveCard>
-                  ))
-                ) : (
-                  <div className="rounded-[24px] border border-white/10 bg-[#141416]/60 px-4 py-6 text-center text-slate-300">
-                    <p>Belum ada pesanan yang tercatat.</p>
-                    <Link href="/products" className="mt-4 inline-flex font-semibold text-slate-200 hover:text-white">
-                      Mulai belanja
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </div>
-          </section>
-
-          <section className="content-wrap mt-5 grid gap-4 xl:grid-cols-2">
-            <div className="dashboard-lite-surface p-4 sm:p-5">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Wishlist</p>
-                  <h2 className="mt-2 text-xl font-medium tracking-tight text-slate-50">Favorit terbaru</h2>
-                </div>
-                <Link href="/wishlist" className="text-sm font-semibold text-slate-200 hover:text-white">
-                  Lihat semua
-                </Link>
-              </div>
-
-              <div className="mt-5 grid gap-3">
-                {customerActivity.wishlists.length ? (
-                  customerActivity.wishlists.map((item) => (
-                    <InteractiveCard key={item.id} disabled className="dashboard-lite-card p-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <p className="text-sm font-semibold text-slate-50">{item.product?.name}</p>
-                          <p className="mt-1.5 text-sm leading-6 text-slate-400 line-clamp-2">
-                            {item.product?.description}
-                          </p>
-                        </div>
-                        <span className="status-pill bg-white/10 text-slate-300">Wishlist</span>
-                      </div>
-                      <div className="mt-3 flex items-center justify-between gap-4">
-                        <p className="text-sm font-semibold text-[color:var(--primary)]">
-                          Rp {item.product?.price?.toLocaleString("id-ID")}
-                        </p>
-                        <Link href={`/products/${item.productId}/payment`} className="text-sm font-semibold text-slate-200 hover:text-white">
-                          Checkout
-                        </Link>
-                      </div>
-                    </InteractiveCard>
-                  ))
-                ) : (
-                  <div className="rounded-[24px] border border-white/10 bg-[#141416]/60 px-4 py-6 text-center text-slate-300">
-                    <p>Wishlist Anda masih kosong.</p>
-                    <Link href="/products" className="mt-4 inline-flex font-semibold text-slate-200 hover:text-white">
-                      Temukan produk
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="dashboard-lite-surface p-4 sm:p-5">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Inquiry</p>
-                  <h2 className="mt-2 text-xl font-medium tracking-tight text-slate-50">Percakapan terbaru</h2>
-                </div>
-                <span className="status-pill bg-white/10 text-slate-300">Riwayat</span>
-              </div>
-
-              <div className="mt-5 grid gap-3">
-                {customerActivity.inquiries.length ? (
-                  customerActivity.inquiries.map((inquiry) => (
-                    <InteractiveCard key={inquiry.id} disabled className="dashboard-lite-card p-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <p className="text-sm font-semibold text-slate-50">{inquiry.product?.name ?? "Produk"}</p>
-                          <p className="mt-1.5 text-sm leading-6 text-slate-400">
-                            Dikirim pada {formatDate(inquiry.createdAt)}
-                          </p>
-                        </div>
-                        <span className={`status-pill ${inquiryToneMap[inquiry.status] ?? "bg-white/10 text-slate-300"}`}>
-                          {inquiry.status}
-                        </span>
-                      </div>
-                      <p className="mt-3 text-sm leading-6 text-slate-300">
-                        {inquiry.message ? inquiry.message : "Belum ada pesan tambahan pada inquiry ini."}
-                      </p>
-                    </InteractiveCard>
-                  ))
-                ) : (
-                  <div className="rounded-[24px] border border-white/10 bg-[#141416]/60 px-4 py-6 text-center text-slate-300">
-                    <p>Belum ada inquiry yang tersimpan.</p>
-                    <Link href="/products" className="mt-4 inline-flex font-semibold text-slate-200 hover:text-white">
-                      Jelajahi produk
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </div>
-          </section>
-        </>
-      )}
-
-      {isAdmin && stats && (
-        <section className="content-wrap mt-5 grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-          <div className="glass-panel p-5 sm:p-6">
-            <div className="flex items-center justify-between gap-4">
-               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Notifications</p>
-                <h2 className="mt-2 text-2xl font-medium tracking-tight text-slate-50">Notifikasi sederhana</h2>
-              </div>
-              <span className="status-pill bg-[color:var(--primary)]/10 text-[color:var(--primary)] border border-[color:var(--primary)]/20">Admin alerts</span>
-             </div>
-
-            <div className="mt-6 space-y-4">
-              <InteractiveCard className="glass-card p-5">
-                <p className="text-sm font-semibold text-slate-50">Inquiry baru menunggu tindak lanjut</p>
-                <p className="mt-2 text-sm text-slate-300">
-                  Saat ini ada {stats.pendingInquiries} inquiry dengan status pending.
-                </p>
-              </InteractiveCard>
-              <InteractiveCard className="glass-card p-4">
-                <p className="text-sm font-semibold text-slate-50">Stok hampir habis</p>
-                <p className="mt-2 text-sm text-slate-300">
-                  Ada {stats.lowStockProducts} produk dengan stok 5 atau kurang.
-                </p>
-              </InteractiveCard>
-              {lowStockNotifications.map((product: any) => (
-                <InteractiveCard key={product.id} className="glass-card p-4">
-                  <p className="text-sm font-semibold text-slate-50">{product.name}</p>
-                  <p className="mt-2 text-sm text-slate-300">Stok tersisa {product.stock}. Pertimbangkan restock.</p>
-                </InteractiveCard>
-              ))}
-            </div>
-          </div>
-
-          <div className="glass-panel p-5 sm:p-6">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Export</p>
-                <h2 className="mt-2 text-2xl font-medium tracking-tight text-slate-50">Unduh laporan</h2>
-                <p className="mt-3 text-sm leading-relaxed text-slate-400">
-                  Admin bisa mengekspor data produk, inquiry, dan ringkasan dashboard. CSV bisa dibuka di Excel.
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              <button onClick={exportProductsCsv} className="app-button-secondary w-full">Export Produk CSV</button>
-              <button onClick={exportInquiryCsv} className="app-button-secondary w-full">Export Inquiry CSV</button>
-              <button onClick={exportSummaryPdf} className="app-button-primary w-full">Export Summary PDF</button>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {isAdmin && stats && (
-        <section className="content-wrap mt-5 grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-          <div className="glass-panel p-5 sm:p-6">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Insight</p>
-                <h2 className="mt-2 text-2xl font-medium tracking-tight text-slate-50">Produk terpopuler</h2>
-              </div>
-              <span className="status-pill bg-[color:var(--primary)]/10 text-[color:var(--primary)] border border-[color:var(--primary)]/20">Top inquiry</span>
-            </div>
-            <div className="mt-6 space-y-4">
-              {stats.popularProducts?.length ? (
-                stats.popularProducts.map((item: any, index: number) => (
-                  <InteractiveCard key={index} className="glass-card flex items-center justify-between p-5">
-                    <div>
-                      <p className="text-base font-semibold text-slate-50">{item.product?.name}</p>
-                      <p className="mt-1 text-sm text-slate-400">Produk ini sering masuk ke alur inquiry customer.</p>
-                    </div>
-                    <span className="status-pill bg-[#141416] text-[color:var(--primary)] border border-[color:var(--primary)]/20">{item.inquiryCount} inquiry</span>
-                  </InteractiveCard>
-                ))
-              ) : (
-                <div className="empty-state text-slate-300">Belum ada data produk populer.</div>
-              )}
-            </div>
-          </div>
-
-          <div className="glass-panel p-5 sm:p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Revenue</p>
-            <h2 className="mt-2 text-2xl font-medium tracking-tight text-slate-50">Ringkasan transaksi</h2>
-            <p className="mt-6 text-4xl sm:text-5xl font-semibold text-slate-50 tracking-tight text-[color:var(--primary)]">
-              Rp {stats.totalRevenue?.toLocaleString()}
-            </p>
-            <p className="mt-3 text-sm leading-relaxed text-slate-400">
-              Total {stats.totalTransactions} transaksi berhasil tersimpan di sistem.
-            </p>
-            <div className="mt-5 rounded-[24px] bg-[#141416] border border-white/5 shadow-inner px-4 py-4 text-white">
-              <p className="text-xs uppercase tracking-[0.22em] text-[color:var(--primary)]/70 font-semibold">Aksi berikutnya</p>
-              <p className="mt-2 text-sm leading-relaxed text-slate-300">
-                Fokuskan pengecekan pada stok rendah dan inquiry pending agar tim sales bisa bergerak lebih cepat.
+              <p className="mt-4 max-w-2xl text-[14px] leading-6 text-white/58">
+                Pantau total penjualan berdasarkan transaksi selesai dalam tampilan ringkas.
               </p>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {isAdmin && stats && (
-        <section className="content-wrap mt-5">
-          <div className="glass-panel p-5 sm:p-6">
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Sales chart</p>
-                <h2 className="mt-2 text-2xl font-medium tracking-tight text-slate-50">Grafik penjualan admin</h2>
-                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-400">
-                  Pantau total penjualan berdasarkan transaksi yang sudah selesai. Tampilan bisa diganti per hari, minggu, bulan, atau tahun.
-                </p>
+              <div className="mt-5 h-[240px] overflow-hidden rounded-lg border border-white/10 bg-white/[0.03] p-3 md:h-[280px] md:p-4">
+                {salesChartData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={salesChartData}>
+                      <defs>
+                        <linearGradient id="salesRevenue" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#00d4a4" stopOpacity={0.9} />
+                          <stop offset="100%" stopColor="#00d4a4" stopOpacity={0.05} />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid stroke="rgba(148,163,184,0.12)" vertical={false} />
+                      <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} fontSize={12} />
+                      <YAxis
+                        stroke="#94a3b8"
+                        tickLine={false}
+                        axisLine={false}
+                        fontSize={12}
+                        width={54}
+                        tickFormatter={(value) => `Rp ${Intl.NumberFormat("id-ID", { notation: "compact", maximumFractionDigits: 1 }).format(value)}`}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          background: "rgba(2, 6, 23, 0.94)",
+                          border: "1px solid rgba(0, 212, 164, 0.22)",
+                          borderRadius: "12px",
+                          color: "#e2e8f0",
+                        }}
+                        labelStyle={{ color: "#f8fafc" }}
+                        formatter={(value: number, _name, entry: any) => [entry.payload.revenueLabel, "Revenue"]}
+                      />
+                      <Area type="monotone" dataKey="revenue" stroke="#00d4a4" strokeWidth={2} fill="url(#salesRevenue)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex h-full items-center justify-center text-center text-[14px] text-white/50">
+                    Belum ada transaksi selesai untuk ditampilkan di grafik.
+                  </div>
+                )}
               </div>
 
-              <div className="flex flex-wrap gap-2 mt-4 lg:mt-0">
-                {[
-                  ["daily", "Per Hari"],
-                  ["weekly", "Per Minggu"],
-                  ["monthly", "Per Bulan"],
-                  ["yearly", "Per Tahun"],
-                ].map(([value, label]) => (
-                  <button
-                    key={value}
-                    onClick={() => setChartPeriod(value as "daily" | "weekly" | "monthly" | "yearly")}
-                    className={`rounded-full px-4 py-2 text-[13px] font-medium transition-colors ${
-                      chartPeriod === value
-                        ? "bg-[color:var(--primary)] text-[#101012]"
-                        : "bg-white/5 border border-white/5 text-slate-300 hover:bg-white/10"
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-5 h-[300px] rounded-[24px] border border-white/5 bg-[#141416]/50 p-4 sm:p-5 shadow-inner">
-              {salesChartData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={salesChartData}>
-                    <defs>
-                      <linearGradient id="salesRevenue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#00d4a4" stopOpacity={0.9} />
-                        <stop offset="100%" stopColor="#00d4a4" stopOpacity={0.05} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid stroke="rgba(148,163,184,0.12)" vertical={false} />
-                    <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
-                    <YAxis
-                      stroke="#94a3b8"
-                      tickLine={false}
-                      axisLine={false}
-                      tickFormatter={(value) => `Rp ${Intl.NumberFormat("id-ID", { notation: "compact", maximumFractionDigits: 1 }).format(value)}`}
-                    />
-                    <Tooltip
-                      contentStyle={{
-                        background: "rgba(2, 6, 23, 0.94)",
-                        border: "1px solid rgba(0, 212, 164, 0.22)",
-                        borderRadius: "18px",
-                        color: "#e2e8f0",
-                      }}
-                      labelStyle={{ color: "#f8fafc" }}
-                      formatter={(value: number, _name, entry: any) => [entry.payload.revenueLabel, "Revenue"]}
-                    />
-                      <Area
-                      type="monotone"
-                      dataKey="revenue"
-                      stroke="#00d4a4"
-                      strokeWidth={3}
-                      fill="url(#salesRevenue)"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="flex h-full items-center justify-center text-sm text-slate-400">
-                  Belum ada transaksi selesai untuk ditampilkan di grafik.
+              {salesChartData.length > 0 && (
+                <div className="mt-5 grid gap-3 md:grid-cols-3">
+                  {[
+                    ["Periode aktif", chartPeriod === "daily" ? "Harian" : chartPeriod === "weekly" ? "Mingguan" : chartPeriod === "monthly" ? "Bulanan" : "Tahunan"],
+                    ["Bucket data", salesChartData.length],
+                    ["Puncak penjualan", salesChartData.reduce((max: any, item: any) => (item.revenue > max.revenue ? item : max), salesChartData[0]).revenueLabel],
+                  ].map(([label, value]) => (
+                    <div key={String(label)} className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-3">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/36">{label}</p>
+                      <p className="mt-2 break-words text-[16px] font-semibold leading-snug text-white">{value}</p>
+                    </div>
+                  ))}
                 </div>
               )}
-            </div>
+            </section>
+          </section>
 
-            {salesChartData.length > 0 && (
-              <div className="mt-5 grid gap-4 md:grid-cols-3">
-                <InteractiveCard className="glass-card p-4">
-                  <p className="metric-label">Periode Aktif</p>
-                  <p className="mt-3 text-2xl font-semibold text-slate-50">
-                    {chartPeriod === "daily"
-                      ? "Harian"
-                      : chartPeriod === "weekly"
-                        ? "Mingguan"
-                        : chartPeriod === "monthly"
-                          ? "Bulanan"
-                          : "Tahunan"}
-                  </p>
-                </InteractiveCard>
-                <InteractiveCard className="glass-card p-4">
-                  <p className="metric-label">Bucket Data</p>
-                  <p className="mt-3 text-2xl font-semibold text-slate-50">{salesChartData.length}</p>
-                </InteractiveCard>
-                <InteractiveCard className="glass-card p-4">
-                  <p className="metric-label">Puncak Penjualan</p>
-                  <p className="mt-3 text-2xl font-semibold text-slate-50">
-                    {salesChartData.reduce((max: any, item: any) => (item.revenue > max.revenue ? item : max), salesChartData[0]).revenueLabel}
-                  </p>
-                </InteractiveCard>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
-
-      {isAdmin && stats && (
-        <section className="content-wrap mt-5">
-          <div className="glass-panel p-5 sm:p-6">
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[color:var(--primary)]">Stock movement</p>
-                <h2 className="mt-2 text-2xl font-medium tracking-tight text-slate-50">Laporan pergerakan stok</h2>
-                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-slate-400">
-                  Untuk MVP, barang masuk dihitung dari stok awal saat produk dibuat dan barang keluar dihitung dari transaksi selesai.
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-2 mt-4 lg:mt-0">
-                {[
-                  ["weekly", "Mingguan"],
-                  ["monthly", "Bulanan"],
-                ].map(([value, label]) => (
-                  <button
-                    key={value}
-                    onClick={() => setStockPeriod(value as "weekly" | "monthly")}
-                    className={`rounded-full px-4 py-2 text-[13px] font-medium transition-colors ${
-                      stockPeriod === value
-                        ? "bg-[color:var(--primary)] text-[#101012]"
-                        : "bg-white/5 border border-white/5 text-slate-300 hover:bg-white/10"
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-5 h-[300px] rounded-[24px] border border-white/5 bg-[#141416]/50 p-4 sm:p-5 shadow-inner">
-              {stockMovementData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={stockMovementData}>
-                    <CartesianGrid stroke="rgba(148,163,184,0.12)" vertical={false} />
-                    <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} />
-                    <YAxis stroke="#94a3b8" tickLine={false} axisLine={false} />
-                    <Tooltip
-                      contentStyle={{
-                        background: "rgba(2, 6, 23, 0.94)",
-                        border: "1px solid rgba(0, 212, 164, 0.22)",
-                        borderRadius: "18px",
-                        color: "#e2e8f0",
-                      }}
-                    />
-                    <Bar dataKey="incoming" fill="#00d4a4" radius={[6, 6, 0, 0]} />
-                    <Bar dataKey="outgoing" fill="#3772cf" radius={[6, 6, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="flex h-full items-center justify-center text-sm text-slate-400">
-                  Belum ada data stok untuk periode ini.
+          <section className="content-wrap mt-5">
+            <section className="customer-account-panel">
+              <div className="customer-account-panel-head">
+                <div>
+                  <p className="section-kicker">Stock movement</p>
+                  <h2 className="mt-2 text-[20px] font-semibold text-white">Laporan pergerakan stok</h2>
                 </div>
-              )}
-            </div>
-          </div>
-        </section>
+                <div className="flex flex-wrap justify-end gap-2">
+                  {[
+                    ["weekly", "Mingguan"],
+                    ["monthly", "Bulanan"],
+                  ].map(([value, label]) => (
+                    <button
+                      key={value}
+                      onClick={() => setStockPeriod(value as "weekly" | "monthly")}
+                      className={`rounded-full px-3 py-1.5 text-[12px] font-semibold transition-colors ${
+                        stockPeriod === value
+                          ? "bg-[color:var(--brand-green)] text-[#06100d]"
+                          : "border border-white/10 bg-white/[0.03] text-white/62 hover:text-white"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <p className="mt-4 max-w-2xl text-[14px] leading-6 text-white/58">
+                Barang masuk dihitung dari stok saat produk dibuat dan barang keluar dari transaksi selesai.
+              </p>
+              <div className="mt-5 h-[240px] overflow-hidden rounded-lg border border-white/10 bg-white/[0.03] p-3 md:h-[280px] md:p-4">
+                {stockMovementData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={stockMovementData}>
+                      <CartesianGrid stroke="rgba(148,163,184,0.12)" vertical={false} />
+                      <XAxis dataKey="label" stroke="#94a3b8" tickLine={false} axisLine={false} fontSize={12} />
+                      <YAxis stroke="#94a3b8" tickLine={false} axisLine={false} fontSize={12} width={36} />
+                      <Tooltip
+                        contentStyle={{
+                          background: "rgba(2, 6, 23, 0.94)",
+                          border: "1px solid rgba(0, 212, 164, 0.22)",
+                          borderRadius: "12px",
+                          color: "#e2e8f0",
+                        }}
+                      />
+                      <Bar dataKey="incoming" fill="#00d4a4" radius={[6, 6, 0, 0]} />
+                      <Bar dataKey="outgoing" fill="#3772cf" radius={[6, 6, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex h-full items-center justify-center text-center text-[14px] text-white/50">
+                    Belum ada data stok untuk periode ini.
+                  </div>
+                )}
+              </div>
+            </section>
+          </section>
+        </>
       )}
     </main>
   );

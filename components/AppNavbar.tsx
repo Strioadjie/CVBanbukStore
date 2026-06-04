@@ -95,8 +95,8 @@ export default function AppNavbar() {
     <header className={headerClassName}>
       <nav className={navClassName}>
         <div className="content-wrap flex h-full items-center justify-between">
-          <Link href="/" className="flex items-center text-white" aria-label="CV Banbuk Store home">
-            <BrandLogo markClassName="h-8 w-8" textClassName="text-[17px]" compact />
+          <Link href="/" className="flex min-w-0 items-center text-white" aria-label="CV Banbuk Store home">
+            <BrandLogo markClassName="h-8 w-8" textClassName="hidden text-[17px] sm:block" compact />
           </Link>
           <div className="hidden items-center gap-7 text-[14px] font-medium text-white/68 md:flex">
             {links.map((link) => (
@@ -125,12 +125,22 @@ export default function AppNavbar() {
               </Link>
             )}
             {showCart && (
-              <button type="button" onClick={openCart} className="mint-pill mint-pill-green">
+              <button type="button" onClick={openCart} className="mint-pill mint-pill-green hidden sm:inline-flex">
                 Keranjang
               </button>
             )}
-            <button type="button" className="text-[14px] font-medium text-white md:hidden" onClick={() => setOpen((value) => !value)} aria-label="Toggle menu">
-              Menu
+            <button
+              type="button"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-white/[0.04] text-white md:hidden"
+              onClick={() => setOpen((value) => !value)}
+              aria-label="Toggle menu"
+              aria-expanded={open}
+            >
+              <span className="flex w-4 flex-col gap-1" aria-hidden="true">
+                <span className="h-0.5 w-full rounded-full bg-current" />
+                <span className="h-0.5 w-full rounded-full bg-current" />
+                <span className="h-0.5 w-full rounded-full bg-current" />
+              </span>
             </button>
           </div>
         </div>
@@ -142,6 +152,27 @@ export default function AppNavbar() {
               {link.label}
             </Link>
           ))}
+          <div className="mt-2 grid gap-2 border-t border-white/10 pt-4">
+            {showCart && (
+              <button type="button" onClick={openCart} className="mint-pill mint-pill-green w-full">
+                Keranjang
+              </button>
+            )}
+            {session ? (
+              <button onClick={handleLogout} className="mint-pill mint-pill-outline w-full">
+                Keluar
+              </button>
+            ) : (
+              <>
+                <Link href="/login" onClick={() => setOpen(false)} className="mint-pill mint-pill-outline w-full">
+                  Masuk
+                </Link>
+                <Link href="/register" onClick={() => setOpen(false)} className="mint-pill mint-pill-light w-full">
+                  Daftar
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       )}
       {showCart && <CartDrawer />}
