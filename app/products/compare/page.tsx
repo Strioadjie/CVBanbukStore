@@ -132,7 +132,7 @@ export default function CompareProductsPage() {
   }
 
   return (
-    <main className="product-page min-h-screen pb-16 text-white">
+    <main className="product-page customer-flow-page min-h-screen pb-14 text-white">
       <AppNavbar />
 
       {notice && (
@@ -141,24 +141,26 @@ export default function CompareProductsPage() {
         </div>
       )}
 
-      <section className="content-wrap grid gap-6 pb-8 pt-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-end">
-        <div>
-          <p className="section-kicker">Bandingkan</p>
-          <h1 className="mt-2 max-w-4xl text-[38px] font-semibold leading-[1.04] text-white md:text-[56px]">
-            Perbandingan produk
-          </h1>
-          <p className="mt-4 max-w-2xl text-[15px] leading-7 text-white/58">
-            Pilih maksimal dua produk untuk membandingkan harga, bahan, ukuran, stok, dan deskripsi dalam satu tampilan.
-          </p>
-        </div>
-
-        <div className="product-card p-4">
-          <p className="text-[12px] font-semibold uppercase text-white/42">Pilihan aktif</p>
-          <div className="mt-3 flex items-end justify-between gap-4">
-            <p className="text-[36px] font-semibold leading-none text-[color:var(--brand-green)]">
-              {selectedProducts.length}<span className="text-[18px] text-white/38">/{MAX_COMPARE_ITEMS}</span>
+      <section className="content-wrap pb-4 pt-5">
+        <div className="customer-flow-hero compare-hero !gap-5 !p-5">
+          <div className="min-w-0">
+            <p className="section-kicker">Bandingkan produk</p>
+            <h1 className="mt-2 max-w-3xl text-[28px] font-semibold leading-[1.05] text-white md:text-[36px]">
+              Perbandingan produk
+            </h1>
+            <p className="mt-2 max-w-2xl text-[14px] leading-6 text-white/58">
+              Bandingkan harga, bahan, ukuran, stok, dan deskripsi produk CV Banbuk dalam satu tampilan ringkas.
             </p>
-            <div className="flex gap-2">
+          </div>
+
+          <div className="customer-flow-summary">
+            <div>
+              <p className="customer-flow-summary-label">Pilihan aktif</p>
+              <p className="customer-flow-summary-value !text-[28px]">
+                {selectedProducts.length}<span>/{MAX_COMPARE_ITEMS}</span>
+              </p>
+            </div>
+            <div className="customer-flow-summary-actions">
               <button type="button" onClick={clearCompare} disabled={selectedProducts.length === 0} className="product-action product-action-secondary disabled:cursor-not-allowed disabled:opacity-40">
                 Reset
               </button>
@@ -170,37 +172,37 @@ export default function CompareProductsPage() {
         </div>
       </section>
 
-      <section className="content-wrap pb-6">
-        <div className="grid gap-4 md:grid-cols-2">
+      <section className="content-wrap pb-4">
+        <div className="compare-selection-grid !gap-3">
           {[0, 1].map((slot) => {
             const product = selectedProducts[slot];
 
             return (
-              <article key={slot} className="product-card grid min-h-[190px] grid-cols-[130px_1fr] overflow-hidden sm:grid-cols-[170px_1fr]">
-                <div className="product-media p-4">
+              <article key={slot} className={`compare-slot-card !min-h-[118px] ${product ? "is-filled" : ""}`}>
+                <div className="compare-slot-media !p-0">
                   {product ? (
-                    <ProductImage src={product.image} alt={product.name} className="max-h-[130px]" />
+                    <ProductImage src={product.image} alt={product.name} className="!h-full !w-full !object-cover" />
                   ) : (
-                    <div className="flex h-full w-full items-center justify-center text-[13px] font-semibold text-white/28">
+                    <div className="flex h-full w-full items-center justify-center text-[12px] font-semibold text-white/34">
                       Slot {slot + 1}
                     </div>
                   )}
                 </div>
-                <div className="flex flex-col justify-center p-4">
+                <div className="flex min-w-0 flex-col justify-center p-4 md:p-5">
                   {product ? (
                     <>
-                      <p className="text-[12px] font-semibold uppercase text-white/36">Produk {slot + 1}</p>
-                      <h2 className="mt-1 text-[21px] font-semibold leading-tight text-white">{product.name}</h2>
-                      <p className="mt-2 text-[16px] font-semibold text-[color:var(--brand-green)]">{formatPrice(product.price)}</p>
-                      <button type="button" onClick={() => toggleCompare(product)} className="product-action product-action-secondary mt-4 w-fit">
+                      <p className="text-[11px] font-semibold uppercase text-white/38">Produk {slot + 1}</p>
+                      <h2 className="mt-1 truncate text-[17px] font-semibold leading-tight text-white">{product.name}</h2>
+                      <p className="mt-1 text-[14px] font-semibold text-[color:var(--brand-green)]">{formatPrice(product.price)}</p>
+                      <button type="button" onClick={() => toggleCompare(product)} className="product-action product-action-secondary mt-3 w-fit">
                         Hapus
                       </button>
                     </>
                   ) : (
                     <>
-                      <p className="text-[12px] font-semibold uppercase text-white/36">Produk {slot + 1}</p>
-                      <h2 className="mt-1 text-[21px] font-semibold leading-tight text-white/72">Belum dipilih</h2>
-                      <p className="mt-2 text-[14px] leading-6 text-white/48">Pilih produk dari daftar di bawah untuk mengisi slot ini.</p>
+                      <p className="text-[11px] font-semibold uppercase text-white/38">Produk {slot + 1}</p>
+                      <h2 className="mt-1 text-[17px] font-semibold leading-tight text-white/78">Belum dipilih</h2>
+                      <p className="mt-1 text-[13px] leading-5 text-white/48">Pilih dari daftar produk di bawah.</p>
                     </>
                   )}
                 </div>
@@ -211,33 +213,40 @@ export default function CompareProductsPage() {
       </section>
 
       {selectedProducts.length === MAX_COMPARE_ITEMS && (
-        <section className="content-wrap pb-8">
-          <div className="mb-4 flex items-end justify-between gap-4">
-            <div>
-              <p className="section-kicker">Tabel</p>
-              <h2 className="mt-2 text-[28px] font-semibold leading-tight text-white">Detail yang dibandingkan</h2>
+        <section className="content-wrap pb-5">
+          <div className="compare-matrix">
+            <div className="compare-matrix-head">
+              <div>
+                <p className="section-kicker">Rincian</p>
+                <h2>Detail perbandingan</h2>
+              </div>
+              <p>Siap dibandingkan</p>
             </div>
-          </div>
-          <div className="grid gap-3">
-            {comparisonRows.map(([label, values]) => (
-              <article key={label} className="product-card grid gap-0 overflow-hidden lg:grid-cols-[180px_1fr_1fr]">
-                <div className="border-b border-white/8 bg-white/[0.035] p-4 text-[13px] font-semibold uppercase text-white/48 lg:border-b-0 lg:border-r">
-                  {label}
-                </div>
-                {values.map((value, index) => (
-                  <div key={`${label}-${index}`} className="border-b border-white/8 p-4 text-[14px] leading-6 text-white/76 last:border-b-0 lg:border-b-0 lg:border-r lg:last:border-r-0">
-                    <p className="mb-1 text-[12px] font-semibold text-[color:var(--brand-green)] lg:hidden">{selectedProducts[index]?.name}</p>
-                    {value}
-                  </div>
+
+            <div className="compare-matrix-table">
+              <div className="compare-matrix-row compare-matrix-row-head">
+                <div>Kriteria</div>
+                {[0, 1].map((slot) => (
+                  <div key={slot}>{selectedProducts[slot]?.name ?? `Produk ${slot + 1}`}</div>
                 ))}
-              </article>
-            ))}
+              </div>
+              {comparisonRows.map(([label, values]) => (
+                <div key={label} className="compare-matrix-row">
+                  <div>{label}</div>
+                  {[0, 1].map((slot) => (
+                    <div key={`${label}-${slot}`} className={!values[slot] ? "is-empty" : ""}>
+                      {values[slot] ?? "Belum dipilih"}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       )}
 
       <section className="content-wrap pb-10">
-        <div className="product-toolbar grid gap-3 p-3 md:grid-cols-[minmax(0,1fr)_180px] md:items-center">
+        <div className="product-toolbar grid gap-3 p-2.5 md:grid-cols-[minmax(0,1fr)_150px] md:items-center">
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -247,26 +256,26 @@ export default function CompareProductsPage() {
           <p className="px-2 text-right text-[13px] text-white/46">{visibleProducts.length} produk</p>
         </div>
 
-        <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           {visibleProducts.map((product) => {
             const selected = compareIds.includes(product.id);
             const locked = !selected && compareIds.length >= MAX_COMPARE_ITEMS;
 
             return (
-              <article key={product.id} className={`product-card grid grid-cols-[118px_1fr] overflow-hidden ${selected ? "border-[rgba(0,212,164,0.38)]" : ""}`}>
-                <div className="product-media p-4">
-                  <ProductImage src={product.image} alt={product.name} className="max-h-[100px]" />
+              <article key={product.id} className={`compare-product-card !min-h-[132px] ${selected ? "is-selected" : ""}`}>
+                <div className="compare-product-media !p-0">
+                  <ProductImage src={product.image} alt={product.name} className="!h-full !w-full !object-cover" />
                 </div>
-                <div className="flex flex-col p-4">
+                <div className="flex min-w-0 flex-col p-4">
                   <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <h3 className="text-[17px] font-semibold leading-snug text-white">{product.name}</h3>
+                    <div className="min-w-0">
+                      <h3 className="truncate text-[16px] font-semibold leading-snug text-white">{product.name}</h3>
                       <p className="mt-1 text-[13px] font-semibold text-[color:var(--brand-green)]">{formatPrice(product.price)}</p>
                     </div>
                     <span className="rounded-md bg-white/[0.06] px-2 py-1 text-[11px] text-white/56">{product.stock}</span>
                   </div>
                   <p className="mt-2 line-clamp-2 text-[13px] leading-5 text-white/52">{product.description}</p>
-                  <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
+                  <div className="mt-auto flex flex-wrap items-center gap-2 pt-3">
                     <button
                       type="button"
                       onClick={() => toggleCompare(product)}
@@ -274,7 +283,7 @@ export default function CompareProductsPage() {
                       aria-pressed={selected}
                       className={`product-action ${selected ? "product-action-primary" : "product-action-secondary"} disabled:cursor-not-allowed disabled:opacity-40`}
                     >
-                      {selected ? "Terpilih" : "Pilih"}
+                      {selected ? "Terpilih" : locked ? "Penuh" : "Pilih"}
                     </button>
                     <Link href={`/products/${product.id}`} className="product-action product-action-secondary">
                       Detail

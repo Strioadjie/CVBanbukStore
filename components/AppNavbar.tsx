@@ -72,10 +72,11 @@ export default function AppNavbar() {
     window.dispatchEvent(new Event("banbuk-cart-open"));
   };
 
+  const role = session?.user?.role;
   const links = [
     { href: "/products", label: "Katalog" },
     { href: "/products/compare", label: "Bandingkan" },
-    { href: session ? "/wishlist" : "/login", label: "Wishlist" },
+    ...(role === "SALES" || role === "ADMIN" ? [] : [{ href: session ? "/wishlist" : "/login", label: "Wishlist" }]),
     { href: session ? "/inquiry" : "/login", label: "Inquiry" },
     { href: session ? "/dashboard" : "/login", label: "Dashboard" },
   ];

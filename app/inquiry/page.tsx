@@ -5,7 +5,6 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AppNavbar from "@/components/AppNavbar";
-import InteractiveCard from "@/components/InteractiveCard";
 import LoadingScreen from "@/components/LoadingScreen";
 
 type InquiryNotice = {
@@ -191,6 +190,28 @@ export default function InquiryPage() {
     }
   };
 
+  const getStatusLabel = (currentStatus: string) => {
+    switch (currentStatus) {
+      case "PENDING":
+        return "Menunggu";
+      case "DIPROSES":
+        return "Diproses";
+      case "SELESAI":
+        return "Selesai";
+      default:
+        return currentStatus;
+    }
+  };
+
+  const getSalesDisplayName = (inquiry: any) => {
+    const salesName = inquiry.sales?.name?.trim();
+    if (!salesName || ["unassigned", "menunggu sales"].includes(salesName.toLowerCase())) {
+      return "Belum ditugaskan";
+    }
+
+    return salesName;
+  };
+
   const inquirySummary = useMemo(
     () => ({
       total: inquiries.length,
@@ -206,7 +227,7 @@ export default function InquiryPage() {
   }
 
   return (
-    <main className="product-page min-h-screen pb-14 text-white">
+    <main className="product-page customer-flow-page min-h-screen pb-14 text-white">
       <AppNavbar />
 
       {inquiryNotice && (
@@ -267,14 +288,14 @@ export default function InquiryPage() {
         </div>
       )}
 
-      <section className="content-wrap pb-5 pt-8">
-        <div className="product-card grid gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-end">
-          <div>
+      <section className="content-wrap pb-4 pt-5">
+        <div className="customer-flow-hero inquiry-hero !gap-5 !p-5">
+          <div className="min-w-0">
             <span className="section-kicker">Alur inquiry</span>
-            <h1 className="mt-2 text-[32px] font-semibold leading-[1.06] text-white md:text-[44px]">
+            <h1 className="mt-2 text-[28px] font-semibold leading-[1.06] text-white md:text-[36px]">
               {session?.user.role === "CUSTOMER" ? "Riwayat inquiry" : "Manajemen inquiry"}
             </h1>
-            <p className="mt-3 max-w-2xl text-[14px] leading-6 text-white/60">
+            <p className="mt-2 max-w-2xl text-[14px] leading-6 text-white/60">
               {session?.user.role === "ADMIN"
                 ? "Assign inquiry ke sales dan pantau progres follow-up dalam tampilan yang lebih ringkas."
                 : session?.user.role === "SALES"
@@ -283,26 +304,26 @@ export default function InquiryPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 border-t border-white/10 pt-4 sm:grid-cols-4 lg:border-l lg:border-t-0 lg:pl-5 lg:pt-0">
+          <div className="inquiry-summary-grid">
             {[
               ["Total", inquirySummary.total, "text-white"],
               ["Pending", inquirySummary.pending, "text-amber-300"],
               ["Diproses", inquirySummary.diproses, "text-sky-300"],
               ["Selesai", inquirySummary.selesai, "text-emerald-300"],
             ].map(([label, value, tone]) => (
-              <div key={String(label)} className="rounded-lg border border-white/10 bg-white/[0.035] px-3 py-2">
+              <div key={String(label)} className="inquiry-summary-item !min-h-[52px] !p-2.5">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-white/40">{label}</p>
-                <p className={`mt-1 text-xl font-semibold ${tone}`}>{value}</p>
+                <p className={`mt-1 text-lg font-semibold leading-none ${tone}`}>{value}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="content-wrap space-y-4">
+      <section className="content-wrap space-y-3">
         {session?.user.role === "CUSTOMER" && (
-          <div className="product-toolbar p-4 sm:p-5">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="customer-flow-callout">
+            <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[color:var(--brand-green)]">Inquiry customer</p>
                 <h2 className="mt-1 text-[18px] font-semibold text-white">Butuh produk lain?</h2>
@@ -318,13 +339,13 @@ export default function InquiryPage() {
         )}
 
         {inquiries.map((inquiry) => (
-          <InteractiveCard
+          <article
             key={inquiry.id}
-            className="product-card grid gap-4 p-4 transition-colors hover:border-white/15 hover:bg-white/[0.045] lg:grid-cols-[132px_minmax(0,1fr)_240px] lg:items-center"
+            className="inquiry-card !gap-4 !px-4 !py-3.5"
           >
             <div className="flex items-center justify-between gap-3 lg:block">
               <span className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] ${getStatusColor(inquiry.status)}`}>
-                  {inquiry.status}
+                {getStatusLabel(inquiry.status)}
               </span>
               <p className="text-[11px] text-white/40 lg:mt-2">
                 {new Date(inquiry.createdAt).toLocaleString("id-ID", {
@@ -352,10 +373,12 @@ export default function InquiryPage() {
                     )}
                     <span>
                       Sales{" "}
-                      {inquiry.sales?.name ? (
-                        <span className="font-medium text-white/75">{inquiry.sales.name}</span>
+                      {getSalesDisplayName(inquiry) !== "Belum ditugaskan" ? (
+                        <span className="font-medium text-white/75">{getSalesDisplayName(inquiry)}</span>
                       ) : (
-                        <span className="font-medium text-rose-300">Unassigned</span>
+                        <span className="font-medium text-amber-200/90">
+                          Belum ditugaskan
+                        </span>
                       )}
                     </span>
                   </div>
@@ -363,7 +386,7 @@ export default function InquiryPage() {
 
                 {busyInquiryId === inquiry.id && (
                   <span className="shrink-0 rounded-full border border-[color:var(--brand-green)]/25 bg-[color:var(--brand-green)]/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[color:var(--brand-green)]">
-                    Saving
+                    Menyimpan
                   </span>
                 )}
               </div>
@@ -414,12 +437,12 @@ export default function InquiryPage() {
                 </Link>
               )}
             </div>
-          </InteractiveCard>
+          </article>
         ))}
 
         {inquiries.length === 0 && (
-          <div className="product-card p-8 text-center">
-            <h2 className="text-[22px] font-semibold text-white">Belum ada inquiry</h2>
+          <div className="product-card p-6 text-center md:p-7">
+            <h2 className="text-[20px] font-semibold text-white">Belum ada inquiry</h2>
             <p className="mt-2 text-[14px] text-white/60">
               {session?.user.role === "CUSTOMER"
                 ? "Inquiry yang Anda kirim dari detail produk akan muncul di sini."
