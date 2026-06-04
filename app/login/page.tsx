@@ -1,5 +1,6 @@
 "use client";
 
+import BrandLogo from "@/components/BrandLogo";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -33,10 +34,8 @@ export default function LoginPage() {
   return (
     <main className="auth-page min-h-dvh bg-[color:var(--canvas-dark)] text-white">
       <section className="mx-auto flex min-h-dvh w-full max-w-[420px] flex-col justify-center px-6 py-8">
-        <Link href="/" className="mb-10 flex justify-center" aria-label="Home">
-          <span className="relative h-10 w-10 rounded-[12px] bg-[color:var(--brand-green)]">
-            <span className="absolute bottom-1 left-1 h-6 w-6 rounded-full bg-[color:var(--canvas-dark)]" />
-          </span>
+        <Link href="/" className="mb-10 flex justify-center text-white" aria-label="CV Banbuk Store home">
+          <BrandLogo markClassName="h-12 w-12" textClassName="text-[18px]" subTextClassName="text-[9px]" />
         </Link>
 
         <h1 className="text-[32px] font-semibold leading-[1.12] tracking-[-0.04em]">Masuk ke CV Banbuk Store</h1>

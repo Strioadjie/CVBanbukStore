@@ -467,7 +467,9 @@ textarea:focus-visible {
   }
 
   .dummy-product-image {
-    filter: drop-shadow(0 20px 34px rgba(0, 0, 0, 0.34)) brightness(1.32) saturate(1.12);
+    max-height: none !important;
+    object-fit: cover;
+    filter: saturate(1.04) contrast(1.02);
   }
 
   .product-page {

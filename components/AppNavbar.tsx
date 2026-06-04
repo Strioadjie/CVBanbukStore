@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import BrandLogo from "@/components/BrandLogo";
 import CartDrawer from "@/components/CartDrawer";
 
 type LandingNavTone = "top" | "scrolled" | "solid";
@@ -94,9 +95,8 @@ export default function AppNavbar() {
     <header className={headerClassName}>
       <nav className={navClassName}>
         <div className="content-wrap flex h-full items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-[17px] font-semibold text-white">
-            <span className="h-5 w-5 rounded-full bg-[color:var(--brand-green)]" />
-            CV Banbuk Store
+          <Link href="/" className="flex items-center text-white" aria-label="CV Banbuk Store home">
+            <BrandLogo markClassName="h-8 w-8" textClassName="text-[17px]" compact />
           </Link>
           <div className="hidden items-center gap-7 text-[14px] font-medium text-white/68 md:flex">
             {links.map((link) => (

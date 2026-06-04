@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import BrandLogo from "@/components/BrandLogo";
 
 const trustSignals = ["Produk terkurasi", "Wishlist", "Bandingkan produk", "Inquiry cepat", "Checkout online", "Dashboard pembeli", "Admin katalog", "Sales follow-up"];
 
@@ -51,9 +52,8 @@ export default function HomeExperience() {
         <div className="mint-card-dark landing-preview mx-auto mt-14 max-w-5xl overflow-hidden text-left">
           <div className="grid border-b border-white/10 text-[13px] text-white/54 md:grid-cols-[220px_1fr_200px]">
             <div className="border-white/10 p-5 md:border-r">
-              <div className="mb-5 flex items-center gap-2 text-white">
-                <span className="h-3 w-3 rounded-full bg-[color:var(--brand-green)]" />
-                CV Banbuk Store
+              <div className="mb-5 flex items-center text-white">
+                <BrandLogo markClassName="h-7 w-7" textClassName="text-[14px]" compact />
               </div>
               {previewMenu.map((item, index) => (
                 <div key={item} className={`rounded-md px-3 py-2 ${index === 0 ? "bg-[rgba(0,212,164,0.12)] text-[color:var(--brand-green)]" : ""}`}>
@@ -166,9 +166,8 @@ export default function HomeExperience() {
       <footer data-nav-surface="solid" className="border-t border-white/10 py-16 text-white/54">
         <div className="content-wrap grid gap-8 md:grid-cols-[1.2fr_2fr]">
           <div>
-            <Link href="/" className="flex items-center gap-2 font-semibold text-white">
-              <span className="h-4 w-4 rounded-full bg-[color:var(--brand-green)]" />
-              CV Banbuk Store
+            <Link href="/" className="flex items-center font-semibold text-white" aria-label="CV Banbuk Store home">
+              <BrandLogo markClassName="h-8 w-8" textClassName="text-[17px]" subTextClassName="text-[9px]" />
             </Link>
             <p className="mt-8 text-sm">Katalog produk online CV Banbuk Mandiri Jaya. © 2026 Banbuk.</p>
           </div>

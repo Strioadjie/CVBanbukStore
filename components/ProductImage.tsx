@@ -31,6 +31,9 @@ export default function ProductImage({
 }: ProductImageProps) {
   const customImageSrc = src?.trim();
   const imageSrc = customImageSrc || resolveDummyProductImage(alt);
+  const imageClassName = customImageSrc
+    ? `h-full w-full object-contain product-shadow ${className}`
+    : `h-full w-full object-cover dummy-product-image ${className}`;
 
   return (
     <img
@@ -39,7 +42,7 @@ export default function ProductImage({
       loading={loading}
       decoding="async"
       draggable={false}
-      className={`h-full w-full object-contain ${customImageSrc ? "product-shadow" : "dummy-product-image"} ${className}`}
+      className={imageClassName}
     />
   );
 }

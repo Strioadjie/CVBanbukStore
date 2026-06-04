@@ -1,6 +1,7 @@
 "use client";
 
 import AppNavbar from "@/components/AppNavbar";
+import BrandLogo from "@/components/BrandLogo";
 import LoadingScreen from "@/components/LoadingScreen";
 import ProductImage from "@/components/ProductImage";
 import { useSession } from "next-auth/react";
@@ -338,9 +339,8 @@ export default function ProductsPage() {
       <footer className="border-t border-white/10 bg-[#050706] py-14 text-white">
         <div className="content-wrap grid gap-10 md:grid-cols-[1.2fr_1fr]">
           <div>
-            <Link href="/" className="flex items-center gap-2 text-[20px] font-semibold">
-              <span className="h-4 w-4 rounded-full bg-[color:var(--brand-green)]" />
-              CV Banbuk Store
+            <Link href="/" className="flex items-center text-[20px] font-semibold" aria-label="CV Banbuk Store home">
+              <BrandLogo markClassName="h-9 w-9" textClassName="text-[20px]" subTextClassName="text-[9px]" />
             </Link>
             <h2 className="mt-6 max-w-xl text-[30px] font-semibold leading-tight">
               Katalog, checkout, wishlist, dan inquiry dalam satu etalase CV Banbuk.
