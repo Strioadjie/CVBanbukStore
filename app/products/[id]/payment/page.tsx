@@ -49,6 +49,7 @@ export default function PaymentPage() {
   const router = useRouter();
   const params = useParams();
   const productId = params.id as string;
+  const isCustomer = status === "authenticated" && session?.user.role === "CUSTOMER";
 
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -61,15 +62,20 @@ export default function PaymentPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.replace("/login");
+      return;
     }
-  }, [status, router]);
+
+    if (status === "authenticated" && session?.user.role !== "CUSTOMER") {
+      router.replace("/dashboard");
+    }
+  }, [router, session?.user.role, status]);
 
   useEffect(() => {
-    if (productId) {
+    if (productId && isCustomer) {
       fetchProduct();
     }
-  }, [productId]);
+  }, [isCustomer, productId]);
 
   useEffect(() => {
     return () => {
@@ -289,6 +295,10 @@ export default function PaymentPage() {
       });
     }
   };
+
+  if (status === "loading" || !isCustomer) {
+    return <LoadingScreen label="Mengalihkan akses" detail="Pembayaran hanya tersedia untuk akun customer." />;
+  }
 
   if (loading) {
     return <LoadingScreen label="Menyiapkan pembayaran" detail="Detail produk dan metode checkout sedang dimuat." />;

@@ -58,7 +58,7 @@ function addCartItem(product: Product) {
 const formatPrice = (value: number) => `Rp ${value.toLocaleString("id-ID")}`;
 
 export default function ProductsPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,6 +69,8 @@ export default function ProductsPage() {
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [wishlistIds, setWishlistIds] = useState<string[]>([]);
   const [wishlistBusyId, setWishlistBusyId] = useState<string | null>(null);
+  const role = session?.user.role;
+  const canUseCustomerShopping = status === "unauthenticated" || role === "CUSTOMER";
 
   useEffect(() => {
     setCompareIds(readCompareIds());
@@ -92,7 +94,7 @@ export default function ProductsPage() {
   }, []);
 
   useEffect(() => {
-    if (!session?.user?.id) {
+    if (status !== "authenticated" || role !== "CUSTOMER") {
       setWishlistIds([]);
       return;
     }
@@ -115,7 +117,7 @@ export default function ProductsPage() {
     };
 
     loadWishlist();
-  }, [session?.user?.id]);
+  }, [role, session?.user?.id, status]);
 
   const materials = useMemo(
     () => Array.from(new Set(products.map((product) => product.material).filter(Boolean))),
@@ -142,6 +144,11 @@ export default function ProductsPage() {
   }, [material, products, query, sort]);
 
   const handleAddCart = (product: Product) => {
+    if (!canUseCustomerShopping) {
+      showNotice("Checkout hanya tersedia untuk akun customer.");
+      return;
+    }
+
     addCartItem(product);
     showNotice(`${product.name} masuk ke cart.`);
   };
@@ -180,6 +187,11 @@ export default function ProductsPage() {
     if (!session) {
       showNotice("Masuk dulu untuk menyimpan wishlist.");
       window.setTimeout(() => router.push("/login"), 700);
+      return;
+    }
+
+    if (role !== "CUSTOMER") {
+      showNotice("Wishlist hanya tersedia untuk akun customer.");
       return;
     }
 
@@ -296,16 +308,18 @@ export default function ProductsPage() {
                   </div>
                   <div className="mt-auto min-w-0 pt-4">
                     <p className="text-[18px] font-semibold text-[color:var(--brand-green)]">{formatPrice(product.price)}</p>
-                    <div className="mt-3 grid w-full grid-cols-3 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => handleToggleWishlist(product)}
-                        disabled={wishlistBusyId === product.id}
-                        aria-pressed={wishlistIds.includes(product.id)}
-                        className={`product-action min-w-0 px-2.5 text-[12px] ${wishlistIds.includes(product.id) ? "product-action-primary" : "product-action-secondary"} disabled:cursor-not-allowed disabled:opacity-60`}
-                      >
-                        {wishlistBusyId === product.id ? "..." : wishlistIds.includes(product.id) ? "Tersimpan" : "Wishlist"}
-                      </button>
+                    <div className={`mt-3 grid w-full gap-2 ${canUseCustomerShopping ? "grid-cols-3" : "grid-cols-1"}`}>
+                      {canUseCustomerShopping && (
+                        <button
+                          type="button"
+                          onClick={() => handleToggleWishlist(product)}
+                          disabled={wishlistBusyId === product.id}
+                          aria-pressed={wishlistIds.includes(product.id)}
+                          className={`product-action min-w-0 px-2.5 text-[12px] ${wishlistIds.includes(product.id) ? "product-action-primary" : "product-action-secondary"} disabled:cursor-not-allowed disabled:opacity-60`}
+                        >
+                          {wishlistBusyId === product.id ? "..." : wishlistIds.includes(product.id) ? "Tersimpan" : "Wishlist"}
+                        </button>
+                      )}
                       <button
                         type="button"
                         onClick={() => handleToggleCompare(product)}
@@ -314,10 +328,17 @@ export default function ProductsPage() {
                       >
                         Bandingkan
                       </button>
-                      <button onClick={() => handleAddCart(product)} className="product-action product-action-primary min-w-0 px-2.5 text-[12px]">
-                        Keranjang
-                      </button>
+                      {canUseCustomerShopping && (
+                        <button onClick={() => handleAddCart(product)} className="product-action product-action-primary min-w-0 px-2.5 text-[12px]">
+                          Keranjang
+                        </button>
+                      )}
                     </div>
+                    {!canUseCustomerShopping && (
+                      <p className="mt-3 text-[12px] leading-5 text-white/44">
+                        Role operasional bisa melihat katalog tanpa akses checkout.
+                      </p>
+                    )}
                   </div>
                   {session?.user.role === "ADMIN" && (
                     <Link href={`/products/${product.id}/edit`} className="mt-4 text-[13px] font-medium text-white/56 underline underline-offset-4">
@@ -352,7 +373,9 @@ export default function ProductsPage() {
                 <p className="mb-4 text-[11px] font-semibold uppercase text-white/40">{group}</p>
                 <Link href="/products" className="block py-1.5 text-white/62">Katalog</Link>
                 <Link href="/dashboard" className="block py-1.5 text-white/62">Dashboard</Link>
-                <button type="button" onClick={() => window.dispatchEvent(new Event("banbuk-cart-open"))} className="block py-1.5 text-left text-white/62">Keranjang</button>
+                {canUseCustomerShopping && (
+                  <button type="button" onClick={() => window.dispatchEvent(new Event("banbuk-cart-open"))} className="block py-1.5 text-left text-white/62">Keranjang</button>
+                )}
               </div>
             ))}
           </div>

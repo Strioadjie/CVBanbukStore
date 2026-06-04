@@ -16,7 +16,7 @@ const landingToneClass: Record<LandingNavTone, string> = {
 };
 
 export default function AppNavbar() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -73,10 +73,11 @@ export default function AppNavbar() {
   };
 
   const role = session?.user?.role;
+  const canUseCustomerShopping = status === "unauthenticated" || role === "CUSTOMER";
   const links = [
     { href: "/products", label: "Katalog" },
     { href: "/products/compare", label: "Bandingkan" },
-    ...(role === "SALES" || role === "ADMIN" ? [] : [{ href: session ? "/wishlist" : "/login", label: "Wishlist" }]),
+    ...(canUseCustomerShopping ? [{ href: session ? "/wishlist" : "/login", label: "Wishlist" }] : []),
     { href: session ? "/inquiry" : "/login", label: "Inquiry" },
     { href: session ? "/dashboard" : "/login", label: "Dashboard" },
   ];
@@ -90,7 +91,7 @@ export default function AppNavbar() {
   const navClassName = isLanding
     ? `mint-nav landing-nav ${landingToneClass[landingTone]}`
     : "mint-nav border-b border-white/10 bg-[rgba(5,7,6,0.78)] backdrop-blur-xl";
-  const showCart = !isLanding;
+  const showCart = !isLanding && canUseCustomerShopping;
 
   return (
     <header className={headerClassName}>

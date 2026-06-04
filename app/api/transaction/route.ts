@@ -28,13 +28,18 @@ export async function GET(req: Request) {
         },
         orderBy: { createdAt: "desc" },
       });
-    } else {
+    } else if (session.user.role === "CUSTOMER") {
       // Customer hanya lihat transaksi sendiri
       transactions = await prisma.transaction.findMany({
         where: { userId: session.user.id },
         include: { product: true },
         orderBy: { createdAt: "desc" },
       });
+    } else {
+      return NextResponse.json(
+        { error: "Transaksi hanya tersedia untuk admin dan customer" },
+        { status: 403 }
+      );
     }
 
     return NextResponse.json(transactions);
@@ -59,11 +64,43 @@ export async function POST(req: Request) {
       );
     }
 
-    const { productId, amount, paymentType, txHash, walletAddress } = await req.json();
+    if (session.user.role !== "CUSTOMER") {
+      return NextResponse.json(
+        { error: "Checkout hanya tersedia untuk akun customer" },
+        { status: 403 }
+      );
+    }
 
-    if (!productId || !amount || !paymentType) {
+    const { productId, paymentType, txHash, walletAddress } = await req.json();
+
+    if (!productId || !paymentType) {
       return NextResponse.json(
         { error: "Data tidak lengkap" },
+        { status: 400 }
+      );
+    }
+
+    if (!["REGULAR", "CRYPTO"].includes(paymentType)) {
+      return NextResponse.json(
+        { error: "Tipe pembayaran tidak valid untuk checkout langsung" },
+        { status: 400 }
+      );
+    }
+
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      return NextResponse.json(
+        { error: "Produk tidak ditemukan" },
+        { status: 404 }
+      );
+    }
+
+    if (product.stock < 1) {
+      return NextResponse.json(
+        { error: "Stok produk habis" },
         { status: 400 }
       );
     }
@@ -72,7 +109,7 @@ export async function POST(req: Request) {
       data: {
         userId: session.user.id,
         productId,
-        amount: parseFloat(amount),
+        amount: product.price,
         paymentType,
         txHash: txHash || null,
         walletAddress: walletAddress || null,

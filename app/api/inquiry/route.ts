@@ -74,6 +74,13 @@ export async function POST(req: Request) {
       );
     }
 
+    if (session.user.role !== "CUSTOMER") {
+      return NextResponse.json(
+        { error: "Inquiry baru hanya bisa dibuat oleh akun customer" },
+        { status: 403 }
+      );
+    }
+
     const { productId, message } = await req.json();
 
     if (!productId) {

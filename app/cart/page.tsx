@@ -1,8 +1,11 @@
 "use client";
 
 import AppNavbar from "@/components/AppNavbar";
+import LoadingScreen from "@/components/LoadingScreen";
 import ProductImage from "@/components/ProductImage";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
 
 type CartItem = {
@@ -20,14 +23,30 @@ type CartItem = {
 const CART_KEY = "banbuk-cart";
 
 export default function CartPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [items, setItems] = useState<CartItem[]>([]);
+  const canUseCart = status === "authenticated" && session?.user.role === "CUSTOMER";
 
   useEffect(() => {
+    if (status === "unauthenticated") {
+      router.replace("/login");
+      return;
+    }
+
+    if (status === "authenticated" && session?.user.role !== "CUSTOMER") {
+      router.replace("/dashboard");
+    }
+  }, [router, session?.user.role, status]);
+
+  useEffect(() => {
+    if (!canUseCart) return;
+
     const syncCart = () => setItems(JSON.parse(localStorage.getItem(CART_KEY) || "[]"));
     syncCart();
     window.addEventListener("banbuk-cart-updated", syncCart);
     return () => window.removeEventListener("banbuk-cart-updated", syncCart);
-  }, []);
+  }, [canUseCart]);
 
   const save = (next: CartItem[]) => {
     setItems(next);
@@ -39,6 +58,10 @@ export default function CartPage() {
   const discount = Math.round(subtotal * 0.08);
   const total = Math.max(0, subtotal - discount);
   const checkoutHref = items[0] ? `/products/${items[0].id}/payment` : "/products";
+
+  if (status === "loading" || !canUseCart) {
+    return <LoadingScreen label="Mengalihkan akses" detail="Keranjang hanya tersedia untuk akun customer." />;
+  }
 
   return (
     <main className="product-page min-h-screen text-white">

@@ -35,7 +35,7 @@ function addCartItem(product: Product) {
 }
 
 export default function ProductDetailPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const [product, setProduct] = useState<Product | null>(null);
@@ -43,6 +43,8 @@ export default function ProductDetailPage() {
   const [notice, setNotice] = useState("");
   const [wishlisted, setWishlisted] = useState(false);
   const [wishlistBusy, setWishlistBusy] = useState(false);
+  const role = session?.user.role;
+  const canUseCustomerShopping = status === "unauthenticated" || role === "CUSTOMER";
 
   useEffect(() => {
     const load = async () => {
@@ -61,7 +63,7 @@ export default function ProductDetailPage() {
   }, [params.id, router]);
 
   useEffect(() => {
-    if (!session?.user?.id) {
+    if (status !== "authenticated" || role !== "CUSTOMER") {
       setWishlisted(false);
       return;
     }
@@ -81,7 +83,7 @@ export default function ProductDetailPage() {
     };
 
     loadWishlist();
-  }, [params.id, session?.user?.id]);
+  }, [params.id, role, session?.user?.id, status]);
 
   if (loading) {
     return <LoadingScreen label="Memuat detail produk" detail="Detail produk sedang disiapkan." />;
@@ -95,6 +97,11 @@ export default function ProductDetailPage() {
   };
 
   const addToCart = () => {
+    if (!canUseCustomerShopping) {
+      showNotice("Checkout hanya tersedia untuk akun customer.");
+      return;
+    }
+
     addCartItem(product);
     showNotice("Produk masuk ke cart.");
   };
@@ -103,6 +110,11 @@ export default function ProductDetailPage() {
     if (!session) {
       showNotice("Masuk dulu untuk menyimpan wishlist.");
       window.setTimeout(() => router.push("/login"), 700);
+      return;
+    }
+
+    if (role !== "CUSTOMER") {
+      showNotice("Wishlist hanya tersedia untuk akun customer.");
       return;
     }
 
@@ -217,25 +229,46 @@ export default function ProductDetailPage() {
             ))}
           </div>
 
-          <div className="mt-7 grid gap-3">
-            <button onClick={addToCart} className="product-action product-action-primary min-h-[46px] w-full text-[14px]">
-              Tambah ke keranjang
-            </button>
-            <button
-              type="button"
-              onClick={toggleWishlist}
-              disabled={wishlistBusy}
-              className={`product-action min-h-[46px] w-full text-[14px] disabled:cursor-not-allowed disabled:opacity-60 ${wishlisted ? "product-action-primary" : "product-action-secondary"}`}
-            >
-              {wishlistBusy ? "Menyimpan..." : wishlisted ? "Tersimpan di wishlist" : "Simpan ke wishlist"}
-            </button>
-            <Link href={`/products/${product.id}/payment`} className="product-action product-action-secondary min-h-[46px] w-full text-[14px]">
-              Checkout
-            </Link>
-          </div>
-          <button type="button" onClick={() => window.dispatchEvent(new Event("banbuk-cart-open"))} className="mt-3 flex min-h-[44px] w-full items-center justify-center rounded-full border border-white/12 bg-white/[0.03] text-[14px] font-semibold text-white/78 hover:border-white/20 hover:text-white">
-            Lihat keranjang
-          </button>
+          {canUseCustomerShopping ? (
+            <>
+              <div className="mt-7 grid gap-3">
+                <button onClick={addToCart} className="product-action product-action-primary min-h-[46px] w-full text-[14px]">
+                  Tambah ke keranjang
+                </button>
+                <button
+                  type="button"
+                  onClick={toggleWishlist}
+                  disabled={wishlistBusy}
+                  className={`product-action min-h-[46px] w-full text-[14px] disabled:cursor-not-allowed disabled:opacity-60 ${wishlisted ? "product-action-primary" : "product-action-secondary"}`}
+                >
+                  {wishlistBusy ? "Menyimpan..." : wishlisted ? "Tersimpan di wishlist" : "Simpan ke wishlist"}
+                </button>
+                <Link href={`/products/${product.id}/payment`} className="product-action product-action-secondary min-h-[46px] w-full text-[14px]">
+                  Checkout
+                </Link>
+              </div>
+              <button type="button" onClick={() => window.dispatchEvent(new Event("banbuk-cart-open"))} className="mt-3 flex min-h-[44px] w-full items-center justify-center rounded-full border border-white/12 bg-white/[0.03] text-[14px] font-semibold text-white/78 hover:border-white/20 hover:text-white">
+                Lihat keranjang
+              </button>
+            </>
+          ) : (
+            <div className="mt-7 rounded-[10px] border border-white/10 bg-white/[0.035] p-4">
+              <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-[color:var(--brand-green)]">
+                Mode operasional
+              </p>
+              <p className="mt-2 text-[14px] leading-6 text-white/58">
+                Role {role === "SALES" ? "sales" : "admin"} dapat melihat katalog untuk follow-up dan pengelolaan, tanpa akses checkout customer.
+              </p>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                <Link href="/inquiry" className="product-action product-action-primary min-h-[44px] w-full text-[13px]">
+                  Buka inquiry
+                </Link>
+                <Link href="/dashboard" className="product-action product-action-secondary min-h-[44px] w-full text-[13px]">
+                  Dashboard
+                </Link>
+              </div>
+            </div>
+          )}
 
           <div className="mt-7 space-y-3 text-[13px] leading-5 text-white/54">
             {["Katalog real-time", "Pembayaran multi-metode", "Inquiry sales tersedia"].map((item) => (

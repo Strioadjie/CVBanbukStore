@@ -6,16 +6,18 @@ export default withAuth(
   function middleware(req) {
     const token = req.nextauth.token;
     const path = req.nextUrl.pathname;
+    const isProductEditRoute = /^\/products\/[^/]+\/edit\/?$/.test(path);
+    const isPaymentRoute = /^\/products\/[^/]+\/payment\/?$/.test(path);
 
     // Admin only routes
-    if (path.startsWith("/products/add") || path.startsWith("/products/edit")) {
+    if (path.startsWith("/products/add") || isProductEditRoute) {
       if (token?.role !== "ADMIN") {
         return NextResponse.redirect(new URL("/dashboard", req.url));
       }
     }
 
     // Customer only routes
-    if (path.startsWith("/wishlist")) {
+    if (path.startsWith("/wishlist") || path.startsWith("/cart") || isPaymentRoute) {
       if (token?.role !== "CUSTOMER") {
         return NextResponse.redirect(new URL("/dashboard", req.url));
       }
@@ -40,6 +42,7 @@ export const config = {
     "/products/add",
     "/products/:id/edit",
     "/products/:id/payment",
+    "/cart/:path*",
     "/wishlist/:path*",
     "/inquiry/:path*",
   ],

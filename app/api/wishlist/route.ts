@@ -17,6 +17,13 @@ export async function GET(req: Request) {
       );
     }
 
+    if (session.user.role !== "CUSTOMER") {
+      return NextResponse.json(
+        { error: "Wishlist hanya tersedia untuk akun customer" },
+        { status: 403 }
+      );
+    }
+
     const wishlists = await prisma.wishlist.findMany({
       where: { userId: session.user.id },
       include: { product: true },
@@ -42,6 +49,13 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
+      );
+    }
+
+    if (session.user.role !== "CUSTOMER") {
+      return NextResponse.json(
+        { error: "Wishlist hanya tersedia untuk akun customer" },
+        { status: 403 }
       );
     }
 
@@ -96,6 +110,13 @@ export async function DELETE(req: Request) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
+      );
+    }
+
+    if (session.user.role !== "CUSTOMER") {
+      return NextResponse.json(
+        { error: "Wishlist hanya tersedia untuk akun customer" },
+        { status: 403 }
       );
     }
 

@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
-    const { email, password, name, role } = await req.json();
+    const { email, password, name } = await req.json();
 
     // Validasi input
     if (!email || !password || !name) {
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
         email,
         password: hashedPassword,
         name,
-        role: role || "CUSTOMER", // Default role adalah CUSTOMER
+        role: "CUSTOMER",
       },
     });
 

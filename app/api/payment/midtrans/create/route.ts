@@ -19,6 +19,13 @@ export async function POST(req: Request) {
       );
     }
 
+    if (session.user.role !== "CUSTOMER") {
+      return NextResponse.json(
+        { error: "Payment gateway hanya tersedia untuk akun customer" },
+        { status: 403 }
+      );
+    }
+
     const { productId } = await req.json();
 
     if (!productId) {

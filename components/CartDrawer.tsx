@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
 import ProductImage from "@/components/ProductImage";
 
@@ -24,24 +25,36 @@ function readCart() {
 }
 
 export default function CartDrawer() {
+  const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<CartItem[]>([]);
+  const canUseCart = status === "unauthenticated" || session?.user.role === "CUSTOMER";
 
   useEffect(() => {
     const syncCart = () => setItems(readCart());
     const openCart = () => {
+      if (!canUseCart) return;
       syncCart();
       setOpen(true);
     };
 
-    syncCart();
+    if (canUseCart) {
+      syncCart();
+    }
     window.addEventListener("banbuk-cart-updated", syncCart);
     window.addEventListener("banbuk-cart-open", openCart);
     return () => {
       window.removeEventListener("banbuk-cart-updated", syncCart);
       window.removeEventListener("banbuk-cart-open", openCart);
     };
-  }, []);
+  }, [canUseCart]);
+
+  useEffect(() => {
+    if (!canUseCart) {
+      setOpen(false);
+      setItems([]);
+    }
+  }, [canUseCart]);
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -60,6 +73,8 @@ export default function CartDrawer() {
   const discount = Math.round(subtotal * 0.08);
   const total = Math.max(0, subtotal - discount);
   const checkoutHref = items[0] ? `/products/${items[0].id}/payment` : "/products";
+
+  if (!canUseCart) return null;
 
   return (
     <div className={`cart-drawer ${open ? "cart-drawer-open" : ""}`} aria-hidden={!open}>
