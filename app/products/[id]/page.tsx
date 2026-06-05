@@ -149,6 +149,7 @@ export default function ProductDetailPage() {
     ["Checkout fleksibel", "Customer bisa lanjut ke cart, pembayaran manual, gateway, atau crypto."],
     ["Follow-up sales", "Produk dapat diarahkan ke inquiry untuk percakapan lanjutan dengan tim sales."],
   ];
+  const fullBleedImageClass = "absolute inset-0 block !h-full !max-h-none !w-full object-cover object-center";
 
   return (
     <main className="product-page min-h-screen text-white">
@@ -162,8 +163,14 @@ export default function ProductDetailPage() {
       <section className="content-wrap grid gap-5 pb-10 pt-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(340px,420px)] lg:items-start">
         <div className="grid gap-3">
           <div className="product-card overflow-hidden">
-            <div className="product-media flex aspect-[16/10] max-h-[460px] min-h-[260px] items-center justify-center p-8 sm:p-10">
-              <ProductImage src={product.image} alt={product.name} loading="eager" className="max-h-[330px]" />
+            <div className="product-media relative aspect-[16/10] max-h-[460px] min-h-[260px] overflow-hidden">
+              <ProductImage
+                src={product.image}
+                alt={product.name}
+                fit="cover"
+                loading="eager"
+                className={fullBleedImageClass}
+              />
             </div>
           </div>
 
@@ -173,12 +180,13 @@ export default function ProductDetailPage() {
               ["Varian", "capsule"],
               ["Kemasan", "box"],
             ].map(([label, variant]) => (
-              <div key={label} className="product-card product-media flex aspect-[4/3] items-center justify-center p-5">
+              <div key={label} className="product-card product-media relative aspect-[4/3] overflow-hidden">
                 <ProductImage
                   src={product.image}
                   alt={`${product.name} ${label}`}
+                  fit="cover"
                   variant={variant as "jar" | "box" | "capsule"}
-                  className="max-h-[132px]"
+                  className={`${fullBleedImageClass} transition-transform duration-300 hover:scale-[1.03]`}
                 />
               </div>
             ))}
@@ -298,8 +306,14 @@ export default function ProductDetailPage() {
       <section className="content-wrap pb-16">
         <div className="product-card overflow-hidden">
           <div className="grid gap-0 lg:grid-cols-[0.9fr_1.1fr]">
-            <div className="product-media flex min-h-[260px] items-center justify-center border-b border-white/8 p-8 lg:border-b-0 lg:border-r">
-              <ProductImage src={product.image} alt={product.name} variant="box" className="max-h-[230px]" />
+            <div className="product-media relative min-h-[280px] overflow-hidden border-b border-white/8 lg:min-h-full lg:border-b-0 lg:border-r">
+              <ProductImage
+                src={product.image}
+                alt={product.name}
+                fit="cover"
+                variant="box"
+                className={fullBleedImageClass}
+              />
             </div>
             <div className="p-5 md:p-7">
               <p className="section-kicker">Specification</p>

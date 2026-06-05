@@ -2,6 +2,7 @@ type ProductImageProps = {
   src?: string | null;
   alt: string;
   className?: string;
+  fit?: "contain" | "cover";
   loading?: "eager" | "lazy";
   variant?: "jar" | "box" | "capsule";
 };
@@ -27,13 +28,15 @@ export default function ProductImage({
   src,
   alt,
   className = "",
+  fit,
   loading = "lazy",
 }: ProductImageProps) {
   const customImageSrc = src?.trim();
   const imageSrc = customImageSrc || resolveDummyProductImage(alt);
-  const imageClassName = customImageSrc
-    ? `h-full w-full object-contain product-shadow ${className}`
-    : `h-full w-full object-cover dummy-product-image ${className}`;
+  const shouldCover = fit === "cover" || !customImageSrc;
+  const imageClassName = shouldCover
+    ? `h-full w-full object-cover ${customImageSrc ? "" : "dummy-product-image"} ${className}`
+    : `h-full w-full object-contain product-shadow ${className}`;
 
   return (
     <img
