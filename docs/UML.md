@@ -12,10 +12,9 @@ Diagram Use Case menggambarkan interaksi antara aktor (pengguna manusia dan sist
 flowchart LR
     %% Aktor Pengguna (Kiri)
     subgraph Aktor ["Aktor Pengguna"]
-        Guest((👥 Guest))
-        Customer((👤 Customer))
-        Sales((👤 Sales))
-        Admin((👤 Admin))
+        Customer[" &nbsp;O&nbsp; <br> /|\\ <br> /&nbsp;\\ <br>Customer"]
+        Sales[" &nbsp;O&nbsp; <br> /|\\ <br> /&nbsp;\\ <br>Sales"]
+        Admin[" &nbsp;O&nbsp; <br> /|\\ <br> /&nbsp;\\ <br>Admin"]
     end
 
     %% Batas Sistem (Tengah)
@@ -52,11 +51,6 @@ flowchart LR
         MetaMask[🦊 MetaMask / Web3]
     end
 
-    %% Relasi Aktor Guest
-    Guest --> UC3
-    Guest --> UC4
-    Guest --> UC6
-
     %% Relasi Aktor Customer
     Customer --> UC1
     Customer --> UC2
@@ -90,21 +84,19 @@ flowchart LR
     UC13 --> MetaMask
 
     %% Styling Nodes
-    style Guest fill:#ececff,stroke:#9370db,stroke-width:2px
-    style Customer fill:#ececff,stroke:#9370db,stroke-width:2px
-    style Sales fill:#ececff,stroke:#9370db,stroke-width:2px
-    style Admin fill:#ececff,stroke:#9370db,stroke-width:2px
+    style Customer fill:none,stroke:none
+    style Sales fill:none,stroke:none
+    style Admin fill:none,stroke:none
     style Midtrans fill:#fff2cc,stroke:#d6b656,stroke-width:2px
     style MetaMask fill:#fff2cc,stroke:#d6b656,stroke-width:2px
 ```
 
 ### Deskripsi Aktor & Hak Akses
-1. **Guest**: Pengguna yang belum login. Hanya dapat mencari, melihat, membandingkan produk, dan memasukkan produk ke keranjang lokal (`localStorage`).
-2. **Customer**: Pengguna terdaftar (pembeli). Memiliki akses ke fitur transaksi (wishlist, checkout, inquiry, riwayat pembelian, pembayaran).
-3. **Sales**: Staf penjualan. Bertanggung jawab memproses inquiry yang ditugaskan kepadanya, menghubungi customer via WhatsApp, dan memperbarui status inquiry.
-4. **Admin**: Pengelola sistem. Bertanggung jawab mengelola produk (CRUD), memantau statistik, menugaskan inquiry ke sales, melihat user, dan mengunduh laporan.
-5. **Midtrans (Sistem Eksternal)**: Gerbang pembayaran gateway untuk pemrosesan kartu/e-wallet/QRIS.
-6. **MetaMask / Ethereum Network (Sistem Eksternal)**: Wallet dan blockchain network untuk pemrosesan transaksi crypto on-chain.
+1. **Customer**: Pengguna terdaftar (pembeli). Memiliki akses ke fitur utama e-commerce seperti melihat katalog, membandingkan produk, wishlist, keranjang belanja, checkout, inquiry, dan riwayat transaksi.
+2. **Sales**: Staf penjualan. Bertanggung jawab memproses inquiry yang ditugaskan kepadanya, menghubungi customer via WhatsApp, dan memperbarui status inquiry.
+3. **Admin**: Pengelola sistem. Bertanggung jawab mengelola produk (CRUD), memantau statistik, menugaskan inquiry ke sales, melihat user, dan mengunduh laporan.
+4. **Midtrans (Sistem Eksternal)**: Gerbang pembayaran gateway untuk pemrosesan kartu/e-wallet/QRIS.
+5. **MetaMask / Ethereum Network (Sistem Eksternal)**: Wallet dan blockchain network untuk pemrosesan transaksi crypto on-chain.
 
 ---
 
