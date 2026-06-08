@@ -6,43 +6,58 @@ Dokumen ini berisi spesifikasi UML (Unified Modeling Language) lengkap untuk sis
 
 ## 1. Use Case Diagram
 
-Diagram Use Case menggambarkan interaksi antara aktor (pengguna manusia dan sistem eksternal) dengan use case (fitur) yang disediakan oleh sistem CV Banbuk Store.
+Diagram Use Case menggambarkan interaksi antara aktor (pengguna manusia dan sistem eksternal) dengan use case (fitur) yang disediakan oleh sistem CV Banbuk Store. Diagram diatur secara horizontal (Left-to-Right) dengan pengelompokan modul sistem yang terorganisir.
 
 ```mermaid
-graph TB
-    subgraph Sistem CV Banbuk Store
-        UC1((Register Akun))
-        UC2((Login Multi-Role))
-        UC3((Lihat Katalog & Detail Produk))
-        UC4((Bandingkan Produk))
-        UC5((Kelola Wishlist))
-        UC6((Kelola Keranjang Lokal))
-        UC7((Buat Inquiry Baru))
-        UC8((Assign Inquiry ke Sales))
-        UC9((Update Status Inquiry))
-        UC10((CRUD Produk))
-        UC11((Pilih Metode Pembayaran))
-        UC12((Bayar via Midtrans Gateway))
-        UC13((Bayar via Crypto Ethereum))
-        UC14((Bayar via Manual/Simulasi))
-        UC15((Lihat Dashboard & Statistik))
-        UC16((Export Laporan CSV/PDF))
+flowchart LR
+    %% Aktor Pengguna (Kiri)
+    subgraph Aktor ["Aktor Pengguna"]
+        Guest((👥 Guest))
+        Customer((👤 Customer))
+        Sales((👤 Sales))
+        Admin((👤 Admin))
     end
 
-    Admin[Aktor: Admin]
-    Sales[Aktor: Sales]
-    Customer[Aktor: Customer]
-    Guest[Aktor: Guest]
-    
-    Midtrans[Sistem Eksternal: Midtrans]
-    MetaMask[Sistem Eksternal: MetaMask / Web3]
+    %% Batas Sistem (Tengah)
+    subgraph System ["Sistem CV Banbuk Store"]
+        subgraph Auth ["Modul Autentikasi"]
+            UC1([Register Akun])
+            UC2([Login Multi-Role])
+            UC15([Lihat Dashboard & Statistik])
+        end
 
-    %% Hubungan Guest
+        subgraph Catalog ["Modul Katalog & Produk"]
+            UC3([Lihat Katalog & Detail Produk])
+            UC4([Bandingkan Produk])
+            UC5([Kelola Wishlist])
+            UC6([Kelola Keranjang Lokal])
+            UC10([CRUD Produk])
+        end
+
+        subgraph Transaction ["Modul Transaksi & Inquiry"]
+            UC7([Buat Inquiry Baru])
+            UC8([Assign Inquiry ke Sales])
+            UC9([Update Status Inquiry])
+            UC11([Pilih Metode Pembayaran])
+            UC12([Bayar via Midtrans Gateway])
+            UC13([Bayar via Crypto Ethereum])
+            UC14([Bayar via Manual/Simulasi])
+            UC16([Export Laporan CSV/PDF])
+        end
+    end
+
+    %% Sistem Eksternal (Kanan)
+    subgraph External ["Sistem Eksternal"]
+        Midtrans[🔌 Midtrans Gateway]
+        MetaMask[🦊 MetaMask / Web3]
+    end
+
+    %% Relasi Aktor Guest
     Guest --> UC3
     Guest --> UC4
     Guest --> UC6
 
-    %% Hubungan Customer
+    %% Relasi Aktor Customer
     Customer --> UC1
     Customer --> UC2
     Customer --> UC3
@@ -56,13 +71,13 @@ graph TB
     Customer --> UC14
     Customer --> UC15
 
-    %% Hubungan Sales
+    %% Relasi Aktor Sales
     Sales --> UC2
     Sales --> UC3
     Sales --> UC9
     Sales --> UC15
 
-    %% Hubungan Admin
+    %% Relasi Aktor Admin
     Admin --> UC2
     Admin --> UC3
     Admin --> UC8
@@ -70,9 +85,17 @@ graph TB
     Admin --> UC15
     Admin --> UC16
 
-    %% Hubungan Sistem Eksternal
+    %% Relasi Sistem Eksternal
     UC12 --> Midtrans
     UC13 --> MetaMask
+
+    %% Styling Nodes
+    style Guest fill:#ececff,stroke:#9370db,stroke-width:2px
+    style Customer fill:#ececff,stroke:#9370db,stroke-width:2px
+    style Sales fill:#ececff,stroke:#9370db,stroke-width:2px
+    style Admin fill:#ececff,stroke:#9370db,stroke-width:2px
+    style Midtrans fill:#fff2cc,stroke:#d6b656,stroke-width:2px
+    style MetaMask fill:#fff2cc,stroke:#d6b656,stroke-width:2px
 ```
 
 ### Deskripsi Aktor & Hak Akses
@@ -507,53 +530,47 @@ sequenceDiagram
 
 ## 9. Activity Diagram - Pembelian & Pembayaran Produk
 
-Aktivitas sistem secara sekuensial dan paralel dari masuknya customer, pemilihan produk, pemilihan salah satu dari 3 tipe pembayaran, hingga pencatatan transaksi dan pengurangan stok.
+Alur aktivitas sistem secara sekuensial dan paralel dari masuknya customer, pemilihan produk, pemilihan metode pembayaran, hingga pencatatan transaksi dan pengurangan stok.
 
 ```mermaid
-stateDiagram-v2
-    [*] --> LoginState : Customer Login
-    LoginState --> BrowseCatalog : Buka Katalog Produk
-    BrowseCatalog --> SelectProduct : Pilih Produk & Lihat Detail
-    SelectProduct --> SelectPayment : Klik Checkout & Pilih Metode Pembayaran
+flowchart TD
+    Start([Start]) --> Login[Customer Login]
+    Login --> Browse[Buka Katalog & Detail Produk]
+    Browse --> ClickCheckout[Klik Checkout]
+    ClickCheckout --> ChoosePayment{Pilih Metode Pembayaran}
     
-    state SelectPayment {
-        [*] --> DecisionPayment
-        DecisionPayment --> ManualPay : Manual
-        DecisionPayment --> MidtransPay : Midtrans
-        DecisionPayment --> CryptoPay : Crypto (ETH)
-    }
-
-    state ManualPay {
-        [*] --> SaveManualTx : Buat Transaksi "COMPLETED"
-        SaveManualTx --> DecrStockManual : Kurangi Stok Produk
-    }
-
-    state MidtransPay {
-        [*] --> CreateMidtransTx : Buat Transaksi "PENDING"
-        CreateMidtransTx --> GetSnapToken : Request Token ke Midtrans Snap
-        GetSnapToken --> ShowSnapUI : Tampilkan Popup Snap
-        ShowSnapUI --> UserPaysMidtrans : Customer Selesaikan Pembayaran
-        UserPaysMidtrans --> MidtransWebhook : Midtrans Kirim Webhook Notification
-        MidtransWebhook --> VerifyWebhookSig : Validasi Signature Webhook
-        VerifyWebhookSig --> UpdateTxMidtrans : Update Transaksi ke "COMPLETED"
-        UpdateTxMidtrans --> DecrStockMidtrans : Kurangi Stok Produk
-    }
-
-    state CryptoPay {
-        [*] --> ConnectMetaMask : Hubungkan MetaMask Wallet
-        ConnectMetaMask --> VerifyNetwork : Validasi Network (Sepolia/Ethereum)
-        VerifyNetwork --> BlockchainTx : Kirim Transaksi payProduct() ke Smart Contract
-        BlockchainTx --> ApproveMetaMask : Customer Approve di MetaMask
-        ApproveMetaMask --> WaitReceipt : Tunggu Konfirmasi Blok (Receipt)
-        WaitReceipt --> SaveCryptoTx : Kirim POST /api/transaction "COMPLETED"
-        SaveCryptoTx --> DecrStockCrypto : Kurangi Stok Produk
-    }
-
-    ManualPay --> ShowSuccess : Selesai
-    MidtransPay --> ShowSuccess : Selesai
-    CryptoPay --> ShowSuccess : Selesai
-
-    ShowSuccess --> [*] : Tampilkan Detail Pembayaran Sukses di /dashboard
+    ChoosePayment -- "Manual" --> ManualTx[Buat Transaksi COMPLETED]
+    ChoosePayment -- "Midtrans" --> MidtransTx[Buat Transaksi PENDING]
+    ChoosePayment -- "Crypto (ETH)" --> CryptoTx[Hubungkan MetaMask]
+    
+    %% Alur Manual
+    ManualTx --> DecrStockManual[Kurangi Stok Produk]
+    DecrStockManual --> ShowSuccess[Tampilkan Status Berhasil]
+    
+    %% Alur Midtrans
+    MidtransTx --> MidtransToken[Request Snap Token dari Midtrans]
+    MidtransToken --> ShowSnap[Tampilkan Popup Snap & Bayar]
+    ShowSnap --> Webhook{Midtrans Kirim Webhook Notification}
+    Webhook -- "Success" --> UpdateMidtransSuccess[Update Transaksi COMPLETED]
+    Webhook -- "Failed" --> UpdateMidtransFailed[Update Transaksi FAILED]
+    UpdateMidtransSuccess --> DecrStockMidtrans[Kurangi Stok Produk]
+    UpdateMidtransFailed --> ShowFailed[Tampilkan Status Gagal]
+    
+    %% Alur Crypto
+    CryptoTx --> CheckNetwork{Jaringan Sesuai?}
+    CheckNetwork -- "Tidak" --> SwitchNetwork[Minta Sinkronisasi Jaringan]
+    SwitchNetwork --> CheckNetwork
+    CheckNetwork -- "Ya" --> BlockchainTx[Kirim Transaksi payProduct ke Smart Contract]
+    BlockchainTx --> ApproveMetaMask[Approve Transaksi di MetaMask]
+    ApproveMetaMask --> WaitReceipt[Tunggu Konfirmasi Block & Dapatkan txHash]
+    WaitReceipt --> SaveCryptoTx[Simpan Transaksi COMPLETED]
+    SaveCryptoTx --> DecrStockCrypto[Kurangi Stok Produk]
+    
+    DecrStockCrypto --> ShowSuccess
+    DecrStockMidtrans --> ShowSuccess
+    
+    ShowSuccess --> End([End])
+    ShowFailed --> End
 ```
 
 ---
@@ -617,7 +634,6 @@ graph TB
     subgraph Server Node (Next.js Application)
         AppRoutes[App API Routes]
         NextAuth[NextAuth.js Configuration]
-        MidtransCore[Midtrans Core API Helper]
         Prisma[Prisma ORM Client]
     end
 
@@ -664,39 +680,61 @@ graph TB
 Menunjukkan arsitektur fisik tempat software dideploy dan dijalankan, lengkap dengan protokol komunikasi antar node.
 
 ```mermaid
-deploymentDiagram
-    node ClientDevice as "Client Device / Web Browser" {
-        artifact FrontendApp as "React App (Client Bundles)"
-        node BrowserEnv as "MetaMask & Snap JS Runtime"
-    }
+flowchart TB
+    subgraph ClientDevice ["Client Device / Web Browser"]
+        FrontendApp["React App (Client Bundles)"]
+        BrowserEnv["MetaMask & Snap JS Runtime"]
+    end
 
-    node VercelServer as "Application Server Node (Vercel Cloud)" {
-        node NextJsEE as "Next.js Execution Environment (Node.js)" {
-            artifact NextServer as "Next.js Server (API Routes, Server Components)"
-            artifact PrismaClient as "Prisma Client ORM"
-        }
-    }
+    subgraph VercelServer ["Application Server Node (Vercel Cloud)"]
+        subgraph NextJsEE ["Next.js Execution Environment (Node.js)"]
+            NextServer["Next.js Server (API Routes & Server Components)"]
+            PrismaClient["Prisma Client ORM"]
+        end
+    end
 
-    node DBServer as "Database Server Node (PostgreSQL Cloud Provider)" {
-        node PostgresEE as "PostgreSQL Database Engine" {
-            database db as "CV Banbuk DB"
-        }
-    }
+    subgraph DBServer ["Database Server Node (PostgreSQL Cloud Provider)"]
+        subgraph PostgresEE ["PostgreSQL Database Engine"]
+            db[("Database: CV Banbuk DB")]
+        end
+    end
 
-    node MidtransCloud as "Midtrans Gateway Cloud" {
-        node SnapEngine as "Midtrans Engine"
-    }
+    subgraph MidtransCloud ["Midtrans Gateway Cloud"]
+        SnapEngine["Midtrans Snap Engine"]
+    end
 
-    node EthNetwork as "Ethereum Sepolia Network" {
-        node EVM as "Ethereum Virtual Machine (EVM)" {
-            artifact ProductPayment as "Smart Contract (ProductPayment)"
-        }
-    }
+    subgraph EthNetwork ["Ethereum Sepolia Network"]
+        subgraph EVM ["Ethereum Virtual Machine (EVM)"]
+            ProductPayment["Smart Contract: ProductPayment"]
+        end
+    end
 
-    %% Network Connections
-    ClientDevice -- "HTTPS" --> VercelServer
+    %% Connections
+    ClientDevice -- "HTTPS (Port 443)" --> VercelServer
     VercelServer -- "Direct SSL TCP Connection" --> DBServer
     VercelServer -- "HTTPS REST API" --> MidtransCloud
-    ClientDevice -- "Ethereum RPC JSON-RPC" --> EthNetwork
-    MidtransCloud -- "HTTPS webhook" --> VercelServer
+    ClientDevice -- "Ethereum RPC / JSON-RPC" --> EthNetwork
+    MidtransCloud -- "HTTPS Webhook Notification" --> VercelServer
 ```
+
+---
+
+## 14. Narasi dan Rekomendasi Tambahan
+
+UML ini disusun berdasarkan spesifikasi arsitektur modular yang diimplementasikan di lapangan.
+
+### Kelebihan Diagram Berbasis Mermaid
+1. **Mencegah Kerusakan File Binary**: Berkas disimpan dalam format raw text yang bersih, sangat bersahabat dengan git tracking.
+2. **Auto-Render di GitHub**: GitHub mengenali syntax block ````mermaid ... ```` dan merendernya menjadi grafik interaktif di sisi client.
+3. **Mudah Diedit Ulang**: Tim pengembang lain tidak memerlukan aplikasi pihak ketiga untuk mengubah bentuk diagram; perubahan teks otomatis memetakan grafik baru.
+
+### Catatan Keamanan Transaksi Crypto
+- `ProductPayment.sol` menerima `msg.value` dalam ETH secara on-chain. Pencatatan di tabel `Transaction` hanya dilakukan setelah `receipt.status` bernilai `1` (Success).
+- Integrasi wallet MetaMask sepenuhnya dijalankan pada client-side (Web3Payment) menggunakan library `ethers.js`.
+
+### Catatan Sinkronisasi Midtrans Webhook
+- Verifikasi signature key Midtrans dilakukan menggunakan format SHA512 hashing: `orderId + statusCode + grossAmount + ServerKey`. Ini mutlak diperlukan untuk mencegah fraud transaksi.
+
+---
+
+*Terakhir Diperbarui: 2026-06-08 - Tim Rekayasa Perangkat Lunak CV Banbuk Mandiri Jaya*
