@@ -12,9 +12,9 @@ Diagram Use Case menggambarkan interaksi antara aktor (pengguna manusia dan sist
 flowchart LR
     %% Aktor Pengguna (Kiri)
     subgraph Aktor ["Aktor Pengguna"]
-        Customer[" &nbsp;O&nbsp; <br> /|\\ <br> /&nbsp;\\ <br>Customer"]
-        Sales[" &nbsp;O&nbsp; <br> /|\\ <br> /&nbsp;\\ <br>Sales"]
-        Admin[" &nbsp;O&nbsp; <br> /|\\ <br> /&nbsp;\\ <br>Admin"]
+        Customer["&nbsp;&nbsp;O&nbsp;&nbsp;<br>&nbsp;/|&#92;&nbsp;<br>&nbsp;/&nbsp;&#92;&nbsp;<br>Customer"]
+        Sales["&nbsp;&nbsp;O&nbsp;&nbsp;<br>&nbsp;/|&#92;&nbsp;<br>&nbsp;/&nbsp;&#92;&nbsp;<br>Sales"]
+        Admin["&nbsp;&nbsp;O&nbsp;&nbsp;<br>&nbsp;/|&#92;&nbsp;<br>&nbsp;/&nbsp;&#92;&nbsp;<br>Admin"]
     end
 
     %% Batas Sistem (Tengah)
@@ -83,10 +83,10 @@ flowchart LR
     UC12 --> Midtrans
     UC13 --> MetaMask
 
-    %% Styling Nodes
-    style Customer fill:none,stroke:none
-    style Sales fill:none,stroke:none
-    style Admin fill:none,stroke:none
+    %% Styling Nodes untuk Menghilangkan Box & Menampilkan Stick Figure Secara Bersih
+    style Customer fill:#00000000,stroke:#00000000,stroke-width:0px
+    style Sales fill:#00000000,stroke:#00000000,stroke-width:0px
+    style Admin fill:#00000000,stroke:#00000000,stroke-width:0px
     style Midtrans fill:#fff2cc,stroke:#d6b656,stroke-width:2px
     style MetaMask fill:#fff2cc,stroke:#d6b656,stroke-width:2px
 ```
