@@ -528,9 +528,164 @@ sequenceDiagram
 
 ---
 
-## 9. Activity Diagram - Pembelian & Pembayaran Produk
+## 9. Activity Diagrams
 
-Alur aktivitas sistem secara sekuensial dan paralel dari masuknya customer, pemilihan produk, pemilihan metode pembayaran, hingga pencatatan transaksi dan pengurangan stok.
+Bagian ini memetakan alur aktivitas untuk setiap fitur utama di dalam sistem CV Banbuk Store.
+
+### 9a. Activity Diagram - Registrasi & Login (Autentikasi)
+
+Diagram ini menggambarkan alur pendaftaran user baru hingga proses penentuan dashboard setelah login sukses berdasarkan role.
+
+```mermaid
+flowchart TD
+    Start([Start]) --> Action{Pilih Aksi}
+    Action -- "Registrasi (Khusus Customer)" --> RegForm[Isi Form Registrasi]
+    RegForm --> RegSubmit[Submit Data Registrasi]
+    RegSubmit --> CheckEmailExist{Email Sudah Terdaftar?}
+    CheckEmailExist -- "Ya" --> ShowRegError[Tampilkan Error Email Sudah Ada]
+    ShowRegError --> RegForm
+    CheckEmailExist -- "Tidak" --> HashPassword[Hash Password dengan bcrypt]
+    HashPassword --> SaveUser[Simpan User dengan Role CUSTOMER]
+    SaveUser --> RedirectLogin[Arahkan ke Halaman Login]
+    
+    Action -- "Login" --> RedirectLogin
+    RedirectLogin --> LoginForm[Isi Email & Password]
+    LoginForm --> SubmitLogin[Klik Login]
+    SubmitLogin --> AuthNextAuth{Validasi oleh NextAuth}
+    AuthNextAuth -- "Gagal" --> ShowLoginError[Tampilkan Error Kredensial Salah]
+    ShowLoginError --> LoginForm
+    AuthNextAuth -- "Sukses" --> RoleCheck{Cek Role User}
+    
+    RoleCheck -- "ADMIN" --> AdminDash[Buka Dashboard Admin]
+    RoleCheck -- "SALES" --> SalesDash[Buka Dashboard Sales]
+    RoleCheck -- "CUSTOMER" --> CustCatalog[Buka Katalog Produk Customer]
+    
+    AdminDash --> End([End])
+    SalesDash --> End
+    CustCatalog --> End
+```
+
+### 9b. Activity Diagram - Manajemen Produk (CRUD oleh Admin)
+
+Alur kelola produk oleh admin, dari menambah produk, mengubah spesifikasi, hingga menghapus item dari database.
+
+```mermaid
+flowchart TD
+    Start([Start]) --> LoginAdmin[Admin Login & Buka Dashboard]
+    LoginAdmin --> ActionChoose{Pilih Aksi Produk}
+    
+    %% Create
+    ActionChoose -- "Tambah Produk" --> InputForm[Isi Form Produk: nama, harga, stok, spesifikasi, gambar]
+    InputForm --> SubmitForm[Klik Simpan]
+    SubmitForm --> ValidateInput{Validasi Input Lengkap?}
+    ValidateInput -- "Tidak" --> ShowInputError[Tampilkan Pesan Wajib Diisi]
+    ShowInputError --> InputForm
+    ValidateInput -- "Ya" --> DbInsert[Simpan Produk Baru ke Database]
+    
+    %% Update
+    ActionChoose -- "Edit Produk" --> SelectProduct[Pilih Produk dari Daftar]
+    SelectProduct --> LoadForm[Tampilkan Form dengan Data Lama]
+    LoadForm --> EditInput[Ubah Informasi Produk]
+    EditInput --> SubmitEdit[Klik Update]
+    SubmitEdit --> DbUpdate[Update Produk di Database]
+    
+    %% Delete
+    ActionChoose -- "Hapus Produk" --> DeleteProduct[Pilih Produk]
+    DeleteProduct --> ConfirmDelete{Konfirmasi Hapus?}
+    ConfirmDelete -- "Tidak" --> ActionChoose
+    ConfirmDelete -- "Ya" --> DbDelete[Hapus Produk dari Database]
+    
+    DbInsert --> RefreshCatalog[Refresh Daftar Produk & Tampilkan Sukses]
+    DbUpdate --> RefreshCatalog
+    DbDelete --> RefreshCatalog
+    RefreshCatalog --> End([End])
+```
+
+### 9c. Activity Diagram - Manajemen Inquiry (Customer, Admin, Sales)
+
+Alur kolaboratif inquiry, mulai dari pembuatan inquiry oleh customer, penugasan oleh admin, hingga tindak lanjut dan penutupan status oleh sales.
+
+```mermaid
+flowchart TD
+    Start([Start]) --> CustBrowse[Customer Pilih Produk]
+    CustBrowse --> ClickInquiry[Klik Buka Inquiry]
+    ClickInquiry --> FillMsg[Tulis Pesan Inquiry]
+    FillMsg --> SendInquiry[Submit Inquiry]
+    SendInquiry --> DbSaveInquiry[Inquiry Disimpan Status PENDING]
+    
+    DbSaveInquiry --> AdminDash[Admin Buka Halaman Inquiry]
+    AdminDash --> ViewList[Admin Lihat Daftar Inquiry Pending]
+    ViewList --> AssignSales[Admin Assign Inquiry ke Akun Sales]
+    AssignSales --> DbUpdateAssign[Inquiry Diupdate dengan assignedTo]
+    
+    DbUpdateAssign --> SalesLogin[Sales Login & Buka Inquiry Assigned]
+    SalesLogin --> OpenDetails[Buka Detail Inquiry]
+    OpenDetails --> WAContact{Hubungi via WhatsApp?}
+    WAContact -- "Ya" --> OpenWA[Buka Link wa.me dengan Template Chat]
+    OpenWA --> FollowUp[Diskusi dengan Customer]
+    WAContact -- "Tidak" --> FollowUp
+    
+    FollowUp --> UpdateStatus{Ubah Status Inquiry}
+    UpdateStatus -- "Sedang diproses" --> StatusProcess[Set Status DIPROSES]
+    UpdateStatus -- "Selesai" --> StatusComplete[Set Status SELESAI]
+    
+    StatusProcess --> DbUpdateInquiry[Update Database]
+    StatusComplete --> DbUpdateInquiry
+    DbUpdateInquiry --> CustDash[Customer Lihat Status Terkini di Dashboard]
+    CustDash --> End([End])
+```
+
+### 9d. Activity Diagram - Manajemen Wishlist (Customer)
+
+Aktivitas customer untuk menyimpan produk favorit dan membatalkannya secara dinamis.
+
+```mermaid
+flowchart TD
+    Start([Start]) --> CustLogin[Customer Login]
+    CustLogin --> BrowseCatalog[Jelajahi Katalog Produk]
+    BrowseCatalog --> ClickWish{Klik Tombol Wishlist}
+    
+    ClickWish -- "Belum ada di Wishlist" --> AddWish[Kirim Request Tambah]
+    AddWish --> DbAdd[Wishlist Baru Ditambahkan ke DB]
+    DbAdd --> UIAdded[Update Ikon Menjadi Terpilih & Tampilkan Notifikasi]
+    
+    ClickWish -- "Sudah ada di Wishlist" --> RemoveWish[Kirim Request Hapus]
+    RemoveWish --> DbRemove[Wishlist Dihapus dari DB]
+    DbRemove --> UIRemoved[Update Ikon Menjadi Batal & Tampilkan Notifikasi]
+    
+    UIAdded --> End([End])
+    UIRemoved --> End
+```
+
+### 9e. Activity Diagram - Perbandingan (Compare) Produk
+
+Alur saat pengguna memilih dan membandingkan spesifikasi dua produk secara berdampingan.
+
+```mermaid
+flowchart TD
+    Start([Start]) --> BrowseCatalog[User Lihat Katalog Produk]
+    BrowseCatalog --> ClickCompare[Klik Tombol Bandingkan pada Produk]
+    ClickCompare --> CheckLimit{Apakah Slot Perbandingan Penuh? >= 2}
+    
+    CheckLimit -- "Ya" --> ShowError[Tampilkan Error Maksimal 2 Produk]
+    ShowError --> End([End])
+    
+    CheckLimit -- "Tidak" --> ToggleSelection{Apakah Produk Sudah Terpilih?}
+    ToggleSelection -- "Ya" --> RemoveCompare[Hapus ID Produk dari LocalStorage]
+    RemoveCompare --> UISelectionUpdate[Update State Tombol Perbandingan]
+    
+    ToggleSelection -- "Tidak" --> AddCompare[Simpan ID Produk ke LocalStorage]
+    AddCompare --> UISelectionUpdate
+    
+    UISelectionUpdate --> GoToComparePage[Klik Buka Halaman Perbandingan]
+    GoToComparePage --> LoadSpecs[Ambil Data Spesifikasi Kedua Produk dari DB]
+    LoadSpecs --> RenderTable[Tampilkan Tabel Rincian Perbandingan]
+    RenderTable --> End([End])
+```
+
+### 9f. Activity Diagram - Pembelian & Pembayaran Produk
+
+Alur aktivitas komprehensif saat checkout produk menggunakan salah satu dari tiga metode pembayaran yang didukung.
 
 ```mermaid
 flowchart TD
