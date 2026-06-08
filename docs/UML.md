@@ -538,10 +538,10 @@ Diagram ini menggambarkan alur pendaftaran user baru hingga proses penentuan das
 
 ```mermaid
 flowchart TD
-    Start([Start]) --> Action{Pilih Aksi}
+    Start([Start]) --> Action{"Pilih Aksi"}
     Action -- "Registrasi (Khusus Customer)" --> RegForm[Isi Form Registrasi]
     RegForm --> RegSubmit[Submit Data Registrasi]
-    RegSubmit --> CheckEmailExist{Email Sudah Terdaftar?}
+    RegSubmit --> CheckEmailExist{"Email Sudah Terdaftar?"}
     CheckEmailExist -- "Ya" --> ShowRegError[Tampilkan Error Email Sudah Ada]
     ShowRegError --> RegForm
     CheckEmailExist -- "Tidak" --> HashPassword[Hash Password dengan bcrypt]
@@ -551,18 +551,18 @@ flowchart TD
     Action -- "Login" --> RedirectLogin
     RedirectLogin --> LoginForm[Isi Email & Password]
     LoginForm --> SubmitLogin[Klik Login]
-    SubmitLogin --> AuthNextAuth{Validasi oleh NextAuth}
+    SubmitLogin --> AuthNextAuth{"Validasi oleh NextAuth"}
     AuthNextAuth -- "Gagal" --> ShowLoginError[Tampilkan Error Kredensial Salah]
     ShowLoginError --> LoginForm
-    AuthNextAuth -- "Sukses" --> RoleCheck{Cek Role User}
+    AuthNextAuth -- "Sukses" --> RoleCheck{"Cek Role User"}
     
     RoleCheck -- "ADMIN" --> AdminDash[Buka Dashboard Admin]
     RoleCheck -- "SALES" --> SalesDash[Buka Dashboard Sales]
     RoleCheck -- "CUSTOMER" --> CustCatalog[Buka Katalog Produk Customer]
     
-    AdminDash --> End([End])
-    SalesDash --> End
-    CustCatalog --> End
+    AdminDash --> Finish([End])
+    SalesDash --> Finish
+    CustCatalog --> Finish
 ```
 
 ### 9b. Activity Diagram - Manajemen Produk (CRUD oleh Admin)
@@ -572,12 +572,12 @@ Alur kelola produk oleh admin, dari menambah produk, mengubah spesifikasi, hingg
 ```mermaid
 flowchart TD
     Start([Start]) --> LoginAdmin[Admin Login & Buka Dashboard]
-    LoginAdmin --> ActionChoose{Pilih Aksi Produk}
+    LoginAdmin --> ActionChoose{"Pilih Aksi Produk"}
     
     %% Create
     ActionChoose -- "Tambah Produk" --> InputForm[Isi Form Produk: nama, harga, stok, spesifikasi, gambar]
     InputForm --> SubmitForm[Klik Simpan]
-    SubmitForm --> ValidateInput{Validasi Input Lengkap?}
+    SubmitForm --> ValidateInput{"Validasi Input Lengkap?"}
     ValidateInput -- "Tidak" --> ShowInputError[Tampilkan Pesan Wajib Diisi]
     ShowInputError --> InputForm
     ValidateInput -- "Ya" --> DbInsert[Simpan Produk Baru ke Database]
@@ -591,14 +591,14 @@ flowchart TD
     
     %% Delete
     ActionChoose -- "Hapus Produk" --> DeleteProduct[Pilih Produk]
-    DeleteProduct --> ConfirmDelete{Konfirmasi Hapus?}
+    DeleteProduct --> ConfirmDelete{"Konfirmasi Hapus?"}
     ConfirmDelete -- "Tidak" --> ActionChoose
     ConfirmDelete -- "Ya" --> DbDelete[Hapus Produk dari Database]
     
     DbInsert --> RefreshCatalog[Refresh Daftar Produk & Tampilkan Sukses]
     DbUpdate --> RefreshCatalog
     DbDelete --> RefreshCatalog
-    RefreshCatalog --> End([End])
+    RefreshCatalog --> Finish([End])
 ```
 
 ### 9c. Activity Diagram - Manajemen Inquiry (Customer, Admin, Sales)
@@ -620,19 +620,19 @@ flowchart TD
     
     DbUpdateAssign --> SalesLogin[Sales Login & Buka Inquiry Assigned]
     SalesLogin --> OpenDetails[Buka Detail Inquiry]
-    OpenDetails --> WAContact{Hubungi via WhatsApp?}
+    OpenDetails --> WAContact{"Hubungi via WhatsApp?"}
     WAContact -- "Ya" --> OpenWA[Buka Link wa.me dengan Template Chat]
     OpenWA --> FollowUp[Diskusi dengan Customer]
     WAContact -- "Tidak" --> FollowUp
     
-    FollowUp --> UpdateStatus{Ubah Status Inquiry}
+    FollowUp --> UpdateStatus{"Ubah Status Inquiry"}
     UpdateStatus -- "Sedang diproses" --> StatusProcess[Set Status DIPROSES]
     UpdateStatus -- "Selesai" --> StatusComplete[Set Status SELESAI]
     
     StatusProcess --> DbUpdateInquiry[Update Database]
     StatusComplete --> DbUpdateInquiry
     DbUpdateInquiry --> CustDash[Customer Lihat Status Terkini di Dashboard]
-    CustDash --> End([End])
+    CustDash --> Finish([End])
 ```
 
 ### 9d. Activity Diagram - Manajemen Wishlist (Customer)
@@ -643,7 +643,7 @@ Aktivitas customer untuk menyimpan produk favorit dan membatalkannya secara dina
 flowchart TD
     Start([Start]) --> CustLogin[Customer Login]
     CustLogin --> BrowseCatalog[Jelajahi Katalog Produk]
-    BrowseCatalog --> ClickWish{Klik Tombol Wishlist}
+    BrowseCatalog --> ClickWish{"Klik Tombol Wishlist"}
     
     ClickWish -- "Belum ada di Wishlist" --> AddWish[Kirim Request Tambah]
     AddWish --> DbAdd[Wishlist Baru Ditambahkan ke DB]
@@ -653,8 +653,8 @@ flowchart TD
     RemoveWish --> DbRemove[Wishlist Dihapus dari DB]
     DbRemove --> UIRemoved[Update Ikon Menjadi Batal & Tampilkan Notifikasi]
     
-    UIAdded --> End([End])
-    UIRemoved --> End
+    UIAdded --> Finish([End])
+    UIRemoved --> Finish
 ```
 
 ### 9e. Activity Diagram - Perbandingan (Compare) Produk
@@ -665,12 +665,12 @@ Alur saat pengguna memilih dan membandingkan spesifikasi dua produk secara berda
 flowchart TD
     Start([Start]) --> BrowseCatalog[User Lihat Katalog Produk]
     BrowseCatalog --> ClickCompare[Klik Tombol Bandingkan pada Produk]
-    ClickCompare --> CheckLimit{Apakah Slot Perbandingan Penuh? >= 2}
+    ClickCompare --> CheckLimit{"Apakah Slot Perbandingan Penuh? (>= 2)"}
     
     CheckLimit -- "Ya" --> ShowError[Tampilkan Error Maksimal 2 Produk]
-    ShowError --> End([End])
+    ShowError --> Finish([End])
     
-    CheckLimit -- "Tidak" --> ToggleSelection{Apakah Produk Sudah Terpilih?}
+    CheckLimit -- "Tidak" --> ToggleSelection{"Apakah Produk Sudah Terpilih?"}
     ToggleSelection -- "Ya" --> RemoveCompare[Hapus ID Produk dari LocalStorage]
     RemoveCompare --> UISelectionUpdate[Update State Tombol Perbandingan]
     
@@ -680,7 +680,7 @@ flowchart TD
     UISelectionUpdate --> GoToComparePage[Klik Buka Halaman Perbandingan]
     GoToComparePage --> LoadSpecs[Ambil Data Spesifikasi Kedua Produk dari DB]
     LoadSpecs --> RenderTable[Tampilkan Tabel Rincian Perbandingan]
-    RenderTable --> End([End])
+    RenderTable --> Finish([End])
 ```
 
 ### 9f. Activity Diagram - Pembelian & Pembayaran Produk
@@ -692,7 +692,7 @@ flowchart TD
     Start([Start]) --> Login[Customer Login]
     Login --> Browse[Buka Katalog & Detail Produk]
     Browse --> ClickCheckout[Klik Checkout]
-    ClickCheckout --> ChoosePayment{Pilih Metode Pembayaran}
+    ClickCheckout --> ChoosePayment{"Pilih Metode Pembayaran"}
     
     ChoosePayment -- "Manual" --> ManualTx[Buat Transaksi COMPLETED]
     ChoosePayment -- "Midtrans" --> MidtransTx[Buat Transaksi PENDING]
@@ -705,14 +705,14 @@ flowchart TD
     %% Alur Midtrans
     MidtransTx --> MidtransToken[Request Snap Token dari Midtrans]
     MidtransToken --> ShowSnap[Tampilkan Popup Snap & Bayar]
-    ShowSnap --> Webhook{Midtrans Kirim Webhook Notification}
+    ShowSnap --> Webhook{"Midtrans Kirim Webhook Notification"}
     Webhook -- "Success" --> UpdateMidtransSuccess[Update Transaksi COMPLETED]
     Webhook -- "Failed" --> UpdateMidtransFailed[Update Transaksi FAILED]
     UpdateMidtransSuccess --> DecrStockMidtrans[Kurangi Stok Produk]
     UpdateMidtransFailed --> ShowFailed[Tampilkan Status Gagal]
     
     %% Alur Crypto
-    CryptoTx --> CheckNetwork{Jaringan Sesuai?}
+    CryptoTx --> CheckNetwork{"Jaringan Sesuai?"}
     CheckNetwork -- "Tidak" --> SwitchNetwork[Minta Sinkronisasi Jaringan]
     SwitchNetwork --> CheckNetwork
     CheckNetwork -- "Ya" --> BlockchainTx[Kirim Transaksi payProduct ke Smart Contract]
@@ -724,8 +724,8 @@ flowchart TD
     DecrStockCrypto --> ShowSuccess
     DecrStockMidtrans --> ShowSuccess
     
-    ShowSuccess --> End([End])
-    ShowFailed --> End
+    ShowSuccess --> Finish([End])
+    ShowFailed --> Finish
 ```
 
 ---
@@ -777,8 +777,8 @@ stateDiagram-v2
 Menunjukkan pembagian komponen software pada browser client, server Next.js, database, smart contract, serta API eksternal yang saling terhubung.
 
 ```mermaid
-graph TB
-    subgraph Browser Node
+flowchart TB
+    subgraph BrowserNode ["Browser Node"]
         UI[UI Pages: Next.js App Client Components]
         LocalCart[Local Storage: banbuk-cart]
         LocalCompare[Local Storage: compare-products]
@@ -786,21 +786,21 @@ graph TB
         SnapJS[Midtrans Snap JS SDK]
     end
 
-    subgraph Server Node (Next.js Application)
+    subgraph ServerNode ["Server Node (Next.js Application)"]
         AppRoutes[App API Routes]
         NextAuth[NextAuth.js Configuration]
         Prisma[Prisma ORM Client]
     end
 
-    subgraph Database Node
+    subgraph DatabaseNode ["Database Node"]
         DB[(PostgreSQL Database)]
     end
 
-    subgraph Blockchain Node
+    subgraph BlockchainNode ["Blockchain Node"]
         SC[Smart Contract: ProductPayment.sol]
     end
 
-    subgraph External Services
+    subgraph ExternalServices ["External Services"]
         MidtransGateway[Midtrans Snap & Core Service]
     end
 
@@ -817,14 +817,12 @@ graph TB
 
     %% API Interactions
     AppRoutes --> NextAuth
-    AppRoutes --> MidtransCore
     AppRoutes --> Prisma
 
     %% Database
     Prisma --> DB
 
     %% External System interactions
-    MidtransCore -- API Calls / Verification --> MidtransGateway
     MidtransGateway -- Webhooks Notification --> AppRoutes
 ```
 
