@@ -23,16 +23,15 @@ type Product = {
 type CartItem = Product & { quantity: number };
 
 const CART_KEY = "banbuk-cart";
-const COMPARE_KEY = "compare-products";
 const MAX_COMPARE_ITEMS = 2;
 
 function normalizeCompareIds(ids: string[]) {
   return Array.from(new Set(ids.filter((id) => id.length > 0))).slice(0, MAX_COMPARE_ITEMS);
 }
 
-function readCompareIds() {
+function readCompareIds(key: string) {
   try {
-    const storedCompare = localStorage.getItem(COMPARE_KEY);
+    const storedCompare = localStorage.getItem(key);
     const parsed: unknown = storedCompare ? JSON.parse(storedCompare) : [];
     return Array.isArray(parsed) ? normalizeCompareIds(parsed.filter((id): id is string => typeof id === "string")) : [];
   } catch {
@@ -40,8 +39,8 @@ function readCompareIds() {
   }
 }
 
-function writeCompareIds(ids: string[]) {
-  localStorage.setItem(COMPARE_KEY, JSON.stringify(normalizeCompareIds(ids)));
+function writeCompareIds(key: string, ids: string[]) {
+  localStorage.setItem(key, JSON.stringify(normalizeCompareIds(ids)));
 }
 
 function addCartItem(product: Product) {
@@ -72,8 +71,15 @@ export default function ProductsPage() {
   const role = session?.user.role;
   const canUseCustomerShopping = status === "unauthenticated" || role === "CUSTOMER";
 
+  const compareKey = useMemo(() => {
+    if (status === "loading") return null;
+    const identifier = session?.user?.id || session?.user?.email || session?.user?.role || "guest";
+    return `compare-products-${identifier}`;
+  }, [session, status]);
+
   useEffect(() => {
-    setCompareIds(readCompareIds());
+    if (!compareKey) return;
+    setCompareIds(readCompareIds(compareKey));
 
     const load = async () => {
       try {
@@ -83,7 +89,7 @@ export default function ProductsPage() {
         setProducts(productList);
         setCompareIds((currentIds) => {
           const validIds = currentIds.filter((id) => productList.some((product) => product.id === id));
-          if (validIds.length !== currentIds.length) writeCompareIds(validIds);
+          if (validIds.length !== currentIds.length) writeCompareIds(compareKey, validIds);
           return validIds;
         });
       } finally {
@@ -91,7 +97,7 @@ export default function ProductsPage() {
       }
     };
     load();
-  }, []);
+  }, [compareKey]);
 
   useEffect(() => {
     if (status !== "authenticated" || role !== "CUSTOMER") {
@@ -159,13 +165,15 @@ export default function ProductsPage() {
   };
 
   const commitCompareIds = (next: string[], message: string) => {
+    if (!compareKey) return;
     setCompareIds(next);
-    writeCompareIds(next);
+    writeCompareIds(compareKey, next);
     showNotice(message);
   };
 
   const handleToggleCompare = (product: Product) => {
-    const currentIds = readCompareIds();
+    if (!compareKey) return;
+    const currentIds = readCompareIds(compareKey);
     const selected = currentIds.includes(product.id);
 
     if (selected) {
